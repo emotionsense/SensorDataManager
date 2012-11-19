@@ -38,7 +38,6 @@ public abstract class CSVFormatter
 			SensorConfig config = data.getSensorConfig();
 			
 			addGenericData(builder, data);
-			addGenericConfig(builder, config);
 			addSensorSpecificConfig(builder, config);
 			addSensorSpecificData(builder, data);
 		}
@@ -48,8 +47,8 @@ public abstract class CSVFormatter
 	public String getHeaders()
 	{
 		StringBuilder headers = new StringBuilder();
-		headers.append("SENSOR_TYPE");
-		headers.append(",SENSE_TIME");
+		headers.append("Sensor");
+		headers.append(",SenseTime");
 		addSensorSpecificHeaders(headers);
 		return headers.toString();
 	}
@@ -66,15 +65,6 @@ public abstract class CSVFormatter
 			builder.append(UNKNOWN_SENSOR);
 		}
 		builder.append(","+data.getTimestamp());
-	}
-	
-	private void addGenericConfig(StringBuilder builder, SensorConfig config)
-	{
-		if (config != null)
-		{
-			builder.append(","+config.getParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED));
-		}
-		else builder.append(",");
 	}
 	
 	protected abstract void addSensorSpecificData(StringBuilder builder, SensorData data);

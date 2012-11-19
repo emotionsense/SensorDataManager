@@ -30,41 +30,49 @@ import com.ubhave.sensormanager.data.pullsensor.BluetoothData;
 import com.ubhave.sensormanager.data.pullsensor.ESBluetoothDevice;
 
 public class BluetoothFormatter extends CSVFormatter
-{	
+{
 	private final static String TIME_STAMP = "timeStamp";
 	private final static String ADDRESS = "address";
 	private final static String NAME = "name";
 	private final static String RSSI = "rssi";
-	
+
 	private final static String SENSE_CYCLES = "senseCycles";
-	
+
 	@Override
 	protected void addSensorSpecificData(StringBuilder builder, SensorData data)
 	{
 		BluetoothData bluetoothData = (BluetoothData) data;
 		ArrayList<ESBluetoothDevice> devices = bluetoothData.getBluetoothDevices();
-		for (ESBluetoothDevice device : devices)
+		if (!devices.isEmpty())
 		{
-			StringBuilder neighbour = new StringBuilder();
-			neighbour.append("{");
-			neighbour.append(device.getBluetoothDeviceAddress());
-			neighbour.append(";"+device.getBluetoothDeviceName());
-			neighbour.append(";"+device.getRssi());
-			neighbour.append(";"+device.getTimestamp());
-			neighbour.append("}");
-			builder.append(","+neighbour);
+			for (ESBluetoothDevice device : devices)
+			{
+				StringBuilder neighbour = new StringBuilder();
+				neighbour.append("{");
+				neighbour.append(device.getBluetoothDeviceAddress());
+				neighbour.append(";" + device.getBluetoothDeviceName());
+				neighbour.append(";" + device.getRssi());
+				neighbour.append(";" + device.getTimestamp());
+				neighbour.append("}");
+				builder.append("," + neighbour);
+			}
 		}
+		else
+		{
+			builder.append(",NO_DEVICES");
+		}
+
 	}
 
 	@Override
 	protected void addSensorSpecificConfig(StringBuilder builder, SensorConfig config)
 	{
-		builder.append(","+config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
+		builder.append("," + config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
 	@Override
 	protected void addSensorSpecificHeaders(StringBuilder builder)
 	{
-		builder.append(SENSE_CYCLES+",{"+ADDRESS+";"+NAME+";"+RSSI+";"+TIME_STAMP+"}");
+		builder.append(","+SENSE_CYCLES + ",{" + ADDRESS + ";" + NAME + ";" + RSSI + ";" + TIME_STAMP + "}");
 	}
 }

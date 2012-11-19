@@ -37,7 +37,7 @@ public class MicrophoneFormatter extends CSVFormatter
 	protected void addSensorSpecificData(StringBuilder builder, SensorData data)
 	{
 		MicrophoneData micData = (MicrophoneData) data;
-		builder.append(micData.getAmplitudeString());
+		builder.append(","+micData.getAmplitudeString());
 	}
 
 	@Override

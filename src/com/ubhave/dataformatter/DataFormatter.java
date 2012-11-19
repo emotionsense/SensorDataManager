@@ -4,7 +4,7 @@ import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class DataFormatter
+public abstract class DataFormatter
 {
 	
 	public static CSVFormatter getCSVFormatter(int sensorType)
