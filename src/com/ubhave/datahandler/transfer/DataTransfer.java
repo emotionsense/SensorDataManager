@@ -1,4 +1,4 @@
-package com.ubhave.datatransfer;
+package com.ubhave.datahandler.transfer;
 
 import java.util.ArrayList;
 
@@ -11,21 +11,10 @@ import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class TransferQueue implements SensorDataListener
+public class DataTransfer implements SensorDataListener
 {
 	public static final int IMMEDIATE_UPLOAD = 0;
 	public static final int WIFI_ONLY_UPLOAD = 1;
-	
-	private static TransferQueue instance;
-
-	public static TransferQueue getTransferQueue(final Context context)
-	{
-		if (instance == null)
-		{
-			instance = new TransferQueue(context);
-		}
-		return instance;
-	}
 
 	private final ArrayList<String> transferQueue;
 	private boolean transfersAllowed;
@@ -33,7 +22,7 @@ public class TransferQueue implements SensorDataListener
 	private ESSensorManager sensorManager;
 	private int subscriptionId, uploadPolicy;
 
-	private TransferQueue(final Context context)
+	public DataTransfer(final Context context)
 	{
 		transferQueue = loadQueueFromFile();
 		

@@ -1,4 +1,4 @@
-package com.ubhave.datastorage;
+package com.ubhave.datahandler.store;
 
 import java.io.BufferedWriter;
 import java.io.File;
