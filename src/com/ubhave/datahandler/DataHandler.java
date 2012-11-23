@@ -1,37 +1,24 @@
 package com.ubhave.datahandler;
 
-import java.util.HashMap;
-
 import android.content.Context;
 
+import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.triggermanager.TriggerException;
 
 public class DataHandler
 {
-	public final static String DATA_POLICY = "policy";
-	public final static int TRANSFER_IMMEDIATE = 0;
-	public final static int TRANSFER_ON_WIFI = 1;
-	public final static int TRANFER_BULK_ON_INTERVAL = 2;
-	public final static int STORE_ONLY = 3;
-	
-	public final static String FILE_STORAGE_QUOTA = "quota";
-	
-	public final static String FILE_DELETION_POLICY = "deletion";
-	public final static int NEVER_DELETE = 0;
-	public final static int DELETE_OLDEST_FIRST = 1;
-	public final static int DELETE_NEWEST_FIRST = 2;
-	
-	
 	private static DataHandler instance;
-	
-	private final HashMap<String, Integer> config;
+
+	private final DataHandlerConfig config;
 	private final DataStorage storage;
 	private final DataTransfer transfer;
-	
-	public static DataHandler getInstance(final Context context) throws ESException
+	private final DataHandlerEventManager eventManager;
+
+	public static DataHandler getInstance(final Context context) throws ESException, TriggerException
 	{
 		if (instance == null)
 		{
@@ -39,41 +26,97 @@ public class DataHandler
 		}
 		return instance;
 	}
-	
-	private DataHandler(final Context context) throws ESException
+
+	private DataHandler(final Context context) throws ESException, TriggerException
 	{
-		config = new HashMap<String, Integer>();
+		config = DataHandlerConfig.getInstance();
 		storage = new DataStorage();
-		transfer = new DataTransfer(context);
-		
-		// Set up default config
-		config.put(DATA_POLICY, TRANSFER_IMMEDIATE);
-		config.put(FILE_STORAGE_QUOTA, 0); // TODO
-		config.put(FILE_DELETION_POLICY, NEVER_DELETE);
+		transfer = new DataTransfer();
+		eventManager = new DataHandlerEventManager(context, this);
 	}
-	
-	
-	public void setConfig(final String key, final Integer value) throws DataHandlerException
+
+	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
-		if (key.equals(DATA_POLICY) || key.equals(FILE_STORAGE_QUOTA) || key.equals(FILE_DELETION_POLICY))
+		config.setConfig(key, value);
+		if (key.equals(DataHandlerConfig.DATA_POLICY))
 		{
-			config.put(key, value);
+			eventManager.setPolicy((Integer) value);
 		}
-		else throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 	}
-	
-	public void logSensorData(final SensorData data)
+
+	public void transferStoredData()
 	{
-		
+		// TODO
 	}
-	
-	public void logError(final String error)
+
+	private boolean transferImmediately()
 	{
-		
+		try
+		{
+			return ((Integer) config.get(DataHandlerConfig.DATA_POLICY)) == DataHandlerConfig.TRANSFER_IMMEDIATE;
+		}
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+			return true;
+		}
 	}
-	
-	public void logExtra(final String tag, final String data)
+
+	private DataFormatter getDataFormatter(int sensorType)
 	{
-		
+		DataFormatter formatter = null;
+		try
+		{
+			if (((Integer) config.get(DataHandlerConfig.DATA_FORMAT)) == DataHandlerConfig.JSON_FORMAT)
+			{
+				formatter = DataFormatter.getJSONFormatter(sensorType);
+			}
+			else
+			{
+				formatter = DataFormatter.getCSVFormatter(sensorType);
+			}
+		}
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+		}
+		return formatter;
+	}
+
+	public void logSensorData(final SensorData data) throws DataHandlerException
+	{
+		DataFormatter formatter = getDataFormatter(data.getSensorType());
+		if (transferImmediately())
+		{
+			transfer.postData(formatter.toString(data), (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL));
+		}
+		else
+		{
+			storage.logSensorData(data, formatter);
+		}
+	}
+
+	public void logError(final String error) throws DataHandlerException
+	{
+		if (transferImmediately())
+		{
+			transfer.postError(error, (String) config.get(DataHandlerConfig.ERROR_POST_TARGET_URL));
+		}
+		else
+		{
+			storage.logError(error);
+		}
+	}
+
+	public void logExtra(final String tag, final String data) throws DataHandlerException
+	{
+		if (transferImmediately())
+		{
+			transfer.postExtra(tag, data, (String) config.get(DataHandlerConfig.EXTRA_POST_TARGET_URL));
+		}
+		else
+		{
+			storage.logExtra(tag, data);
+		}
 	}
 }

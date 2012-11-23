@@ -23,12 +23,13 @@ package com.ubhave.dataformatter.json;
 
 import org.json.simple.JSONObject;
 
+import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public abstract class JSONFormatter
+public abstract class JSONFormatter extends DataFormatter
 {
 	
 	private final static String SENSOR_TYPE = "sensorType";
@@ -48,6 +49,12 @@ public abstract class JSONFormatter
 			addSensorSpecificConfig(json, config);
 		}
 		return json;
+	}
+	
+	@Override
+	public String toString(final SensorData data)
+	{
+		return toJSON(data).toJSONString();
 	}
 	
 	@SuppressWarnings("unchecked")

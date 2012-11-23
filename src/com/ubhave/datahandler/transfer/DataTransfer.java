@@ -1,120 +1,43 @@
 package com.ubhave.datahandler.transfer;
 
-import java.util.ArrayList;
+import com.ubhave.datahandler.DataHandlerException;
 
-import android.content.Context;
-
-import com.ubhave.sensormanager.ESException;
-import com.ubhave.sensormanager.ESSensorManager;
-import com.ubhave.sensormanager.SensorDataListener;
-import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
-import com.ubhave.sensormanager.sensors.SensorUtils;
-
-public class DataTransfer implements SensorDataListener
+public class DataTransfer
 {
-	public static final int IMMEDIATE_UPLOAD = 0;
-	public static final int WIFI_ONLY_UPLOAD = 1;
 
-	private final ArrayList<String> transferQueue;
-	private boolean transfersAllowed;
-
-	private ESSensorManager sensorManager;
-	private int subscriptionId, uploadPolicy;
-
-	public DataTransfer(final Context context)
+	public void postData(final String data, final String url) throws DataHandlerException
 	{
-		transferQueue = loadQueueFromFile();
-		
-		transfersAllowed = true;
-		uploadPolicy = IMMEDIATE_UPLOAD;
-		
-		try
+		if (url == null)
 		{
-			sensorManager = ESSensorManager.getSensorManager(context);
-			subscriptionId = sensorManager.subscribeToSensorData(SensorUtils.SENSOR_TYPE_CONNECTION_STATE, this);
+			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
 		}
-		catch (ESException e)
+		else
 		{
-			e.printStackTrace();
+			// TODO
 		}
 	}
 	
-	public void setUploadPolicy(int policy)
+	public void postError(final String error, final String url) throws DataHandlerException
 	{
-		uploadPolicy = policy;
-	}
-
-	public void queue(final String data)
-	{
-		transferQueue.add(data);
-		if (uploadPolicy == IMMEDIATE_UPLOAD)
+		if (url == null)
 		{
-			flushQueue();
+			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
 		}
-	}
-	
-	public void saveQueueToFile()
-	{
-		// Save to queue to file (e.g. when service is getting destroyed)
-		
-	}
-	
-	public ArrayList<String> loadQueueFromFile()
-	{
-		ArrayList<String> queue = new ArrayList<String>();
-		// load from file
-		// delete file
-		return queue;
-	}
-	
-	private void flushQueue()
-	{
-		if (transfersAllowed)
+		else
 		{
-			
+			// TODO
 		}
 	}
 
-	@Override
-	public void onCrossingLowBatteryThreshold(boolean isBelowThreshold)
+	public void postExtra(final String tag, final String data, final String url) throws DataHandlerException
 	{
-		try
+		if (url == null)
 		{
-			if (isBelowThreshold)
-			{
-				transfersAllowed = false;
-				sensorManager.pauseSubscription(subscriptionId);
-			}
-			else
-			{
-				transfersAllowed = true;
-				sensorManager.unPauseSubscription(subscriptionId);
-			}
+			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
 		}
-		catch (ESException e)
+		else
 		{
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void onDataSensed(SensorData data)
-	{
-		ConnectionStateData connectionData = (ConnectionStateData) data;
-		if (connectionData.isConnectedOrConnecting())
-		{
-			if (uploadPolicy == IMMEDIATE_UPLOAD)
-			{
-				flushQueue();
-			}
-			else if (uploadPolicy == WIFI_ONLY_UPLOAD)
-			{
-				if (connectionData.getNetworkType() == ConnectionStateData.WIFI_CONNECTION)
-				{
-					flushQueue();
-				}
-			}
+			// TODO
 		}
 	}
 }

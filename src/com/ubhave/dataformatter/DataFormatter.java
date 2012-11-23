@@ -2,6 +2,7 @@ package com.ubhave.dataformatter;
 
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public abstract class DataFormatter
@@ -43,4 +44,5 @@ public abstract class DataFormatter
 		}
 	}
 	
+	public abstract String toString(final SensorData data);
 }

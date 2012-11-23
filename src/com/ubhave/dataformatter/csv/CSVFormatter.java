@@ -21,16 +21,18 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.csv;
 
+import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public abstract class CSVFormatter
+public abstract class CSVFormatter extends DataFormatter
 {
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
 	
-	public String toCSV(final SensorData data)
+	@Override
+	public String toString(final SensorData data)
 	{
 		StringBuilder builder = new StringBuilder();
 		if (data != null)
