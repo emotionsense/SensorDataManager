@@ -46,7 +46,8 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 		{
 			triggerManager.removeTrigger(subscriptionId);
 		}
-		else if (currentPolicy == DataHandlerConfig.TRANSFER_ON_WIFI)
+		else if (currentPolicy == DataHandlerConfig.TRANSFER_ON_CONNECTION
+				|| currentPolicy == DataHandlerConfig.TRANSFER_ON_WIFI)
 		{
 			try
 			{
@@ -97,9 +98,8 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 	@Override
 	public void onDataSensed(SensorData data)
 	{
-		dataHandler.transferStoredData();
 		ConnectionStateData connectionData = (ConnectionStateData) data;
-		if (connectionData.isConnectedOrConnecting())
+		if (connectionData.isConnected())
 		{
 			if (currentPolicy == DataHandlerConfig.TRANSFER_ON_CONNECTION)
 			{

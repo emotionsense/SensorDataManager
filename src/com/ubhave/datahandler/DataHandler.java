@@ -30,7 +30,7 @@ public class DataHandler
 	private DataHandler(final Context context) throws ESException, TriggerException
 	{
 		config = DataHandlerConfig.getInstance();
-		storage = new DataStorage();
+		storage = new DataStorage(context);
 		transfer = new DataTransfer();
 		eventManager = new DataHandlerEventManager(context, this);
 	}
