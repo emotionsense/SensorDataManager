@@ -113,4 +113,54 @@ public class DataStorage
 	{
 		writeData(tag, data);
 	}
+	
+//	public static String zipFiles(String directory, String fileExtension, File[] files)
+//	{
+//		String fileType = fileExtension.substring(fileExtension.lastIndexOf(".") + 1, fileExtension.length());
+//		fileType = fileType.toUpperCase();
+//
+//		// Create the ZIP file
+//		String outFilename = directory + "/" + getImei() + "_" + fileType + "_" + System.currentTimeMillis() + ".zip";
+//		try
+//		{
+//			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outFilename));
+//
+//			// Compress the files
+//			for (File logFile : files)
+//			{
+//				FileInputStream in = new FileInputStream(logFile);
+//
+//				// Add ZIP entry to output stream.
+//				out.putNextEntry(new ZipEntry(logFile.getName()));
+//
+//				// Transfer bytes from the file to the ZIP file
+//				int len;
+//				byte[] buf = new byte[1024];
+//				while ((len = in.read(buf)) > 0)
+//				{
+//					out.write(buf, 0, len);
+//				}
+//
+//				// Complete the entry
+//				out.closeEntry();
+//				in.close();
+//			}
+//
+//			// Complete the ZIP file
+//			out.close();
+//		}
+//		catch (Exception exp)
+//		{
+//			exp.printStackTrace();
+//		}
+//
+//		return outFilename;
+//	}
+	
+//	public static final String ROOT_DIR = "MobileSurveyData";
+//	public static final String APP_DIR_FULL_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + ROOT_DIR;
+//	public static final String SOUNDS_DIR = APP_DIR_FULL_PATH + "/sounds";
+//	public static final String DATA_LOGS_DIR = APP_DIR_FULL_PATH + "/data_logs";
+//	public static final String CONFIG_DIR = APP_DIR_FULL_PATH + "/config";
+//	public static final String TO_BE_UPLOADED_LOGS_DIR = APP_DIR_FULL_PATH + "/to_be_uploaded";
 }

@@ -40,4 +40,18 @@ public class DataTransfer
 			// TODO
 		}
 	}
+	
+	
+//	public static boolean isWiFiEnabled()
+//	{
+//		WifiManager wifiManager = (WifiManager) SurveyApplication.getContext().getSystemService(Context.WIFI_SERVICE);
+//		if (wifiManager.isWifiEnabled())
+//		{
+//			return true;
+//		}
+//		else
+//		{
+//			return false;
+//		}
+//	}
 }
