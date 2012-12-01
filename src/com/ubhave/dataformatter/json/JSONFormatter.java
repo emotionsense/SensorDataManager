@@ -21,6 +21,9 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.json.simple.JSONObject;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -60,7 +63,11 @@ public abstract class JSONFormatter extends DataFormatter
 	@SuppressWarnings("unchecked")
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
-		json.put(SENSE_TIME, data.getTimestamp());
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(data.getTimestamp());
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
+		json.put(SENSE_TIME, formatter.format(calendar.getTime()));
 		try
 		{
 			json.put(SENSOR_TYPE, SensorUtils.getSensorName(data.getSensorType()));
