@@ -21,6 +21,7 @@ public abstract class DataFormatter
 		case SensorUtils.SENSOR_TYPE_BATTERY: return new com.ubhave.dataformatter.csv.push.BatteryFormatter();
 		case SensorUtils.SENSOR_TYPE_CONNECTION_STATE: return new com.ubhave.dataformatter.csv.push.ConnectionStateFormatter();
 		case SensorUtils.SENSOR_TYPE_PHONE_STATE: return new com.ubhave.dataformatter.csv.push.PhoneStateFormatter();
+		case SensorUtils.SENSOR_TYPE_PROXIMITY: return new com.ubhave.dataformatter.csv.push.ProximityFormatter();
 		case SensorUtils.SENSOR_TYPE_SMS: return new com.ubhave.dataformatter.csv.push.SmsFormatter();
 		default: return null;
 		}
@@ -39,6 +40,7 @@ public abstract class DataFormatter
 		case SensorUtils.SENSOR_TYPE_BATTERY: return new com.ubhave.dataformatter.json.push.BatteryFormatter();
 		case SensorUtils.SENSOR_TYPE_CONNECTION_STATE: return new com.ubhave.dataformatter.json.push.ConnectionStateFormatter();
 		case SensorUtils.SENSOR_TYPE_PHONE_STATE: return new com.ubhave.dataformatter.json.push.PhoneStateFormatter();
+		case SensorUtils.SENSOR_TYPE_PROXIMITY: return new com.ubhave.dataformatter.json.push.ProximityFormatter();
 		case SensorUtils.SENSOR_TYPE_SMS: return new com.ubhave.dataformatter.json.push.SmsFormatter();
 		default: return null;
 		}
