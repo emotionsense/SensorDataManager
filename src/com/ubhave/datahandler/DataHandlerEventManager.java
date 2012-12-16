@@ -11,7 +11,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
 import com.ubhave.triggermanager.TriggerManager;
 import com.ubhave.triggermanager.TriggerReceiver;
-import com.ubhave.triggermanager.triggers.TriggerList;
+import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 public class DataHandlerEventManager implements TriggerReceiver, SensorDataListener
 {
@@ -66,7 +66,7 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 		{
 			if (policy == DataHandlerConfig.TRANFER_BULK_ON_INTERVAL)
 			{
-				triggerManager.addTrigger(TriggerList.CLOCK_TRIGGER_ON_INTERVAL, this);
+				triggerManager.addTrigger(TriggerUtils.CLOCK_TRIGGER_ON_INTERVAL, this, null);
 			}
 			else if (policy == DataHandlerConfig.TRANSFER_ON_WIFI)
 			{
