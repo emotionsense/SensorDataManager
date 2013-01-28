@@ -15,6 +15,7 @@ public class DataHandlerConfig
 	// Local storage dir
 	public final static String PHONE_STORAGE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()
 			+ "/ESDataStorage";
+	public final static String SERVER_UPLOAD_DIR = PHONE_STORAGE_DIR + "/" + "to_be_uploaded";
 
 	public final static String DATA_POLICY = "policy";
 	public final static int STORE_ONLY = -1; // No transfer (store only)

@@ -1,8 +1,12 @@
 package com.ubhave.datahandler.store;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+
+import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.DataHandlerConfig;
@@ -13,6 +17,8 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class DataStorage
 {
+	private static final String TAG = "DataStorage";
+
 	private final static String UNKNOWN_SENSOR = "Unknown_Sensor";
 	private final static String ERROR_DIRECTORY_NAME = "Error_Log";
 
@@ -44,7 +50,7 @@ public class DataStorage
 	// }
 	// }
 
-	private String getFileName(String directoryFullPath) throws DataHandlerException
+	private String getFileName(String directoryFullPath) throws DataHandlerException, IOException
 	{
 		File directory = new File(directoryFullPath);
 		File[] files = directory.listFiles();
@@ -66,9 +72,68 @@ public class DataStorage
 		long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
 		if (latestFile == null || latestFile.length() > fileQuota)
 		{
+			if (latestFile != null && latestFile.length() > fileQuota)
+			{
+				moveFilesForUploadingToServer(directoryFullPath);
+			}
 			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
+
 		}
 		return latestFile.getAbsolutePath();
+	}
+
+	private void moveFilesForUploadingToServer(String directoryFullPath) throws DataHandlerException, IOException
+	{
+		Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
+
+		File directory = new File(directoryFullPath);
+		File[] files = directory.listFiles();
+		for (File file : files)
+		{
+			long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
+			if (file.length() > fileQuota)
+			{
+				Log.d(TAG, "gzip file " + file);
+				File gzippedFile = gzipFile(file);
+
+				String uploadDirFullPath = DataHandlerConfig.SERVER_UPLOAD_DIR + "/";
+				File uploadDir = new File(uploadDirFullPath);
+				if (!uploadDir.exists())
+				{
+					uploadDir.mkdirs();
+				}
+
+				String newFileFullPath = uploadDirFullPath + directory.getName() + "_" + gzippedFile.getName();
+				Log.d(TAG, "moving file " + gzippedFile.getAbsolutePath() + " to " + newFileFullPath);
+				gzippedFile.renameTo(new File(newFileFullPath));
+
+				Log.d(TAG, "deleting file: " + file.getAbsolutePath());
+				file.delete();
+			}
+		}
+	}
+
+	private File gzipFile(File inputFile) throws IOException
+	{
+
+		byte[] buffer = new byte[1024];
+
+		File outputFile = new File(inputFile.getAbsolutePath() + ".gz");
+		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
+		FileInputStream in = new FileInputStream(inputFile);
+
+		int len;
+		while ((len = in.read(buffer)) > 0)
+		{
+			gzipOS.write(buffer, 0, len);
+		}
+
+		in.close();
+
+		gzipOS.finish();
+		gzipOS.close();
+
+		return outputFile;
 	}
 
 	private void writeData(String directoryName, String data) throws DataHandlerException
