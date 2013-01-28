@@ -20,9 +20,9 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 	private int subscriptionId;
 	private int currentPolicy;
 	
-	private final DataHandler dataHandler;
+	private final DataManager dataHandler;
 
-	public DataHandlerEventManager(final Context context, final DataHandler dataHandler) throws ESException, TriggerException
+	public DataHandlerEventManager(final Context context, final DataManager dataHandler) throws ESException, TriggerException
 	{
 		sensorManager = ESSensorManager.getSensorManager(context);
 		triggerManager = TriggerManager.getTriggerManager(context);

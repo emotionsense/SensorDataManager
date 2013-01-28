@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
@@ -16,13 +14,10 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public class DataStorage
 {
 	private final static String UNKNOWN_SENSOR = "Unknown_Sensor";
-	private final static String ERROR_DIRECTORY = "Error_Log";
+	private final static String ERROR_DIRECTORY_NAME = "Error_Log";
 
-	private final Context context;
-
-	public DataStorage(Context context)
+	public DataStorage()
 	{
-		this.context = context;
 	}
 
 	// private File getDirectory(String directory) throws DataHandlerException
@@ -49,8 +44,9 @@ public class DataStorage
 	// }
 	// }
 
-	private String getFileName(File directory) throws DataHandlerException
+	private String getFileName(String directoryFullPath) throws DataHandlerException
 	{
+		File directory = new File(directoryFullPath);
 		File[] files = directory.listFiles();
 		long latestUpdate = Long.MIN_VALUE;
 		File latestFile = null;
@@ -70,22 +66,25 @@ public class DataStorage
 		long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
 		if (latestFile == null || latestFile.length() > fileQuota)
 		{
-			latestFile = new File(System.currentTimeMillis() + ".log");
+			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
 		}
 		return latestFile.getAbsolutePath();
 	}
 
-	private void writeData(String fileName, String data) throws DataHandlerException
+	private void writeData(String directoryName, String data) throws DataHandlerException
 	{
 		try
 		{
-			File file = new File(DataHandlerConfig.PHONE_STORAGE_DIR + "/");
-			if (! file.exists())
+			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + directoryName;
+			File file = new File(directoryFullPath);
+			if (!file.exists())
 			{
 				file.mkdirs();
 			}
-			
-			file = new File(DataHandlerConfig.PHONE_STORAGE_DIR + "/" + fileName + ".log");
+
+			String fileFullPath = getFileName(directoryFullPath);
+
+			file = new File(fileFullPath);
 			if (!file.exists())
 			{
 				file.createNewFile();
@@ -105,21 +104,23 @@ public class DataStorage
 
 	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException
 	{
-		String fileName;
+		String sensorName;
 		try
 		{
-			fileName = SensorUtils.getSensorName(data.getSensorType());
+			sensorName = SensorUtils.getSensorName(data.getSensorType());
 		}
 		catch (ESException e)
 		{
-			fileName = UNKNOWN_SENSOR;
+			sensorName = UNKNOWN_SENSOR;
 		}
-		writeData(fileName, formatter.toString(data));
+		String directoryName = sensorName;
+
+		writeData(directoryName, formatter.toString(data));
 	}
 
 	public void logError(final String error) throws DataHandlerException
 	{
-		writeData(ERROR_DIRECTORY, error);
+		writeData(ERROR_DIRECTORY_NAME, error);
 	}
 
 	public void logExtra(final String tag, final String data) throws DataHandlerException

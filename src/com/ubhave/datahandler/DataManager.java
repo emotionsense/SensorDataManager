@@ -9,28 +9,28 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.triggermanager.TriggerException;
 
-public class DataHandler
+public class DataManager
 {
-	private static DataHandler instance;
+	private static DataManager instance;
 
 	private final DataHandlerConfig config;
 	private final DataStorage storage;
 	private final DataTransfer transfer;
 	private final DataHandlerEventManager eventManager;
 
-	public static DataHandler getInstance(final Context context) throws ESException, TriggerException
+	public static DataManager getInstance(final Context context) throws ESException, TriggerException
 	{
 		if (instance == null)
 		{
-			instance = new DataHandler(context);
+			instance = new DataManager(context);
 		}
 		return instance;
 	}
 
-	private DataHandler(final Context context) throws ESException, TriggerException
+	private DataManager(final Context context) throws ESException, TriggerException
 	{
 		config = DataHandlerConfig.getInstance();
-		storage = new DataStorage(context);
+		storage = new DataStorage();
 		transfer = new DataTransfer();
 		eventManager = new DataHandlerEventManager(context, this);
 	}
