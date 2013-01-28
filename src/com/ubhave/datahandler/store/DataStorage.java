@@ -25,28 +25,29 @@ public class DataStorage
 		this.context = context;
 	}
 
-	private File getDirectory(String directory) throws DataHandlerException
-	{
-		File dir = context.getDir(directory, Context.MODE_PRIVATE);
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		if (config.containsConfig(DataHandlerConfig.FILE_STORAGE_QUOTA))
-		{
-			long quota = (Long) config.get(DataHandlerConfig.FILE_STORAGE_QUOTA);
-			if (dir.length() > quota)
-			{
-				throw new DataHandlerException(DataHandlerException.STORAGE_OVER_QUOTA);
-			}
-		}
-		
-		if (dir != null)
-		{
-			return dir;
-		}
-		else
-		{
-			throw new DataHandlerException(DataHandlerException.STORAGE_CREATE_ERROR);
-		}
-	}
+	// private File getDirectory(String directory) throws DataHandlerException
+	// {
+	// File dir = context.getDir(directory, Context.MODE_PRIVATE);
+	// DataHandlerConfig config = DataHandlerConfig.getInstance();
+	// if (config.containsConfig(DataHandlerConfig.FILE_STORAGE_QUOTA))
+	// {
+	// long quota = (Long) config.get(DataHandlerConfig.FILE_STORAGE_QUOTA);
+	// if (dir.length() > quota)
+	// {
+	// throw new DataHandlerException(DataHandlerException.STORAGE_OVER_QUOTA);
+	// }
+	// }
+	//
+	// if (dir != null)
+	// {
+	// return dir;
+	// }
+	// else
+	// {
+	// throw new
+	// DataHandlerException(DataHandlerException.STORAGE_CREATE_ERROR);
+	// }
+	// }
 
 	private String getFileName(File directory) throws DataHandlerException
 	{
@@ -65,43 +66,55 @@ public class DataStorage
 				}
 			}
 		}
-		
+
 		long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
 		if (latestFile == null || latestFile.length() > fileQuota)
 		{
-			latestFile = new File(System.currentTimeMillis()+".log");
+			latestFile = new File(System.currentTimeMillis() + ".log");
 		}
 		return latestFile.getAbsolutePath();
 	}
 
-	private void writeData(String directory, String data) throws DataHandlerException
+	private void writeData(String fileName, String data) throws DataHandlerException
 	{
-		File dir = getDirectory(directory);
-		String fileName = getFileName(dir);
 		try
 		{
-			FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_APPEND);
+			File file = new File(DataHandlerConfig.PHONE_STORAGE_DIR + "/");
+			if (! file.exists())
+			{
+				file.mkdirs();
+			}
+			
+			file = new File(DataHandlerConfig.PHONE_STORAGE_DIR + "/" + fileName + ".log");
+			if (!file.exists())
+			{
+				file.createNewFile();
+			}
+			// append mode
+			FileOutputStream fos = new FileOutputStream(file, true);
 			fos.write(data.getBytes());
+			fos.write("\n".getBytes());
 			fos.close();
 		}
 		catch (IOException e)
 		{
+			e.printStackTrace();
 			throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 		}
 	}
 
 	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException
 	{
-		String directory;
+		String fileName;
 		try
 		{
-			directory = SensorUtils.getSensorName(data.getSensorType());
+			fileName = SensorUtils.getSensorName(data.getSensorType());
 		}
 		catch (ESException e)
 		{
-			directory = UNKNOWN_SENSOR;
+			fileName = UNKNOWN_SENSOR;
 		}
-		writeData(directory, formatter.toString(data));
+		writeData(fileName, formatter.toString(data));
 	}
 
 	public void logError(final String error) throws DataHandlerException
@@ -113,54 +126,62 @@ public class DataStorage
 	{
 		writeData(tag, data);
 	}
-	
-//	public static String zipFiles(String directory, String fileExtension, File[] files)
-//	{
-//		String fileType = fileExtension.substring(fileExtension.lastIndexOf(".") + 1, fileExtension.length());
-//		fileType = fileType.toUpperCase();
-//
-//		// Create the ZIP file
-//		String outFilename = directory + "/" + getImei() + "_" + fileType + "_" + System.currentTimeMillis() + ".zip";
-//		try
-//		{
-//			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outFilename));
-//
-//			// Compress the files
-//			for (File logFile : files)
-//			{
-//				FileInputStream in = new FileInputStream(logFile);
-//
-//				// Add ZIP entry to output stream.
-//				out.putNextEntry(new ZipEntry(logFile.getName()));
-//
-//				// Transfer bytes from the file to the ZIP file
-//				int len;
-//				byte[] buf = new byte[1024];
-//				while ((len = in.read(buf)) > 0)
-//				{
-//					out.write(buf, 0, len);
-//				}
-//
-//				// Complete the entry
-//				out.closeEntry();
-//				in.close();
-//			}
-//
-//			// Complete the ZIP file
-//			out.close();
-//		}
-//		catch (Exception exp)
-//		{
-//			exp.printStackTrace();
-//		}
-//
-//		return outFilename;
-//	}
-	
-//	public static final String ROOT_DIR = "MobileSurveyData";
-//	public static final String APP_DIR_FULL_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + ROOT_DIR;
-//	public static final String SOUNDS_DIR = APP_DIR_FULL_PATH + "/sounds";
-//	public static final String DATA_LOGS_DIR = APP_DIR_FULL_PATH + "/data_logs";
-//	public static final String CONFIG_DIR = APP_DIR_FULL_PATH + "/config";
-//	public static final String TO_BE_UPLOADED_LOGS_DIR = APP_DIR_FULL_PATH + "/to_be_uploaded";
+
+	// public static String zipFiles(String directory, String fileExtension,
+	// File[] files)
+	// {
+	// String fileType = fileExtension.substring(fileExtension.lastIndexOf(".")
+	// + 1, fileExtension.length());
+	// fileType = fileType.toUpperCase();
+	//
+	// // Create the ZIP file
+	// String outFilename = directory + "/" + getImei() + "_" + fileType + "_" +
+	// System.currentTimeMillis() + ".zip";
+	// try
+	// {
+	// ZipOutputStream out = new ZipOutputStream(new
+	// FileOutputStream(outFilename));
+	//
+	// // Compress the files
+	// for (File logFile : files)
+	// {
+	// FileInputStream in = new FileInputStream(logFile);
+	//
+	// // Add ZIP entry to output stream.
+	// out.putNextEntry(new ZipEntry(logFile.getName()));
+	//
+	// // Transfer bytes from the file to the ZIP file
+	// int len;
+	// byte[] buf = new byte[1024];
+	// while ((len = in.read(buf)) > 0)
+	// {
+	// out.write(buf, 0, len);
+	// }
+	//
+	// // Complete the entry
+	// out.closeEntry();
+	// in.close();
+	// }
+	//
+	// // Complete the ZIP file
+	// out.close();
+	// }
+	// catch (Exception exp)
+	// {
+	// exp.printStackTrace();
+	// }
+	//
+	// return outFilename;
+	// }
+
+	// public static final String ROOT_DIR = "MobileSurveyData";
+	// public static final String APP_DIR_FULL_PATH =
+	// Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
+	// ROOT_DIR;
+	// public static final String SOUNDS_DIR = APP_DIR_FULL_PATH + "/sounds";
+	// public static final String DATA_LOGS_DIR = APP_DIR_FULL_PATH +
+	// "/data_logs";
+	// public static final String CONFIG_DIR = APP_DIR_FULL_PATH + "/config";
+	// public static final String TO_BE_UPLOADED_LOGS_DIR = APP_DIR_FULL_PATH +
+	// "/to_be_uploaded";
 }
