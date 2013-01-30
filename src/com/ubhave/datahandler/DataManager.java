@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -25,6 +28,8 @@ public class DataManager
 	private final DataTransfer transfer;
 	private final DataHandlerEventManager eventManager;
 
+	private Context context;
+
 	private static final Object singletonLock = new Object();
 	private final Object fileTransferLock = new Object();
 
@@ -45,6 +50,7 @@ public class DataManager
 
 	private DataManager(final Context context) throws ESException, TriggerException
 	{
+		this.context = context;
 		config = DataHandlerConfig.getInstance();
 		storage = new DataStorage(context);
 		transfer = new DataTransfer();
@@ -71,29 +77,40 @@ public class DataManager
 			}
 			file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
 		}
+		// start a background thread to transfer log files to the server
+		new Thread()
+		{
+			public void run()
+			{
+				DataManager.this.transferStoredData();
+			}
+		}.start();
 	}
 
 	public void transferStoredData()
 	{
 		synchronized (fileTransferLock)
 		{
-			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
-			File[] files = directory.listFiles();
-			for (File file : files)
+			if (isWiFiConnected())
 			{
-				HashMap<String, String> paramsMap = new HashMap<String, String>();
-				paramsMap.put("password", "test");
-				String response = WebConnection.postDataToServer("test_url", file, paramsMap);
+				File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+				File[] files = directory.listFiles();
+				for (File file : files)
+				{
+					HashMap<String, String> paramsMap = new HashMap<String, String>();
+					paramsMap.put("password", "test");
+					String response = WebConnection.postDataToServer("test", file, paramsMap);
 
-				if (response.equals("success"))
-				{
-					Log.d(TAG, "file " + file + " successfully uploaded to the server");
-					Log.d(TAG, "file " + file + " deleting local copy");
-					file.delete();
-				}
-				else
-				{
-					Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					if (response.equals("success"))
+					{
+						Log.d(TAG, "file " + file + " successfully uploaded to the server");
+						Log.d(TAG, "file " + file + " deleting local copy");
+						file.delete();
+					}
+					else
+					{
+						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					}
 				}
 			}
 		}
@@ -167,6 +184,21 @@ public class DataManager
 		else
 		{
 			storage.logExtra(tag, data);
+		}
+	}
+
+	public boolean isWiFiConnected()
+	{
+		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		if (wifi.isConnected())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 }

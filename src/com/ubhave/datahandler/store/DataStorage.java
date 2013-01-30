@@ -50,10 +50,9 @@ public class DataStorage
 			}
 		}
 
-		long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
-		if (latestFile == null || latestFile.length() > fileQuota)
+		if (latestFile == null || isFileDurationLimitReached(latestFile.getName()))
 		{
-			if (latestFile != null && latestFile.length() > fileQuota)
+			if (latestFile != null && isFileDurationLimitReached(latestFile.getName()))
 			{
 				moveFilesForUploadingToServer(directoryFullPath);
 			}
@@ -61,6 +60,21 @@ public class DataStorage
 
 		}
 		return latestFile.getAbsolutePath();
+	}
+
+	private boolean isFileDurationLimitReached(String fileName)
+	{
+		String timeStr = fileName.substring(0, fileName.indexOf(".log"));
+		long fileTimestamp = Long.parseLong(timeStr);
+		long currTime = System.currentTimeMillis();
+		if ((currTime - fileTimestamp) > DataHandlerConfig.DEFAULT_FILE_DURATION)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	private void moveFilesForUploadingToServer(String directoryFullPath) throws DataHandlerException, IOException
@@ -71,23 +85,30 @@ public class DataStorage
 		File[] files = directory.listFiles();
 		for (File file : files)
 		{
-			long fileQuota = (Long) DataHandlerConfig.getInstance().get(DataHandlerConfig.FILE_MAX_SIZE);
-			if (file.length() > fileQuota)
+			if (isFileDurationLimitReached(file.getName()))
 			{
-				Log.d(TAG, "gzip file " + file);
-				File gzippedFile = gzipFile(file);
-
-				try
+				if (file.length() <= 0)
 				{
-					DataManager.getInstance(context).moveFileToUploadDir(gzippedFile);
-					Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
-					Log.d(TAG, "deleting file: " + file.getAbsolutePath());
 					file.delete();
 				}
-				catch (Exception te)
+				else
 				{
-					Log.e(TAG, Log.getStackTraceString(te));
+					Log.d(TAG, "gzip file " + file);
+					File gzippedFile = gzipFile(file);
+
+					try
+					{
+						DataManager.getInstance(context).moveFileToUploadDir(gzippedFile);
+						Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
+						Log.d(TAG, "deleting file: " + file.getAbsolutePath());
+						file.delete();
+					}
+					catch (Exception te)
+					{
+						Log.e(TAG, Log.getStackTraceString(te));
+					}
 				}
+
 			}
 		}
 	}
