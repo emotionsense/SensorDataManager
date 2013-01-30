@@ -1,16 +1,23 @@
 package com.ubhave.datahandler;
 
+import java.io.File;
+import java.util.HashMap;
+
 import android.content.Context;
+import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.transfer.DataTransfer;
+import com.ubhave.datahandler.transfer.WebConnection;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.triggermanager.TriggerException;
 
 public class DataManager
 {
+	private static final String TAG = "DataManager";
+
 	private static DataManager instance;
 
 	private final DataHandlerConfig config;
@@ -18,11 +25,20 @@ public class DataManager
 	private final DataTransfer transfer;
 	private final DataHandlerEventManager eventManager;
 
+	private static final Object singletonLock = new Object();
+	private final Object fileTransferLock = new Object();
+
 	public static DataManager getInstance(final Context context) throws ESException, TriggerException
 	{
 		if (instance == null)
 		{
-			instance = new DataManager(context);
+			synchronized (singletonLock)
+			{
+				if (instance == null)
+				{
+					instance = new DataManager(context);
+				}
+			}
 		}
 		return instance;
 	}
@@ -30,7 +46,7 @@ public class DataManager
 	private DataManager(final Context context) throws ESException, TriggerException
 	{
 		config = DataHandlerConfig.getInstance();
-		storage = new DataStorage();
+		storage = new DataStorage(context);
 		transfer = new DataTransfer();
 		eventManager = new DataHandlerEventManager(context, this);
 	}
@@ -44,9 +60,43 @@ public class DataManager
 		}
 	}
 
+	public void moveFileToUploadDir(File file)
+	{
+		synchronized (fileTransferLock)
+		{
+			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+			if (!directory.exists())
+			{
+				directory.mkdirs();
+			}
+			file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
+		}
+	}
+
 	public void transferStoredData()
 	{
-		// TODO
+		synchronized (fileTransferLock)
+		{
+			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+			File[] files = directory.listFiles();
+			for (File file : files)
+			{
+				HashMap<String, String> paramsMap = new HashMap<String, String>();
+				paramsMap.put("password", "test");
+				String response = WebConnection.postDataToServer("test_url", file, paramsMap);
+
+				if (response.equals("success"))
+				{
+					Log.d(TAG, "file " + file + " successfully uploaded to the server");
+					Log.d(TAG, "file " + file + " deleting local copy");
+					file.delete();
+				}
+				else
+				{
+					Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+				}
+			}
+		}
 	}
 
 	private boolean transferImmediately()

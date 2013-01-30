@@ -23,6 +23,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 package com.ubhave.datahandler.transfer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,7 +43,7 @@ import org.apache.http.params.CoreProtocolPNames;
 public class WebConnection
 {
 
-	public static String postDataToServer(String url, FileBody fileBody, HashMap<String, String> paramsMap)
+	public static String postDataToServer(String serverUrl, File file, HashMap<String, String> paramsMap)
 	{
 		String response = "";
 		try
@@ -51,10 +52,11 @@ public class WebConnection
 			httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
 			httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60 * 1000);
 
-			HttpPost httppost = new HttpPost("http://");// + Constants.SERVER + url);
+			HttpPost httppost = new HttpPost(serverUrl);
 
 			MultipartEntity multipartEntity = new MultipartEntity();
 
+			FileBody fileBody = new FileBody(file);
 			if (fileBody != null)
 			{
 				multipartEntity.addPart("uploadedfile", fileBody);
