@@ -37,6 +37,7 @@ public class DataHandlerConfig
 	public final static long DEFAULT_FILE_SIZE = 1024 * 1024; // 1 MB
 	
 	public final static long DEFAULT_FILE_DURATION = 5 * 60 * 60 * 1000; // 5 hours
+	public final static long DEFAULT_RECENT_DURATION = 30 * 60 * 60 * 1000; // 30 hours
 
 	// TODO
 	public final static String FILE_DELETION_POLICY = "deletion";

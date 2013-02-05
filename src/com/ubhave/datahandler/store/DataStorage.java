@@ -1,15 +1,21 @@
 package com.ubhave.datahandler.store;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
+import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
 import com.ubhave.datahandler.DataManager;
@@ -25,6 +31,8 @@ public class DataStorage
 	private final static String ERROR_DIRECTORY_NAME = "Error_Log";
 
 	private final Context context;
+
+	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
 	public DataStorage(Context context)
 	{
@@ -50,9 +58,10 @@ public class DataStorage
 			}
 		}
 
-		if (latestFile == null || isFileDurationLimitReached(latestFile.getName()))
+		if (latestFile == null || isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 		{
-			if (latestFile != null && isFileDurationLimitReached(latestFile.getName()))
+			if (latestFile != null
+					&& isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 			{
 				moveFilesForUploadingToServer(directoryFullPath);
 			}
@@ -62,12 +71,12 @@ public class DataStorage
 		return latestFile.getAbsolutePath();
 	}
 
-	private boolean isFileDurationLimitReached(String fileName)
+	private boolean isFileDurationLimitReached(String fileName, long duration)
 	{
 		String timeStr = fileName.substring(0, fileName.indexOf(".log"));
 		long fileTimestamp = Long.parseLong(timeStr);
 		long currTime = System.currentTimeMillis();
-		if ((currTime - fileTimestamp) > DataHandlerConfig.DEFAULT_FILE_DURATION)
+		if ((currTime - fileTimestamp) > duration)
 		{
 			return true;
 		}
@@ -85,7 +94,7 @@ public class DataStorage
 		File[] files = directory.listFiles();
 		for (File file : files)
 		{
-			if (isFileDurationLimitReached(file.getName()))
+			if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
 			{
 				if (file.length() <= 0)
 				{
@@ -136,34 +145,93 @@ public class DataStorage
 		return outputFile;
 	}
 
+	public List<SensorData> getRecentSensorData(int sensorId) throws ESException, IOException
+	{
+		String sensorName = SensorUtils.getSensorName(sensorId);
+		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
+
+		JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(sensorId);
+
+		synchronized (getLock(sensorName))
+		{
+			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + sensorName;
+			File dir = new File(directoryFullPath);
+			File[] files = dir.listFiles();
+			for (File file : files)
+			{
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+				while (true)
+				{
+					String line = br.readLine();
+					if (line == null)
+					{
+						br.close();
+						break;
+					}
+					else
+					{
+						// convert json string to sensor data object
+						SensorData sensorData = jsonFormatter.toSensorData(line);
+						outputList.add(sensorData);
+					}
+				}
+			}
+		}
+
+		return outputList;
+	}
+
+	private Object getLock(String key)
+	{
+		Object lock;
+		synchronized (lockMap)
+		{
+			if (lockMap.containsKey(key))
+			{
+				lock = lockMap.get(key);
+			}
+			else
+			{
+				lock = new Object();
+				lockMap.put(key, lock);
+			}
+		}
+		return lock;
+
+	}
+
 	private void writeData(String directoryName, String data) throws DataHandlerException
 	{
-		try
+		synchronized (getLock(directoryName))
 		{
-			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + directoryName;
-			File file = new File(directoryFullPath);
-			if (!file.exists())
+			try
 			{
-				file.mkdirs();
+				String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + directoryName;
+				File file = new File(directoryFullPath);
+				if (!file.exists())
+				{
+					file.mkdirs();
+				}
+
+				String fileFullPath = getFileName(directoryFullPath);
+
+				file = new File(fileFullPath);
+				if (!file.exists())
+				{
+					file.createNewFile();
+				}
+				// append mode
+				FileOutputStream fos = new FileOutputStream(file, true);
+				fos.write(data.getBytes());
+				fos.write("\n".getBytes());
+				fos.close();
 			}
-
-			String fileFullPath = getFileName(directoryFullPath);
-
-			file = new File(fileFullPath);
-			if (!file.exists())
+			catch (IOException e)
 			{
-				file.createNewFile();
+				e.printStackTrace();
+				throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 			}
-			// append mode
-			FileOutputStream fos = new FileOutputStream(file, true);
-			fos.write(data.getBytes());
-			fos.write("\n".getBytes());
-			fos.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 		}
 	}
 

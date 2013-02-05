@@ -1,12 +1,13 @@
 package com.ubhave.datahandler;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -114,6 +115,11 @@ public class DataManager
 				}
 			}
 		}
+	}
+
+	public List<SensorData> getRecentSensorData(int sensorId) throws ESException, IOException
+	{
+		return storage.getRecentSensorData(sensorId);
 	}
 
 	private boolean transferImmediately()

@@ -40,4 +40,11 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 		json.put(DISTANCE, proximityData.getDistance());
 		json.put(MAX_RANGE, proximityData.getMaxRange());
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 }

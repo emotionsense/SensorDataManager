@@ -69,5 +69,12 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 	{
 		json.put(SENSE_CYCLES, config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 
 }

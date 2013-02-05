@@ -78,5 +78,12 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	{
 		json.put(LOCATION_ACCURACY, config.getParameter(SensorConfig.LOCATION_ACCURACY));
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 
 }

@@ -44,4 +44,11 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		json.put(EVENT_TYPE, smsData.getEventType());
 		json.put(ADDRESS, smsData.getAddress());
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 }

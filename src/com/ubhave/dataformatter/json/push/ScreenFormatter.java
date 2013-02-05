@@ -54,4 +54,11 @@ public class ScreenFormatter extends PushSensorJSONFormatter
 		ScreenData screenData = (ScreenData) data;
 		json.put(STATUS, getScreenStatusString(screenData));
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 }

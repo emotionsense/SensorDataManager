@@ -92,4 +92,11 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		json.put(STATUS, getStatusString(batteryData.getStatus()));
 		json.put(HEALTH, getHealthString(batteryData.getHealth()));
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 }

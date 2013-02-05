@@ -98,4 +98,11 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 			json.put(SSID, ssid);
 		}
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 }

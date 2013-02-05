@@ -69,5 +69,12 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 	{
 		json.put(SAMPLE_LENGTH, config.getParameter(SensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
 	}
+	
+	@Override
+	public SensorData toSensorData(String jsonString)
+	{
+		// TODO
+		return null;
+	}
 
 }
