@@ -21,24 +21,27 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.json.simple.JSONObject;
 
+import android.annotation.SuppressLint;
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
+@SuppressLint("SimpleDateFormat")
 public abstract class JSONFormatter extends DataFormatter
 {
-	
+
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
-	
+
 	public JSONObject toJSON(final SensorData data)
 	{
 		JSONObject json = new JSONObject();
@@ -46,26 +49,26 @@ public abstract class JSONFormatter extends DataFormatter
 		{
 			addGenericData(json, data);
 			addSensorSpecificData(json, data);
-			
+
 			SensorConfig config = data.getSensorConfig();
 			addGenericConfig(json, config);
 			addSensorSpecificConfig(json, config);
 		}
 		return json;
 	}
-	
+
 	@Override
 	public String toString(final SensorData data)
 	{
 		return toJSON(data).toJSONString();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(data.getTimestamp());
-		
+
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
 		json.put(SENSE_TIME, formatter.format(calendar.getTime()));
 		try
@@ -77,12 +80,29 @@ public abstract class JSONFormatter extends DataFormatter
 			json.put(SENSOR_TYPE, UNKNOWN_SENSOR);
 		}
 	}
-	
+
+	protected long parseTimeStamp(JSONObject json)
+	{
+		try
+		{
+			String dateString = (String) json.get(SENSE_TIME);
+			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(formatter.parse(dateString));
+			return calendar.getTimeInMillis();
+		}
+		catch (java.text.ParseException e)
+		{
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
 	public abstract SensorData toSensorData(String jsonString);
-	
+
 	protected abstract void addGenericConfig(JSONObject json, SensorConfig config);
-	
+
 	protected abstract void addSensorSpecificData(JSONObject json, SensorData data);
-	
+
 	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config);
 }

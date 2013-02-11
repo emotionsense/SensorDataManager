@@ -38,7 +38,7 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 	private final static String PLUGGED = "plugged";
 	private final static String STATUS = "status";
 	private final static String HEALTH = "health";
-	
+
 	private static String getHealthString(int healthValue)
 	{
 		switch (healthValue)
@@ -57,6 +57,38 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 			return "BATTERY_HEALTH_UNSPECIFIED_FAILURE";
 		default:
 			return "UNKNOWN";
+		}
+	}
+
+	private static int getHealthId(String healthString)
+	{
+		if (healthString.equals("BATTERY_HEALTH_DEAD"))
+		{
+			return BatteryManager.BATTERY_HEALTH_DEAD;
+		}
+		else if (healthString.equals("BATTERY_HEALTH_GOOD"))
+		{
+			return BatteryManager.BATTERY_HEALTH_GOOD;
+		}
+		else if (healthString.equals("BATTERY_HEALTH_OVERHEAT"))
+		{
+			return BatteryManager.BATTERY_HEALTH_OVERHEAT;
+		}
+		else if (healthString.equals("BATTERY_HEALTH_OVER_VOLTAGE"))
+		{
+			return BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE;
+		}
+		else if (healthString.equals("BATTERY_HEALTH_UNKNOWN"))
+		{
+			return BatteryManager.BATTERY_HEALTH_UNKNOWN;
+		}
+		else if (healthString.equals("BATTERY_HEALTH_UNSPECIFIED_FAILURE"))
+		{
+			return BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE;
+		}
+		else
+		{
+			return -1;
 		}
 	}
 
@@ -79,6 +111,34 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		}
 	}
 
+	private static int getStatusId(String status)
+	{
+		if (status.equals("BATTERY_STATUS_CHARGING"))
+		{
+			return BatteryManager.BATTERY_STATUS_CHARGING;
+		}
+		else if (status.equals("BATTERY_STATUS_DISCHARGING"))
+		{
+			return BatteryManager.BATTERY_STATUS_DISCHARGING;
+		}
+		else if (status.equals("BATTERY_STATUS_FULL"))
+		{
+			return BatteryManager.BATTERY_STATUS_FULL;
+		}
+		else if (status.equals("BATTERY_STATUS_NOT_CHARGING"))
+		{
+			return BatteryManager.BATTERY_STATUS_NOT_CHARGING;
+		}
+		else if (status.equals("BATTERY_STATUS_UNKNOWN"))
+		{
+			return BatteryManager.BATTERY_STATUS_UNKNOWN;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
@@ -88,15 +148,30 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		json.put(SCALE, batteryData.getScale());
 		json.put(TEMPERATURE, batteryData.getTemperature());
 		json.put(VOLTAGE, batteryData.getVoltage());
-		json.put(PLUGGED, batteryData.isCharging());
+		json.put(PLUGGED, batteryData.getPlugged());
 		json.put(STATUS, getStatusString(batteryData.getStatus()));
 		json.put(HEALTH, getHealthString(batteryData.getHealth()));
 	}
-	
+
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = parseData(jsonString);
+		if (jsonData != null)
+		{
+			long timestamp = parseTimeStamp(jsonData);
+			int level = (Integer) jsonData.get(LEVEL);
+			int scale = (Integer) jsonData.get(SCALE);
+			int temperature = (Integer) jsonData.get(TEMPERATURE);
+			int voltage = (Integer) jsonData.get(VOLTAGE);
+			int plugged = (Integer) jsonData.get(PLUGGED);
+			int status = getStatusId((String) jsonData.get(STATUS));
+			int health = getHealthId((String) jsonData.get(HEALTH));
+			return new BatteryData(timestamp, level, scale, temperature, voltage, plugged, status, health, null);
+		}
+		else
+		{
+			return null;
+		}
 	}
 }
