@@ -34,6 +34,8 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 	
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
 	private final static String AMPLITUDE = "amplitude";
+	private final static String TIMESTAMP = "timestamp";
+	
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -48,6 +50,15 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		}
 		
 		json.put(AMPLITUDE, valueArray);
+		
+		long[] tsValues = micData.getTimestampArray();
+		JSONArray tsArray = new JSONArray();
+		for (int i=0; i<values.length; i++)
+		{
+			tsArray.add(tsValues[i]);
+		}
+		
+		json.put(TIMESTAMP, tsArray);		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,8 +71,24 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		long senseStartTimestamp = super.parseTimeStamp(jsonData);
+		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+		
+		JSONArray ampArray = (JSONArray)jsonData.get(AMPLITUDE);
+		JSONArray tsArray = (JSONArray)jsonData.get(TIMESTAMP);
+		
+		int[] ampValues = new int[ampArray.size()];
+		long[] tsValues = new long[tsArray.size()];
+		
+		for (int i = 0; i < ampArray.size(); i++)
+		{
+			ampValues[i] = (Integer)ampArray.get(i);
+			tsValues[i] = (Long)tsArray.get(i);
+		}
+		
+		MicrophoneData micData = new MicrophoneData(senseStartTimestamp, ampValues, tsValues, sensorConfig);
+		return micData;
 	}
 
 }
