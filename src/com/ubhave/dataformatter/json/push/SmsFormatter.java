@@ -52,8 +52,8 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long recvTimestamp = super.parseTimeStamp(jsonData);
-			int smsLength = (Integer) jsonData.get(CONTENT_LENGTH);
-			int noOfWords = (Integer) jsonData.get(WORD_COUNT);
+			int smsLength = ((Long) jsonData.get(CONTENT_LENGTH)).intValue();
+			int noOfWords = ((Long) jsonData.get(WORD_COUNT)).intValue();
 			String addr = (String) jsonData.get(ADDRESS);
 			String eventType = (String) jsonData.get(EVENT_TYPE);
 			return new SmsData(recvTimestamp, smsLength, noOfWords, addr, eventType, null);
