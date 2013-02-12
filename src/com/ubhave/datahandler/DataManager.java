@@ -98,19 +98,28 @@ public class DataManager
 				File[] files = directory.listFiles();
 				for (File file : files)
 				{
-					HashMap<String, String> paramsMap = new HashMap<String, String>();
-					paramsMap.put("password", "test");
-					String response = WebConnection.postDataToServer("test", file, paramsMap);
+					try
+					{
+						HashMap<String, String> paramsMap = new HashMap<String, String>();
+						paramsMap.put("password", "test");
+						String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
+						String response = WebConnection.postDataToServer(url, file, paramsMap);
 
-					if (response.equals("success"))
-					{
-						Log.d(TAG, "file " + file + " successfully uploaded to the server");
-						Log.d(TAG, "file " + file + " deleting local copy");
-						file.delete();
+						if (response.equals("success"))
+						{
+							Log.d(TAG, "file " + file + " successfully uploaded to the server");
+							Log.d(TAG, "file " + file + " deleting local copy");
+							file.delete();
+						}
+						else
+						{
+							Log.d(TAG, "file " + file + " failed to upload file to the server, response received: "
+									+ response);
+						}
 					}
-					else
+					catch (DataHandlerException e)
 					{
-						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+						Log.e(TAG, Log.getStackTraceString(e));
 					}
 				}
 			}
