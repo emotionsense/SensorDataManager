@@ -73,8 +73,28 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		if (jsonData != null)
+		{
+			long senseStartTimestamp = super.parseTimeStamp(jsonData);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			
+			JSONArray neighbours = (JSONArray) jsonData.get(DEVICES);
+			ArrayList<ESBluetoothDevice> btDevices = new ArrayList<ESBluetoothDevice>();
+			
+			for (int i=0; i<neighbours.size(); i++)
+			{
+				JSONObject neighbour = (JSONObject) neighbours.get(i);
+				long ts = (Long) neighbour.get(TIME_STAMP);
+				String btAddr = (String) neighbour.get(ADDRESS);
+				String btName = (String) neighbour.get(NAME);
+				float btRssi = (Float) neighbour.get(RSSI);
+				
+				btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
+			}
+			return new BluetoothData(senseStartTimestamp, btDevices, sensorConfig);
+		}
+		else return null;
 	}
 
 }
