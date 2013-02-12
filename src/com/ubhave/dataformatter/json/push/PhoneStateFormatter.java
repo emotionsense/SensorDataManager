@@ -45,7 +45,14 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		if (jsonData != null)
+		{
+			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
+			int eventType = (Integer) jsonData.get(EVENT_TYPE);
+			String data = (String) jsonData.get(DATA);
+			return new PhoneStateData(dataReceivedTimestamp, eventType, data, null);
+		}
+		else return null;
 	}
 }

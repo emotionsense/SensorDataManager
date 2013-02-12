@@ -24,6 +24,7 @@ package com.ubhave.dataformatter.json.push;
 import org.json.simple.JSONObject;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
 
@@ -102,7 +103,17 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
+		JSONObject jsonData = super.parseData(jsonString);
+		if (jsonData != null)
+		{
+			//public ConnectionStateData(long dataReceivedTimestamp,
+//			boolean isConnectedOrConnecting,
+//			boolean isAvailable,
+//			boolean isConnected,
+//			int networkType,
+//			int roamingType,
+//			final SensorConfig sensorConfig)
+		}
 		return null;
 	}
 }
