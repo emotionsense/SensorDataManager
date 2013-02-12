@@ -26,12 +26,11 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import android.net.wifi.ScanResult;
-
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.WifiData;
+import com.ubhave.sensormanager.data.pullsensor.WifiScanResult;
 
 public class WifiFormatter extends PullSensorJSONFormatter
 {
@@ -50,18 +49,18 @@ public class WifiFormatter extends PullSensorJSONFormatter
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
 	{
 		WifiData wifiData = (WifiData) data;
-		ArrayList<ScanResult> results = wifiData.getWifiScanData();
+		ArrayList<WifiScanResult> results = wifiData.getWifiScanData();
 		JSONArray resultJSON = new JSONArray();
 		if (results != null)
 		{
-			for (ScanResult result : results)
+			for (WifiScanResult result : results)
 			{
 				JSONObject scanJSON = new JSONObject();
-				scanJSON.put(SSID, result.SSID);
-				scanJSON.put(BSSID, result.BSSID);
-				scanJSON.put(CAPABILITIES, result.capabilities);
-				scanJSON.put(LEVEL, result.level);
-				scanJSON.put(FREQUENCY, result.frequency);
+				scanJSON.put(SSID, result.getSsid());
+				scanJSON.put(BSSID, result.getBssid());
+				scanJSON.put(CAPABILITIES, result.getCapabilities());
+				scanJSON.put(LEVEL, result.getLevel());
+				scanJSON.put(FREQUENCY, result.getFrequency());
 				resultJSON.add(scanJSON);
 			}
 		}
@@ -82,8 +81,30 @@ public class WifiFormatter extends PullSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		long senseStartTimestamp = super.parseTimeStamp(jsonData);
+		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+		
+		JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
+		
+		ArrayList<WifiScanResult> wifiList = new ArrayList<WifiScanResult>(); 
+		
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+			String ssid = (String)jsonObject.get(SSID);
+			String bssid = (String)jsonObject.get(BSSID);
+			String capabilities = (String)jsonObject.get(CAPABILITIES);
+			int level = (Integer)jsonObject.get(LEVEL);
+			int frequency = (Integer)jsonObject.get(FREQUENCY);
+			
+			WifiScanResult scanResult = new WifiScanResult(ssid, bssid, capabilities, level, frequency);
+			wifiList.add(scanResult);
+		}
+		
+		
+		WifiData wifiData = new WifiData(senseStartTimestamp, wifiList, sensorConfig);
+		return wifiData;
 	}
 
 }

@@ -23,12 +23,11 @@ package com.ubhave.dataformatter.csv.pull;
 
 import java.util.ArrayList;
 
-import android.net.wifi.ScanResult;
-
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.WifiData;
+import com.ubhave.sensormanager.data.pullsensor.WifiScanResult;
 
 public class WifiFormatter extends CSVFormatter
 {
@@ -45,17 +44,17 @@ public class WifiFormatter extends CSVFormatter
 	protected void addSensorSpecificData(StringBuilder builder, SensorData data)
 	{
 		WifiData wifiData = (WifiData) data;
-		ArrayList<ScanResult> results = wifiData.getWifiScanData();
+		ArrayList<WifiScanResult> results = wifiData.getWifiScanData();
 		if (results != null)
 		{
-			for (ScanResult result : results)
+			for (WifiScanResult result : results)
 			{
 				StringBuilder scanCSV = new StringBuilder();
-				scanCSV.append("{"+result.SSID);
-				scanCSV.append(";"+result.BSSID);
-				scanCSV.append(";"+result.capabilities);
-				scanCSV.append(";"+result.level);
-				scanCSV.append(";"+result.frequency);
+				scanCSV.append("{"+result.getSsid());
+				scanCSV.append(";"+result.getBssid());
+				scanCSV.append(";"+result.getCapabilities());
+				scanCSV.append(";"+result.getLevel());
+				scanCSV.append(";"+result.getFrequency());
 				scanCSV.append("}");
 				builder.append(","+scanCSV);
 			}
