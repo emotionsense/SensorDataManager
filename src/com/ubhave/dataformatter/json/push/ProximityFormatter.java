@@ -48,8 +48,8 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long recvTimestamp = super.parseTimeStamp(jsonData);
-			float distance = (Float) jsonData.get(DISTANCE);
-			float maxRange = (Float) jsonData.get(MAX_RANGE);
+			float distance = ((Double) jsonData.get(DISTANCE)).floatValue();
+			float maxRange = ((Double) jsonData.get(MAX_RANGE)).floatValue();
 			return new ProximityData(recvTimestamp, distance, maxRange, null);
 		}
 		else return null;

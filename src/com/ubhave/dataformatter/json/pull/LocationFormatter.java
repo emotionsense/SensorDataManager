@@ -42,7 +42,9 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	private final static String TIME = "time";
 
 	private final static String LOCATION_ACCURACY = "configAccuracy";
-	private final static String UNKNOWN = "unknown";
+	private final static String UNKNOWN_STRING = "unknown";
+	private final static double UNKNOWN_DOUBLE = 0.0;
+	private final static long UNKNOWN_LONG = 0;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -62,13 +64,13 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		}
 		else
 		{
-			json.put(LATITUDE, UNKNOWN);
-			json.put(LONGITUDE, UNKNOWN);
-			json.put(ACCURACY, UNKNOWN);
-			json.put(SPEED, UNKNOWN);
-			json.put(BEARING, UNKNOWN);
-			json.put(PROVIDER, UNKNOWN);
-			json.put(TIME, UNKNOWN);
+			json.put(LATITUDE, UNKNOWN_DOUBLE);
+			json.put(LONGITUDE, UNKNOWN_DOUBLE);
+			json.put(ACCURACY, UNKNOWN_DOUBLE);
+			json.put(SPEED, UNKNOWN_DOUBLE);
+			json.put(BEARING, UNKNOWN_DOUBLE);
+			json.put(PROVIDER, UNKNOWN_STRING);
+			json.put(TIME, UNKNOWN_LONG);
 		}
 	}
 
@@ -88,9 +90,9 @@ public class LocationFormatter extends PullSensorJSONFormatter
 
 		double latitude = (Double) jsonData.get(LATITUDE);
 		double longitude = (Double) jsonData.get(LONGITUDE);
-		float accuracy = (Float) jsonData.get(ACCURACY);
-		float speed = (Float) jsonData.get(SPEED);
-		float bearing = (Float) jsonData.get(BEARING);
+		float accuracy = ((Double) jsonData.get(ACCURACY)).floatValue();
+		float speed = ((Double)  jsonData.get(SPEED)).floatValue();
+		float bearing = ((Double)  jsonData.get(BEARING)).floatValue();
 		String provider = (String) jsonData.get(PROVIDER);
 		long timestamp = (Long) jsonData.get(TIME);
 

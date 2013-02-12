@@ -167,14 +167,17 @@ public class DataManager
 
 	public void logSensorData(final SensorData data) throws DataHandlerException
 	{
-		DataFormatter formatter = getDataFormatter(data.getSensorType());
-		if (transferImmediately())
+		if (data != null)
 		{
-			transfer.postData(formatter.toString(data), (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL));
-		}
-		else
-		{
-			storage.logSensorData(data, formatter);
+			DataFormatter formatter = getDataFormatter(data.getSensorType());
+			if (transferImmediately())
+			{
+				transfer.postData(formatter.toString(data), (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL));
+			}
+			else
+			{
+				storage.logSensorData(data, formatter);
+			}
 		}
 	}
 

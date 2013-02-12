@@ -83,7 +83,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		
 		for (int i = 0; i < ampArray.size(); i++)
 		{
-			ampValues[i] = (Integer)ampArray.get(i);
+			ampValues[i] = ((Long)ampArray.get(i)).intValue();
 			tsValues[i] = (Long)tsArray.get(i);
 		}
 		

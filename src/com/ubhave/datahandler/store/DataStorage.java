@@ -157,23 +157,26 @@ public class DataStorage
 			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + sensorName;
 			File dir = new File(directoryFullPath);
 			File[] files = dir.listFiles();
-			for (File file : files)
+			if (files != null)
 			{
-
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-				while (true)
+				for (File file : files)
 				{
-					String line = br.readLine();
-					if (line == null)
+
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+					while (true)
 					{
-						br.close();
-						break;
-					}
-					else
-					{
-						// convert json string to sensor data object
-						SensorData sensorData = jsonFormatter.toSensorData(line);
-						outputList.add(sensorData);
+						String line = br.readLine();
+						if (line == null)
+						{
+							br.close();
+							break;
+						}
+						else
+						{
+							// convert json string to sensor data object
+							SensorData sensorData = jsonFormatter.toSensorData(line);
+							outputList.add(sensorData);
+						}
 					}
 				}
 			}
