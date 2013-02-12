@@ -49,7 +49,7 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			int eventType = (Integer) jsonData.get(EVENT_TYPE);
+			int eventType = ((Long) jsonData.get(EVENT_TYPE)).intValue();
 			String data = (String) jsonData.get(DATA);
 			return new PhoneStateData(dataReceivedTimestamp, eventType, data, null);
 		}
