@@ -39,8 +39,25 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 		if (sleepLength != null)
 		{
 			json.put(SLEEP_LENGTH, sleepLength);
-			json.put(IS_ADAPTIVELY_SENSED, config.getParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED));
+			json.put(IS_ADAPTIVELY_SENSED, (Boolean) config.getParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED));
 		}
+	}
 
+	protected SensorConfig getGenericConfig(JSONObject json)
+	{
+		SensorConfig config = new SensorConfig();
+		try
+		{
+			Long sleepLength = (Long) json.get(SLEEP_LENGTH);
+			config.setParameter(SLEEP_LENGTH, sleepLength);
+			
+			Boolean isAdaptivelySensed = (Boolean) json.get(IS_ADAPTIVELY_SENSED);
+			config.setParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+		}
+		return config;
 	}
 }
