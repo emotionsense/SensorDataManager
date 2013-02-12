@@ -78,12 +78,32 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	{
 		json.put(LOCATION_ACCURACY, config.getParameter(SensorConfig.LOCATION_ACCURACY));
 	}
-	
+
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		long senseStartTimestamp = super.parseTimeStamp(jsonData);
+		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+
+		double latitude = (Double) jsonData.get(LATITUDE);
+		double longitude = (Double) jsonData.get(LONGITUDE);
+		float accuracy = (Float) jsonData.get(ACCURACY);
+		float speed = (Float) jsonData.get(SPEED);
+		float bearing = (Float) jsonData.get(BEARING);
+		String provider = (String) jsonData.get(PROVIDER);
+		long timestamp = (Long) jsonData.get(TIME);
+
+		Location location = new Location(provider);
+		location.setLatitude(latitude);
+		location.setLongitude(longitude);
+		location.setAccuracy(accuracy);
+		location.setSpeed(speed);
+		location.setBearing(bearing);
+		location.setTime(timestamp);
+
+		LocationData locData = new LocationData(senseStartTimestamp, location, sensorConfig);
+		return locData;
 	}
 
 }
