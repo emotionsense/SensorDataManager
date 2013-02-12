@@ -22,8 +22,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 package com.ubhave.dataformatter.json;
 
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.ubhave.sensormanager.config.SensorConfig;
 
@@ -39,19 +37,5 @@ public abstract class PushSensorJSONFormatter extends JSONFormatter
 	protected void addGenericConfig(JSONObject json, SensorConfig config)
 	{
 		// Nothing to do
-	}
-
-	protected JSONObject parseData(String jsonString)
-	{
-		try
-		{
-			JSONParser parser = new JSONParser();
-			return (JSONObject) parser.parse(jsonString);
-		}
-		catch (ParseException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
 	}
 }

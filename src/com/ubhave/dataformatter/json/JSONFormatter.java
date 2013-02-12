@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import android.annotation.SuppressLint;
 import com.ubhave.dataformatter.DataFormatter;
@@ -61,6 +63,20 @@ public abstract class JSONFormatter extends DataFormatter
 	public String toString(final SensorData data)
 	{
 		return toJSON(data).toJSONString();
+	}
+	
+	protected JSONObject parseData(String jsonString)
+	{
+		try
+		{
+			JSONParser parser = new JSONParser();
+			return (JSONObject) parser.parse(jsonString);
+		}
+		catch (ParseException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -48,7 +48,16 @@ public class SmsFormatter extends PushSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = super.parseData(jsonString);
+		if (jsonData != null)
+		{
+			long recvTimestamp = super.parseTimeStamp(jsonData);
+			int smsLength = (Integer) jsonData.get(CONTENT_LENGTH);
+			int noOfWords = (Integer) jsonData.get(WORD_COUNT);
+			String addr = (String) jsonData.get(ADDRESS);
+			String eventType = (String) jsonData.get(EVENT_TYPE);
+			return new SmsData(recvTimestamp, smsLength, noOfWords, addr, eventType, null);
+		}
+		else return null;
 	}
 }
