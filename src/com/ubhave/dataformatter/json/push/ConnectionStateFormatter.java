@@ -24,7 +24,6 @@ package com.ubhave.dataformatter.json.push;
 import org.json.simple.JSONObject;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
-import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
 
@@ -44,41 +43,71 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 
 	private String getConnectionTypeString(int type)
 	{
-		if (type == 0)
+		switch (type)
 		{
+		case 0:
 			return "NONE";
-		}
-		else if (type == 1)
-		{
+		case 1:
 			return "MOBILE";
-		}
-		else if (type == 2)
-		{
+		case 2:
 			return "WIFI";
-		}
-		else if (type == 3)
-		{
+		case 3:
 			return "OTHER";
+		default:
+			return "UNKNOWN";
+		}
+	}
+
+	private int getConnectionTypeId(String type)
+	{
+		if (type.equals("NONE"))
+		{
+			return 0;
+		}
+		else if (type.equals("MOBILE"))
+		{
+			return 1;
+		}
+		else if (type.equals("WIFI"))
+		{
+			return 2;
+		}
+		else if (type.equals("OTHER"))
+		{
+			return 3;
 		}
 		else
 		{
-			return "UNKNOWN";
+			return -1;
 		}
 	}
 
 	private String getRoamingString(int status)
 	{
-		if (status == 0)
+		switch (status)
 		{
+		case 0:
 			return "ROAMING";
-		}
-		else if (status == 1)
-		{
+		case 1:
 			return "NOT_ROAMING";
+		default:
+			return "UNKNOWN";
+		}
+	}
+
+	private int getRoamingId(String status)
+	{
+		if (status.equals("ROAMING"))
+		{
+			return 0;
+		}
+		else if (status.equals("NOT_ROAMING"))
+		{
+			return 1;
 		}
 		else
 		{
-			return "UNKNOWN";
+			return -1;
 		}
 	}
 
@@ -99,20 +128,21 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 			json.put(SSID, ssid);
 		}
 	}
-	
+
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
 		JSONObject jsonData = super.parseData(jsonString);
 		if (jsonData != null)
 		{
-			//public ConnectionStateData(long dataReceivedTimestamp,
-//			boolean isConnectedOrConnecting,
-//			boolean isAvailable,
-//			boolean isConnected,
-//			int networkType,
-//			int roamingType,
-//			final SensorConfig sensorConfig)
+			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
+			boolean isConnectedOrConnecting = (Boolean) jsonData.get(CONNECTING);
+			boolean isAvailable = (Boolean) jsonData.get(AVAILABLE);
+			boolean isConnected = (Boolean) jsonData.get(CONNECTED);
+			int networkType = getConnectionTypeId((String) jsonData.get(NETWORK_TYPE));
+			int roamingType = getRoamingId((String) jsonData.get(ROAMING));
+
+			return new ConnectionStateData(dataReceivedTimestamp, isConnectedOrConnecting, isAvailable, isConnected, networkType, roamingType, null);
 		}
 		return null;
 	}
