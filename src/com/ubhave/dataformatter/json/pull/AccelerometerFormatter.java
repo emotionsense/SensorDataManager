@@ -98,9 +98,9 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 				for (int i=0; i<xs.size(); i++)
 				{
 					float[] sample = new float[3];
-					sample[0] = (Float) xs.get(i);
-					sample[1] = (Float) ys.get(i);
-					sample[2] = (Float) zs.get(i);
+					sample[0] = ((Double)xs.get(i)).floatValue();
+					sample[1] = ((Double)ys.get(i)).floatValue();
+					sample[2] = ((Double)zs.get(i)).floatValue();
 					sensorReadings.add(sample);
 				}
 				
