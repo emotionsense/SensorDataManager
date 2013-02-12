@@ -46,6 +46,22 @@ public class ScreenFormatter extends PushSensorJSONFormatter
 			return "UNKNOWN";
 		}
 	}
+	
+	private int getScreenStatusId(String status)
+	{
+		if (status.equals("SCREEN_ON"))
+		{
+			return ScreenData.SCREEN_ON;
+		}
+		else if (status.equals("SCREEN_OFF"))
+		{
+			return ScreenData.SCREEN_OFF;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -58,7 +74,13 @@ public class ScreenFormatter extends PushSensorJSONFormatter
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
-		// TODO
-		return null;
+		JSONObject jsonData = parseData(jsonString);
+		if (jsonData != null)
+		{
+			long timestamp = super.parseTimeStamp(jsonData);
+			int screenStatus = getScreenStatusId((String) jsonData.get(STATUS));
+			return new ScreenData(timestamp, screenStatus, null);
+		}
+		else return null;
 	}
 }
