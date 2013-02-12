@@ -21,6 +21,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.pull;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
@@ -39,7 +40,14 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
 	{
 		MicrophoneData micData = (MicrophoneData) data;
-		json.put(AMPLITUDE, micData.getAmplitudeString());
+		int[] values = micData.getAmplitudeArray();
+		JSONArray valueArray = new JSONArray();
+		for (int i=0; i<values.length; i++)
+		{
+			valueArray.add(values[i]);
+		}
+		
+		json.put(AMPLITUDE, valueArray);
 	}
 
 	@SuppressWarnings("unchecked")
