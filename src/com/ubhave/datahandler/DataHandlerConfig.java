@@ -9,6 +9,7 @@ public class DataHandlerConfig
 {
 	// Config Keys
 	public final static String DATA_POST_TARGET_URL = "dataTargetURL";
+	public final static String DATA_POST_TARGET_URL_PASSWD = "dataTargetURLPasswd";
 	public final static String ERROR_POST_TARGET_URL = "errorTargetURL";
 	public final static String EXTRA_POST_TARGET_URL = "extraTargetURL";
 
@@ -67,6 +68,8 @@ public class DataHandlerConfig
 
 		validKeys = new HashSet<String>();
 		validKeys.add(DATA_POST_TARGET_URL);
+		validKeys.add(DATA_POST_TARGET_URL_PASSWD);
+
 		validKeys.add(ERROR_POST_TARGET_URL);
 		validKeys.add(EXTRA_POST_TARGET_URL);
 		validKeys.add(DATA_FORMAT);

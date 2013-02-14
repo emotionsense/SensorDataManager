@@ -101,7 +101,7 @@ public class DataManager
 					try
 					{
 						HashMap<String, String> paramsMap = new HashMap<String, String>();
-						paramsMap.put("password", "test");
+						paramsMap.put("password", (String)config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
 						String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
 						String response = WebConnection.postDataToServer(url, file, paramsMap);
 

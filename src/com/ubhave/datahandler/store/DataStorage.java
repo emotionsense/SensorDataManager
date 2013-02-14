@@ -201,7 +201,6 @@ public class DataStorage
 			}
 		}
 		return lock;
-
 	}
 
 	private void writeData(String directoryName, String data) throws DataHandlerException
