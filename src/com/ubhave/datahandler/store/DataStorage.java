@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -127,7 +128,7 @@ public class DataStorage
 
 		byte[] buffer = new byte[1024];
 
-		File outputFile = new File(inputFile.getAbsolutePath() + ".gz");
+		File outputFile = new File(getUniqueUserIdentifier() + "_" + inputFile.getAbsolutePath() + ".gz");
 		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		FileInputStream in = new FileInputStream(inputFile);
 
@@ -143,6 +144,12 @@ public class DataStorage
 		gzipOS.close();
 
 		return outputFile;
+	}
+	
+	private String getUniqueUserIdentifier()
+	{
+		String imeiPhone = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+		return imeiPhone;
 	}
 
 	public List<SensorData> getRecentSensorData(int sensorId) throws ESException, IOException
