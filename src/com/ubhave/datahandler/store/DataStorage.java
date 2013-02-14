@@ -48,7 +48,7 @@ public class DataStorage
 		File latestFile = null;
 		for (File file : files)
 		{
-			if (file.isFile())
+			if (file.isFile() && file.getName().endsWith(".log"))
 			{
 				long update = file.lastModified();
 				if (update > latestUpdate)
@@ -95,7 +95,18 @@ public class DataStorage
 		File[] files = directory.listFiles();
 		for (File file : files)
 		{
-			if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
+			if (file.getName().endsWith(".gz"))
+			{
+				try
+				{
+					DataManager.getInstance(context).moveFileToUploadDir(file);
+				}
+				catch (Exception e)
+				{
+					Log.e(TAG, Log.getStackTraceString(e));
+				}
+			}
+			else if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
 			{
 				if (file.length() <= 0)
 				{
@@ -128,7 +139,8 @@ public class DataStorage
 
 		byte[] buffer = new byte[1024];
 
-		File outputFile = new File(getUniqueUserIdentifier() + "_" + inputFile.getAbsolutePath() + ".gz");
+		File outputFile = new File(inputFile.getParent() + "/" + getUniqueUserIdentifier() + "_" + inputFile.getName()
+				+ ".gz");
 		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		FileInputStream in = new FileInputStream(inputFile);
 
@@ -145,7 +157,7 @@ public class DataStorage
 
 		return outputFile;
 	}
-	
+
 	private String getUniqueUserIdentifier()
 	{
 		String imeiPhone = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();

@@ -88,7 +88,7 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 				long ts = (Long) neighbour.get(TIME_STAMP);
 				String btAddr = (String) neighbour.get(ADDRESS);
 				String btName = (String) neighbour.get(NAME);
-				float btRssi = (Float) neighbour.get(RSSI);
+				float btRssi = ((Double) neighbour.get(RSSI)).floatValue();
 				
 				btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
 			}
