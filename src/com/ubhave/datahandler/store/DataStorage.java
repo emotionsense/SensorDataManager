@@ -139,8 +139,14 @@ public class DataStorage
 
 		byte[] buffer = new byte[1024];
 
-		File outputFile = new File(inputFile.getParent() + "/" + getUniqueUserIdentifier() + "_" + inputFile.getName()
-				+ ".gz");
+		String parentFullPath = inputFile.getParent();
+		File tempFile = new File(parentFullPath);
+		String parentDirName = tempFile.getName();
+
+		String gzipFileName = parentFullPath + "/" + getUniqueUserIdentifier() + "_" + parentDirName + "_"
+				+ inputFile.getName() + ".gz";
+
+		File outputFile = new File(gzipFileName);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		FileInputStream in = new FileInputStream(inputFile);
 
