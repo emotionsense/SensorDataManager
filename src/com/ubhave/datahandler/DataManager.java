@@ -92,7 +92,7 @@ public class DataManager
 	{
 		synchronized (fileTransferLock)
 		{
-			if (isWiFiConnected())
+			if (isConnectedToANetwork())
 			{
 				File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
 				File[] files = directory.listFiles();
@@ -101,7 +101,7 @@ public class DataManager
 					try
 					{
 						HashMap<String, String> paramsMap = new HashMap<String, String>();
-						paramsMap.put("password", (String)config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
+						paramsMap.put("password", (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
 						String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
 						String response = WebConnection.postDataToServer(url, file, paramsMap);
 
@@ -205,18 +205,22 @@ public class DataManager
 		}
 	}
 
-	public boolean isWiFiConnected()
+	public boolean isConnectedToANetwork()
 	{
 		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		NetworkInfo mNetwork = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
 		if (wifi.isConnected())
 		{
 			return true;
 		}
-		else
+
+		if (mNetwork.isConnected())
 		{
 			return false;
 		}
+
+		return false;
 	}
 }
