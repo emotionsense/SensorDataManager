@@ -104,32 +104,4 @@ public class WebConnection
 		}
 		return sb.toString();
 	}
-
-//	public static String getExperimentConfigVersion()
-//	{
-//		HashMap<String, String> paramsMap = new HashMap<String, String>();
-//		paramsMap.put("experimentId", UserPreferences.getExperimentId());
-//		ESLogger.log(LOG_TAG, "getExperimentConfigVersion() received response: ");
-//		String version = postDataToServer(Constants.WEB_URL_GET_EXPT_CONFIG, null, paramsMap);
-//		return version;
-//	}
-//
-//	public static String getExperimentJsonConfigFile(String jsonConfigFileName)
-//	{
-//		HashMap<String, String> paramsMap = new HashMap<String, String>();
-//		paramsMap.put("experimentId", UserPreferences.getExperimentId());
-//		paramsMap.put("jsonConfigFile", jsonConfigFileName);
-//		String fileContents = postDataToServer(Constants.WEB_URL_GET_JSON_CONFIG, null, paramsMap);
-//		ESLogger.log(LOG_TAG, "getExperimentJsonConfigFile() received response length: " + fileContents.length());
-//		return fileContents;
-//	}
-//
-//	public static String uploadFileToServer(String url, String fileFullPath, String fileType, HashMap<String, String> paramsMap)
-//	{
-//		ESLogger.log(LOG_TAG, "uploadFileToServer() uploading file : " + fileFullPath);
-//		File file = new File(fileFullPath);
-//		FileBody fileBody = new FileBody(file, fileType);
-//
-//		return postDataToServer(url, fileBody, paramsMap);
-//	}
 }
