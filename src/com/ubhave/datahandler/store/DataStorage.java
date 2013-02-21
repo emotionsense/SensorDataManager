@@ -170,7 +170,7 @@ public class DataStorage
 		return imeiPhone;
 	}
 
-	public List<SensorData> getRecentSensorData(int sensorId) throws ESException, IOException
+	public List<SensorData> getRecentSensorData(int sensorId, long timeLimit) throws ESException, IOException
 	{
 		String sensorName = SensorUtils.getSensorName(sensorId);
 		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
@@ -200,7 +200,10 @@ public class DataStorage
 						{
 							// convert json string to sensor data object
 							SensorData sensorData = jsonFormatter.toSensorData(line);
-							outputList.add(sensorData);
+							if (sensorData.getTimestamp() >= timeLimit)
+							{
+								outputList.add(sensorData);
+							}
 						}
 					}
 				}
