@@ -126,9 +126,9 @@ public class DataManager
 		}
 	}
 
-	public List<SensorData> getRecentSensorData(int sensorId, long timeLimit) throws ESException, IOException
+	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
 	{
-		return storage.getRecentSensorData(sensorId, timeLimit);
+		return storage.getRecentSensorData(sensorId, startTimestamp);
 	}
 
 	private boolean transferImmediately()
