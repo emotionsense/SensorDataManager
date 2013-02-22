@@ -65,6 +65,13 @@ public abstract class JSONFormatter extends DataFormatter
 		return toJSON(data).toJSONString();
 	}
 	
+	public long getTimestamp(String sensorDataJsonString)
+	{
+		JSONObject jsonObject = parseData(sensorDataJsonString);
+		long timestamp = parseTimeStamp(jsonObject);
+		return timestamp;
+	}
+	
 	protected JSONObject parseData(String jsonString)
 	{
 		try

@@ -186,7 +186,6 @@ public class DataStorage
 			{
 				for (File file : files)
 				{
-
 					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 					while (true)
 					{
@@ -199,10 +198,14 @@ public class DataStorage
 						else
 						{
 							// convert json string to sensor data object
-							SensorData sensorData = jsonFormatter.toSensorData(line);
-							if (sensorData.getTimestamp() >= startTimestamp)
+							long timestamp = jsonFormatter.getTimestamp(line);
+							if (timestamp >= startTimestamp)
 							{
-								outputList.add(sensorData);
+								SensorData sensorData = jsonFormatter.toSensorData(line);
+								if (sensorData.getTimestamp() >= startTimestamp)
+								{
+									outputList.add(sensorData);
+								}
 							}
 						}
 					}
