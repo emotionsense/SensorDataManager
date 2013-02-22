@@ -128,7 +128,13 @@ public class DataManager
 
 	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
 	{
-		return storage.getRecentSensorData(sensorId, startTimestamp);
+		long startTime = System.currentTimeMillis();
+		List<SensorData> recentData = storage.getRecentSensorData(sensorId, startTimestamp);
+		long duration = System.currentTimeMillis() - startTime;
+		
+		Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
+		
+		return recentData;
 	}
 
 	private boolean transferImmediately()
