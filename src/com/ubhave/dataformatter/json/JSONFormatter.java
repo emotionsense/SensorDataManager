@@ -30,6 +30,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
+
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
@@ -39,6 +41,8 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 @SuppressLint("SimpleDateFormat")
 public abstract class JSONFormatter extends DataFormatter
 {
+	
+	private static final String TAG = "JSONFormatter";
 
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
@@ -67,8 +71,12 @@ public abstract class JSONFormatter extends DataFormatter
 	
 	public long getTimestamp(String sensorDataJsonString)
 	{
+		long timestamp = 0;
 		JSONObject jsonObject = parseData(sensorDataJsonString);
-		long timestamp = parseTimeStamp(jsonObject);
+		if (jsonObject != null)
+		{
+			timestamp = parseTimeStamp(jsonObject);
+		}
 		return timestamp;
 	}
 	
@@ -81,7 +89,8 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 		catch (ParseException e)
 		{
-			e.printStackTrace();
+			Log.e(TAG, "error in parsing: " + jsonString);
+			Log.e(TAG, Log.getStackTraceString(e));
 			return null;
 		}
 	}
