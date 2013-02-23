@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -28,6 +30,8 @@ public class DataManager
 	private final DataStorage storage;
 	private final DataTransfer transfer;
 	private final DataHandlerEventManager eventManager;
+
+	private final String LAST_LOGS_UPLOAD_TIME = "com.ubhave.datahandler.LAST_LOGS_UPLOAD_TIME";
 
 	private Context context;
 
@@ -56,6 +60,9 @@ public class DataManager
 		storage = new DataStorage(context);
 		transfer = new DataTransfer();
 		eventManager = new DataHandlerEventManager(context, this);
+
+		// reset the shared preferences to app start time
+		updateLogsUploadSharedPrefs(System.currentTimeMillis());
 	}
 
 	public void setConfig(final String key, final Object value) throws DataHandlerException
@@ -87,6 +94,14 @@ public class DataManager
 			}
 		}.start();
 	}
+	
+	private void updateLogsUploadSharedPrefs(long timestamp)
+	{
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor prefsEditor = preferences.edit();
+		prefsEditor.putLong(LAST_LOGS_UPLOAD_TIME, timestamp);
+		prefsEditor.commit();
+	}
 
 	public void transferStoredData()
 	{
@@ -110,6 +125,9 @@ public class DataManager
 							Log.d(TAG, "file " + file + " successfully uploaded to the server");
 							Log.d(TAG, "file " + file + " deleting local copy");
 							file.delete();
+
+							// update last logs upload time
+							updateLogsUploadSharedPrefs(System.currentTimeMillis());
 						}
 						else
 						{
@@ -131,9 +149,9 @@ public class DataManager
 		long startTime = System.currentTimeMillis();
 		List<SensorData> recentData = storage.getRecentSensorData(sensorId, startTimestamp);
 		long duration = System.currentTimeMillis() - startTime;
-		
+
 		Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
-		
+
 		return recentData;
 	}
 
@@ -222,9 +240,21 @@ public class DataManager
 			return true;
 		}
 
-		if (mNetwork.isConnected())
+		// check if no files have been transfered in the last 24 hours
+		// if yes then use mobile network
+
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		long lastUploadTime = preferences.getLong(LAST_LOGS_UPLOAD_TIME, 0);
+
+		if (lastUploadTime > 0)
 		{
-			return false;
+			if ((System.currentTimeMillis() - lastUploadTime) > (long)(24 * 60 * 60 * 1000))
+			{
+				if (mNetwork.isConnected())
+				{
+					return true;
+				}
+			}
 		}
 
 		return false;
