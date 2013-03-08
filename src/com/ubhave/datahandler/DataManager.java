@@ -74,22 +74,24 @@ public class DataManager
 		}
 	}
 
-	public void moveFileToUploadDir(File file)
+	public void moveFileToUploadDir(final File file)
 	{
-		synchronized (fileTransferLock)
-		{
-			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
-			if (!directory.exists())
-			{
-				directory.mkdirs();
-			}
-			file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
-		}
-		// start a background thread to transfer log files to the server
+		// start a background thread to move files + transfer log files to the server
 		new Thread()
 		{
 			public void run()
 			{
+				// move files
+				synchronized (fileTransferLock)
+				{
+					File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+					if (!directory.exists())
+					{
+						directory.mkdirs();
+					}
+					file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
+				}
+				// transfer log files to the server
 				DataManager.this.transferStoredData();
 			}
 		}.start();
