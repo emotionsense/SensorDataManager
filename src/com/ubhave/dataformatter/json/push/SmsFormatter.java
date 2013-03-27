@@ -43,6 +43,7 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		json.put(WORD_COUNT, smsData.getNoOfWords());
 		json.put(EVENT_TYPE, smsData.getEventType());
 		json.put(ADDRESS, smsData.getAddress());
+		// TODO set features
 	}
 	
 	@Override
@@ -52,11 +53,23 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long recvTimestamp = super.parseTimeStamp(jsonData);
-			int smsLength = ((Long) jsonData.get(CONTENT_LENGTH)).intValue();
-			int noOfWords = ((Long) jsonData.get(WORD_COUNT)).intValue();
-			String addr = (String) jsonData.get(ADDRESS);
-			String eventType = (String) jsonData.get(EVENT_TYPE);
-			return new SmsData(recvTimestamp, smsLength, noOfWords, addr, eventType, null);
+			SmsData data = new SmsData(recvTimestamp, null);
+			
+			Integer smsLength = getInteger(CONTENT_LENGTH, jsonData);
+			if (smsLength != null) data.setContentLength(smsLength);
+			
+			Integer numberOfWords = getInteger(WORD_COUNT, jsonData);
+			if (numberOfWords != null) data.setNumberOfWords(numberOfWords);
+			
+			String addr = getString(ADDRESS, jsonData);
+			if (addr != null) data.setAddress(addr);
+			
+			String eventType = getString(EVENT_TYPE, jsonData);
+			if (eventType != null) data.setEventType(eventType);
+			
+			// TODO extract features
+			
+			return data;
 		}
 		else return null;
 	}

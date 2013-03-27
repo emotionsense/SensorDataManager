@@ -137,4 +137,30 @@ public abstract class JSONFormatter extends DataFormatter
 	protected abstract void addSensorSpecificData(JSONObject json, SensorData data);
 
 	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config);
+	
+	protected Integer getInteger(String key, JSONObject data)
+	{
+		try
+		{
+			Integer value = ((Long) data.get(key)).intValue();
+			return value;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+	
+	protected String getString(String key, JSONObject data)
+	{
+		try
+		{
+			String value = (String) data.get(key);
+			return value;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
 }

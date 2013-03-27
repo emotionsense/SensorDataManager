@@ -32,6 +32,7 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 
 	private final static String EVENT_TYPE = "eventType";
 	private final static String DATA = "data";
+	private final static String NUMBER = "number";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -40,6 +41,7 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		PhoneStateData phoneStateData = (PhoneStateData) data;
 		json.put(EVENT_TYPE, phoneStateData.getEventType());
 		json.put(DATA, phoneStateData.getData());
+		json.put(NUMBER, phoneStateData.getNumber());
 	}
 	
 	@Override
@@ -49,9 +51,18 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			int eventType = ((Long) jsonData.get(EVENT_TYPE)).intValue();
-			String data = (String) jsonData.get(DATA);
-			return new PhoneStateData(dataReceivedTimestamp, eventType, data, null);
+			PhoneStateData data = new PhoneStateData(dataReceivedTimestamp, null);
+			
+			Integer eventType = getInteger(EVENT_TYPE, jsonData);
+			if (eventType != null) data.setEventType(eventType);
+			
+			String callData = getString(DATA, jsonData);
+			if (callData != null) data.setData(callData);
+			
+			String number = getString(NUMBER, jsonData);
+			if (number != null) data.setNumber(number);
+			
+			return data;
 		}
 		else return null;
 	}
