@@ -176,4 +176,21 @@ public abstract class JSONFormatter extends DataFormatter
 			return null;
 		}
 	}
+	
+	protected Float getFloat(String key, JSONObject data)
+	{
+		try
+		{
+			Double value = (Double) data.get(key);
+			if (value != null)
+			{
+				return value.floatValue();
+			}
+			else return null;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
 }

@@ -78,8 +78,13 @@ public class ScreenFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long timestamp = super.parseTimeStamp(jsonData);
-			int screenStatus = getScreenStatusId((String) jsonData.get(STATUS));
-			return new ScreenData(timestamp, screenStatus, null);
+			ScreenData data = new ScreenData(timestamp, null);
+			String status = getString(STATUS, jsonData);
+			if (status != null)
+			{
+				data.setStatus(getScreenStatusId(status));
+			}
+			return data;
 		}
 		else return null;
 	}
