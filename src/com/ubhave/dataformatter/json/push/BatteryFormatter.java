@@ -160,14 +160,30 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long timestamp = parseTimeStamp(jsonData);
-			int level = ((Long) jsonData.get(LEVEL)).intValue();
-			int scale = ((Long) jsonData.get(SCALE)).intValue();
-			int temperature = ((Long) jsonData.get(TEMPERATURE)).intValue();
-			int voltage = ((Long) jsonData.get(VOLTAGE)).intValue();
-			int plugged = ((Long) jsonData.get(PLUGGED)).intValue();
-			int status = getStatusId((String) jsonData.get(STATUS));
-			int health = getHealthId((String) jsonData.get(HEALTH));
-			return new BatteryData(timestamp, level, scale, temperature, voltage, plugged, status, health, null);
+			BatteryData data = new BatteryData(timestamp, null);
+			
+			Integer level = getInteger(LEVEL, jsonData);
+			if (level != null) data.setBatteryLevel(level);
+			
+			Integer scale = getInteger(SCALE, jsonData);
+			if (scale != null) data.setScale(scale);
+			
+			Integer temperature = getInteger(TEMPERATURE, jsonData);
+			if (temperature != null) data.setTemperature(temperature);
+			
+			Integer voltage = getInteger(VOLTAGE, jsonData);
+			if (voltage != null) data.setVoltage(voltage);
+			
+			Integer plugged = getInteger(PLUGGED, jsonData);
+			if (plugged != null) data.setPlugged(plugged);
+			
+			Integer status = getStatusId(getString(STATUS, jsonData));
+			if (status != null) data.setStatus(status);
+			
+			Integer health = getHealthId(getString(HEALTH, jsonData));
+			if (health != null) data.setHealth(health);
+			
+			return data;
 		}
 		else
 		{

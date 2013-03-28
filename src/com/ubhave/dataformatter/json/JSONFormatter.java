@@ -163,4 +163,17 @@ public abstract class JSONFormatter extends DataFormatter
 			return null;
 		}
 	}
+	
+	protected Boolean getBoolean(String key, JSONObject data)
+	{
+		try
+		{
+			Boolean value = (Boolean) data.get(key);
+			return value;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
 }
