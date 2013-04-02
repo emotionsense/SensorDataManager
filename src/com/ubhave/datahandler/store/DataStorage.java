@@ -46,15 +46,18 @@ public class DataStorage
 		File[] files = directory.listFiles();
 		long latestUpdate = Long.MIN_VALUE;
 		File latestFile = null;
-		for (File file : files)
+		if (files != null)
 		{
-			if (file.isFile() && file.getName().endsWith(".log"))
+			for (File file : files)
 			{
-				long update = file.lastModified();
-				if (update > latestUpdate)
+				if (file.isFile() && file.getName().endsWith(".log"))
 				{
-					latestUpdate = update;
-					latestFile = file;
+					long update = file.lastModified();
+					if (update > latestUpdate)
+					{
+						latestUpdate = update;
+						latestFile = file;
+					}
 				}
 			}
 		}
