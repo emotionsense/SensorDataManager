@@ -111,7 +111,11 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 					sensorReadingTimestamps.add((Long) ts.get(i));
 				}
 				
-				return new AccelerometerData(senseStartTimestamp, sensorReadings, sensorReadingTimestamps, sensorConfig);
+				AccelerometerData accData = new AccelerometerData(senseStartTimestamp, sensorConfig);
+				accData.setSensorReadings(sensorReadings);
+				accData.setSensorReadingTimestamps(sensorReadingTimestamps);
+				
+				return accData;
 			}
 			catch (NullPointerException e)
 			{

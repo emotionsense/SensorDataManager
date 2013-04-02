@@ -33,23 +33,23 @@ import com.ubhave.sensormanager.data.pullsensor.BluetoothData;
 import com.ubhave.sensormanager.data.pullsensor.ESBluetoothDevice;
 
 public class BluetoothFormatter extends PullSensorJSONFormatter
-{	
-	
+{
+
 	private final static String DEVICES = "devices";
 	private final static String TIME_STAMP = "timeStamp";
 	private final static String ADDRESS = "address";
 	private final static String NAME = "name";
 	private final static String RSSI = "rssi";
-	
+
 	private final static String SENSE_CYCLES = "senseCycles";
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
 	{
 		BluetoothData bluetoothData = (BluetoothData) data;
 		ArrayList<ESBluetoothDevice> devices = bluetoothData.getBluetoothDevices();
-		
+
 		JSONArray neighbours = new JSONArray();
 		for (ESBluetoothDevice device : devices)
 		{
@@ -69,7 +69,7 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 	{
 		json.put(SENSE_CYCLES, config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
-	
+
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
@@ -78,23 +78,30 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 		{
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-			
+
 			JSONArray neighbours = (JSONArray) jsonData.get(DEVICES);
 			ArrayList<ESBluetoothDevice> btDevices = new ArrayList<ESBluetoothDevice>();
-			
-			for (int i=0; i<neighbours.size(); i++)
+
+			for (int i = 0; i < neighbours.size(); i++)
 			{
 				JSONObject neighbour = (JSONObject) neighbours.get(i);
 				long ts = (Long) neighbour.get(TIME_STAMP);
 				String btAddr = (String) neighbour.get(ADDRESS);
 				String btName = (String) neighbour.get(NAME);
 				float btRssi = ((Double) neighbour.get(RSSI)).floatValue();
-				
+
 				btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
 			}
-			return new BluetoothData(senseStartTimestamp, btDevices, sensorConfig);
+
+			BluetoothData bData = new BluetoothData(senseStartTimestamp, sensorConfig);
+			bData.setBluetoothDevices(btDevices);
+
+			return bData;
 		}
-		else return null;
+		else
+		{
+			return null;
+		}
 	}
 
 }

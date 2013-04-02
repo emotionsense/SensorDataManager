@@ -104,7 +104,9 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		location.setBearing(bearing);
 		location.setTime(timestamp);
 
-		LocationData locData = new LocationData(senseStartTimestamp, location, sensorConfig);
+		LocationData locData = new LocationData(senseStartTimestamp, sensorConfig);
+		locData.setLocation(location);
+		
 		return locData;
 	}
 
