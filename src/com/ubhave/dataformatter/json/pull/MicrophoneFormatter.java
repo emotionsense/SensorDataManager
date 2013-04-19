@@ -95,7 +95,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		
 		try
 		{
-			ArrayList<Integer> amplitudes = getJSONArray(jsonData, AMPLITUDE, Integer.class);
+			ArrayList<Long> amplitudes = getJSONArray(jsonData, AMPLITUDE, Long.class);
 			ArrayList<Long> timestamps = getJSONArray(jsonData, TIMESTAMP, Long.class);
 			
 			ampValues = new int[amplitudes.size()];
@@ -103,7 +103,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 			
 			for (int i=0; i<amplitudes.size(); i++)
 			{
-				ampValues[i] = amplitudes.get(i);
+				ampValues[i] = Long.valueOf(amplitudes.get(i)).intValue();
 				tsValues[i] = timestamps.get(i);
 			}
 		}
