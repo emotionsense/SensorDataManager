@@ -112,13 +112,6 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 			setRawData = false;
 		}
 		
-<<<<<<< HEAD
-		MicrophoneData micData = new MicrophoneData(senseStartTimestamp, sensorConfig);
-		micData.setMaxAmplitudeArray(ampValues);
-		micData.setTimestampArray(tsValues);
-
-		return micData;
-=======
 		try
 		{
 			AudioProcessor processor = (AudioProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
@@ -129,7 +122,6 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 			e.printStackTrace();
 			return null;
 		}
->>>>>>> Updating to use latest SensorManager library
 	}
 
 }

@@ -122,22 +122,6 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 					sample[2] = ((Double)zs.get(i)).floatValue();
 					sensorReadings.add(sample);
 				}
-<<<<<<< HEAD
-				
-				JSONArray ts = (JSONArray) jsonData.get(READING_TIMESTAMPS);
-				ArrayList<Long> sensorReadingTimestamps = new ArrayList<Long>();
-				for (int i=0; i<ts.size(); i++)
-				{
-					sensorReadingTimestamps.add((Long) ts.get(i));
-				}
-				
-				AccelerometerData accData = new AccelerometerData(senseStartTimestamp, sensorConfig);
-				accData.setSensorReadings(sensorReadings);
-				accData.setSensorReadingTimestamps(sensorReadingTimestamps);
-				
-				return accData;
-=======
->>>>>>> Updating to use latest SensorManager library
 			}
 			catch (NullPointerException e)
 			{
@@ -158,8 +142,6 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 		else
 		{
 			return null;
-		}
-			
+		}	
 	}
-
 }
