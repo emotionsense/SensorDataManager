@@ -21,6 +21,8 @@ public class DataManager implements DataManagerInterface
 	private static final Object singletonLock = new Object();
 	private static DataManager instance;
 
+	private static final Object fileTransferLock = new Object();
+
 	private final Context context;
 	private final DataHandlerConfig config;
 	private final DataStorageInterface storage;
@@ -46,7 +48,7 @@ public class DataManager implements DataManagerInterface
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
-		storage = new DataStorage(context);
+		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
 		eventManager = new DataHandlerEventManager(context, this);
 	}
@@ -149,10 +151,14 @@ public class DataManager implements DataManagerInterface
 			storage.logExtra(tag, data);
 		}
 	}
-	
+
 	@Override
 	public void transferStoredData()
 	{
-		storage.movesFilesAndUpload(transfer);
+		storage.moveArchivedFilesForUpload();
+		synchronized (fileTransferLock)
+		{
+			transfer.attemptDataUpload();
+		}
 	}
 }

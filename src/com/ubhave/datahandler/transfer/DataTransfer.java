@@ -19,57 +19,55 @@ public class DataTransfer implements DataTransferInterface
 	private static final String LAST_LOGS_UPLOAD_TIME = "com.ubhave.datahandler.LAST_LOGS_UPLOAD_TIME";
 	private final Context context;
 	private final DataHandlerConfig config;
-	
+
 	public DataTransfer(final Context context)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		
+
 		// reset the shared preferences to app start time
 		setLogsUploadTime(System.currentTimeMillis());
 	}
-	
+
 	@Override
-	public void attemptDataUpload(final Object fileTransferLock)
+	public void attemptDataUpload()
 	{
-		synchronized (fileTransferLock)
+		if (isConnectedToANetwork())
 		{
-			if (isConnectedToANetwork())
+			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+			File[] files = directory.listFiles();
+			for (File file : files)
 			{
-				File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
-				File[] files = directory.listFiles();
-				for (File file : files)
+				try
 				{
-					try
-					{
-						HashMap<String, String> paramsMap = new HashMap<String, String>();
-						paramsMap.put("password", (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
-						String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
-						String response = WebConnection.postDataToServer(url, file, paramsMap);
+					HashMap<String, String> paramsMap = new HashMap<String, String>();
+					paramsMap.put("password", (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
+					String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
+					String response = WebConnection.postDataToServer(url, file, paramsMap);
 
-						if (response.equals("success"))
-						{
-							Log.d(TAG, "file " + file + " successfully uploaded to the server");
-							Log.d(TAG, "file " + file + " deleting local copy");
-							file.delete();
-
-							// update last logs upload time
-							setLogsUploadTime(System.currentTimeMillis());
-						}
-						else
-						{
-							Log.d(TAG, "file " + file + " failed to upload file to the server, response received: "+ response);
-						}
-					}
-					catch (DataHandlerException e)
+					if (response.equals("success"))
 					{
-						Log.e(TAG, Log.getStackTraceString(e));
+						Log.d(TAG, "file " + file + " successfully uploaded to the server");
+						Log.d(TAG, "file " + file + " deleting local copy");
+						file.delete();
+
+						// update last logs upload time
+						setLogsUploadTime(System.currentTimeMillis());
 					}
+					else
+					{
+						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					}
+				}
+				catch (DataHandlerException e)
+				{
+					Log.e(TAG, Log.getStackTraceString(e));
 				}
 			}
 		}
+
 	}
-	
+
 	private void setLogsUploadTime(long timestamp)
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -77,13 +75,13 @@ public class DataTransfer implements DataTransferInterface
 		prefsEditor.putLong(LAST_LOGS_UPLOAD_TIME, timestamp);
 		prefsEditor.commit();
 	}
-	
+
 	public long getLogsUploadTime()
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return preferences.getLong(LAST_LOGS_UPLOAD_TIME, 0);
 	}
-	
+
 	private boolean isConnectedToANetwork()
 	{
 		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -102,7 +100,7 @@ public class DataTransfer implements DataTransferInterface
 
 		if (lastUploadTime > 0)
 		{
-			if ((System.currentTimeMillis() - lastUploadTime) > (long)(24 * 60 * 60 * 1000))
+			if ((System.currentTimeMillis() - lastUploadTime) > (long) (24 * 60 * 60 * 1000))
 			{
 				if (mNetwork.isConnected())
 				{

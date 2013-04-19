@@ -19,7 +19,6 @@ import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
-import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -27,7 +26,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public class DataStorage implements DataStorageInterface
 {
 	private static final String TAG = "DataStorage";
-	private static final Object fileTransferLock = new Object();
+	private final Object fileTransferLock;
 	private static final String UNKNOWN_SENSOR = "Unknown_Sensor";
 	private static final String ERROR_DIRECTORY_NAME = "Error_Log";
 
@@ -35,12 +34,13 @@ public class DataStorage implements DataStorageInterface
 
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
-	public DataStorage(Context context)
+	public DataStorage(Context context, final Object fileTransferLock)
 	{
 		this.context = context;
+		this.fileTransferLock = fileTransferLock;
 	}
 
-	private String getFileName(String directoryFullPath) throws DataHandlerException, IOException
+	private String checkLastEditedFile(String directoryFullPath) throws DataHandlerException, IOException
 	{
 		File directory = new File(directoryFullPath);
 		File[] files = directory.listFiles();
@@ -67,7 +67,7 @@ public class DataStorage implements DataStorageInterface
 			// TODO this should not check against a default value
 			if (isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 			{
-//				moveFilesForUploadingToServer(directoryFullPath); // TODO removed for now
+				moveDirectoryContentsForUpload(directoryFullPath);
 				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
 			}
 		}
@@ -93,7 +93,7 @@ public class DataStorage implements DataStorageInterface
 		}
 	}
 	
-	private void moveFileToUploadDir(final File file, final DataTransferInterface transfer)
+	private void moveFileToUploadDir(final File file)
 	{
 		// start a background thread to move files + transfer log files to the server
 		new Thread()
@@ -110,12 +110,11 @@ public class DataStorage implements DataStorageInterface
 					}
 					file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
 				}
-				transfer.attemptDataUpload(fileTransferLock);
 			}
 		}.start();
 	}
 
-	private void moveDirectoryContentsForUpload(String directoryFullPath, final DataTransferInterface transfer) throws DataHandlerException, IOException
+	private void moveDirectoryContentsForUpload(String directoryFullPath) throws DataHandlerException, IOException
 	{
 		Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
 		File directory = new File(directoryFullPath);
@@ -124,7 +123,7 @@ public class DataStorage implements DataStorageInterface
 		{
 			if (file.getName().endsWith(".gz"))
 			{
-				moveFileToUploadDir(file, transfer);
+				moveFileToUploadDir(file);
 			}
 			else if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
 			{
@@ -136,7 +135,7 @@ public class DataStorage implements DataStorageInterface
 				{
 					Log.d(TAG, "gzip file " + file);
 					File gzippedFile = gzipFile(file);
-					moveFileToUploadDir(gzippedFile, transfer);
+					moveFileToUploadDir(gzippedFile);
 					Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
 					Log.d(TAG, "deleting file: " + file.getAbsolutePath());
 					file.delete();
@@ -146,7 +145,7 @@ public class DataStorage implements DataStorageInterface
 	}
 	
 	@Override
-	public void movesFilesAndUpload(final DataTransferInterface transfer)
+	public void moveArchivedFilesForUpload()
 	{
 		File[] rootDirectory = (new File(DataHandlerConfig.PHONE_STORAGE_DIR)).listFiles();
 		for (File directory : rootDirectory)
@@ -154,11 +153,11 @@ public class DataStorage implements DataStorageInterface
 			String directoryName = directory.getName();
 			if (!directoryName.contains(DataHandlerConfig.UPLOAD_DIRECTORY))
 			{
-				synchronized (getLock(directoryName))  // TODO check/test lock is correct
+				synchronized (getLock(directoryName))
 				{
 					try
 					{
-						moveDirectoryContentsForUpload(directory.getAbsolutePath(), transfer);
+						moveDirectoryContentsForUpload(directory.getAbsolutePath());
 					}
 					catch (Exception e)
 					{
@@ -276,7 +275,7 @@ public class DataStorage implements DataStorageInterface
 					file.mkdirs();
 				}
 
-				String fileFullPath = getFileName(directoryFullPath);
+				String fileFullPath = checkLastEditedFile(directoryFullPath);
 				file = new File(fileFullPath);
 				if (!file.exists())
 				{
