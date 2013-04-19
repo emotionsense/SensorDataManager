@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.WifiData;
 import com.ubhave.sensormanager.data.pullsensor.WifiScanResult;
@@ -68,7 +69,7 @@ public class WifiFormatter extends CSVFormatter
 	@Override
 	protected void addSensorSpecificConfig(StringBuilder builder, SensorConfig config)
 	{
-		builder.append(","+config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
+		builder.append(","+config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
 	@Override

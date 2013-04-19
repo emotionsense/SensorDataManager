@@ -178,7 +178,7 @@ public class DataStorage
 		String sensorName = SensorUtils.getSensorName(sensorId);
 		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
 
-		JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(sensorId);
+		JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
 
 		synchronized (getLock(sensorName))
 		{

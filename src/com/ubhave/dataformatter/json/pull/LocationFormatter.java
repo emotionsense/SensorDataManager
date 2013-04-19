@@ -23,16 +23,21 @@ package com.ubhave.dataformatter.json.pull;
 
 import org.json.simple.JSONObject;
 
+import android.content.Context;
 import android.location.Location;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.LocationConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.LocationData;
+import com.ubhave.sensormanager.process.AbstractProcessor;
+import com.ubhave.sensormanager.process.pull.LocationProcessor;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class LocationFormatter extends PullSensorJSONFormatter
 {
-
 	private final static String LATITUDE = "latitude";
 	private final static String LONGITUDE = "longitude";
 	private final static String ACCURACY = "accuracy";
@@ -45,6 +50,11 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	private final static String UNKNOWN_STRING = "unknown";
 	private final static double UNKNOWN_DOUBLE = 0.0;
 	private final static long UNKNOWN_LONG = 0;
+	
+	public LocationFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_LOCATION);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -78,7 +88,7 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(LOCATION_ACCURACY, config.getParameter(SensorConfig.LOCATION_ACCURACY));
+		json.put(LOCATION_ACCURACY, config.getParameter(LocationConfig.ACCURACY_TYPE));
 	}
 
 	@Override
@@ -87,7 +97,35 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		JSONObject jsonData = super.parseData(jsonString);
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+		
+		boolean setRawData = true;
+		boolean setProcessedData = false;
+		Location location = null;
+		
+		try
+		{
+			double latitude = (Double) jsonData.get(LATITUDE);
+			double longitude = (Double) jsonData.get(LONGITUDE);
+			float accuracy = ((Double) jsonData.get(ACCURACY)).floatValue();
+			float speed = ((Double)  jsonData.get(SPEED)).floatValue();
+			float bearing = ((Double)  jsonData.get(BEARING)).floatValue();
+			String provider = (String) jsonData.get(PROVIDER);
+			long timestamp = (Long) jsonData.get(TIME);
 
+			location = new Location(provider);
+			location.setLatitude(latitude);
+			location.setLongitude(longitude);
+			location.setAccuracy(accuracy);
+			location.setSpeed(speed);
+			location.setBearing(bearing);
+			location.setTime(timestamp);
+		}
+		catch (Exception e)
+		{
+			setRawData = false;
+		}
+
+<<<<<<< HEAD
 		double latitude = (Double) jsonData.get(LATITUDE);
 		double longitude = (Double) jsonData.get(LONGITUDE);
 		float accuracy = ((Double) jsonData.get(ACCURACY)).floatValue();
@@ -108,6 +146,18 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		locData.setLocation(location);
 		
 		return locData;
+=======
+		try
+		{
+			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+			return processor.process(senseStartTimestamp, location, sensorConfig);
+		}
+		catch (ESException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+>>>>>>> Updating to use latest SensorManager library
 	}
 
 }

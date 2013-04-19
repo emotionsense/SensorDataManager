@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.AccelerometerData;
 
@@ -49,8 +50,8 @@ public class AccelerometerFormatter extends CSVFormatter
 	@Override
 	protected void addSensorSpecificConfig(StringBuilder builder, SensorConfig config)
 	{
-		builder.append(","+config.getParameter(SensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
-		builder.append(","+config.getParameter(SensorConfig.POST_SENSE_SLEEP_LENGTH_MILLIS));
+		builder.append(","+config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
+		builder.append(","+config.getParameter(PullSensorConfig.POST_SENSE_SLEEP_LENGTH_MILLIS));
 	}
 
 	@Override

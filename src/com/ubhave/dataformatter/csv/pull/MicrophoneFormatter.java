@@ -23,6 +23,7 @@ package com.ubhave.dataformatter.csv.pull;
 
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.MicrophoneData;
 
@@ -32,23 +33,25 @@ public class MicrophoneFormatter extends CSVFormatter
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
 	private final static String SLEEP_LENGTH = "postSenseSleepMillis";
 	private final static String AMPLITUDE = "amplitude";
+	private final static String TIMESTAMP = "timestamp";
 	
 	@Override
 	protected void addSensorSpecificData(StringBuilder builder, SensorData data)
 	{
 		MicrophoneData micData = (MicrophoneData) data;
 		int[] values = micData.getAmplitudeArray();
+		long[] timestamps = micData.getTimestampArray();
 		for (int i=0; i<values.length; i++)
 		{
-			builder.append(","+values[i]);
+			builder.append(","+values[i]+":"+timestamps[i]);
 		}
 	}
 
 	@Override
 	protected void addSensorSpecificConfig(StringBuilder builder, SensorConfig config)
 	{
-		builder.append(","+config.getParameter(SensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
-		builder.append(","+config.getParameter(SensorConfig.POST_SENSE_SLEEP_LENGTH_MILLIS));
+		builder.append(","+config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
+		builder.append(","+config.getParameter(PullSensorConfig.POST_SENSE_SLEEP_LENGTH_MILLIS));
 	}
 
 	@Override
@@ -56,6 +59,6 @@ public class MicrophoneFormatter extends CSVFormatter
 	{
 		builder.append(","+SAMPLE_LENGTH);
 		builder.append(","+SLEEP_LENGTH);
-		builder.append(","+AMPLITUDE);
+		builder.append(",("+AMPLITUDE+":"+TIMESTAMP+")");
 	}
 }
