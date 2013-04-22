@@ -10,8 +10,10 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.config.DataTransferConfig;
 
 public class DataTransfer implements DataTransferInterface
 {
@@ -36,15 +38,15 @@ public class DataTransfer implements DataTransferInterface
 		{
 			try
 			{
-				String uploadDirectory = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY);	
+				String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);	
 				File directory = new File(uploadDirectory);
 				File[] files = directory.listFiles();
 				
 				for (File file : files)
 				{
 					HashMap<String, String> paramsMap = new HashMap<String, String>();
-					paramsMap.put("password", (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
-					String url = (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL);
+					paramsMap.put("password", (String) config.get(DataTransferConfig.POST_DATA_URL_PASSWD));
+					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 					String response = WebConnection.postDataToServer(url, file, paramsMap);
 
 					if (response.equals("success"))
@@ -68,7 +70,6 @@ public class DataTransfer implements DataTransferInterface
 				Log.e(TAG, Log.getStackTraceString(e));
 			}
 		}
-
 	}
 
 	private void setLogsUploadTime(long timestamp)
@@ -116,8 +117,9 @@ public class DataTransfer implements DataTransferInterface
 	}
 
 	@Override
-	public void postData(final String data, final String url) throws DataHandlerException
+	public void postData(final String data) throws DataHandlerException
 	{
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
@@ -130,8 +132,9 @@ public class DataTransfer implements DataTransferInterface
 	}
 
 	@Override
-	public void postError(final String error, final String url) throws DataHandlerException
+	public void postError(final String error) throws DataHandlerException
 	{
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
@@ -144,8 +147,9 @@ public class DataTransfer implements DataTransferInterface
 	}
 
 	@Override
-	public void postExtra(final String tag, final String data, final String url) throws DataHandlerException
+	public void postExtra(final String tag, final String data) throws DataHandlerException
 	{
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
