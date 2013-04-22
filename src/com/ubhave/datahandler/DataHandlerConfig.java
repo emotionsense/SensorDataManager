@@ -12,13 +12,13 @@ public class DataHandlerConfig
 	public final static String DATA_POST_TARGET_URL_PASSWD = "dataTargetURLPasswd";
 	public final static String ERROR_POST_TARGET_URL = "errorTargetURL";
 	public final static String EXTRA_POST_TARGET_URL = "extraTargetURL";
+	
+	public final static String LOCAL_STORAGE_ROOT_DIRECTORY = "localDir";
+	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY = "uploadDir";
 
 	// Local storage dir
-	public final static String PHONE_STORAGE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()
-			+ "/ESDataStorage";
-	
 	public final static String UPLOAD_DIRECTORY = "to_be_uploaded";
-	public final static String SERVER_UPLOAD_DIR = PHONE_STORAGE_DIR + "/" + UPLOAD_DIRECTORY;
+//	public final static String SERVER_UPLOAD_DIR = PHONE_STORAGE_DIR + "/" + UPLOAD_DIRECTORY;
 
 	public final static String DATA_POLICY = "policy";
 	public final static int STORE_ONLY = -1; // No transfer (store only)
@@ -71,12 +71,15 @@ public class DataHandlerConfig
 		validKeys = new HashSet<String>();
 		validKeys.add(DATA_POST_TARGET_URL);
 		validKeys.add(DATA_POST_TARGET_URL_PASSWD);
-
 		validKeys.add(ERROR_POST_TARGET_URL);
 		validKeys.add(EXTRA_POST_TARGET_URL);
+		
 		validKeys.add(DATA_FORMAT);
 		validKeys.add(DATA_POLICY);
 
+		validKeys.add(LOCAL_STORAGE_ROOT_DIRECTORY);
+		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY);
+		
 		validKeys.add(FILE_DELETION_POLICY);
 		validKeys.add(FILE_MAX_SIZE);
 		validKeys.add(FILE_STORAGE_QUOTA);
@@ -92,7 +95,18 @@ public class DataHandlerConfig
 	{
 		if (validKeys.contains(key))
 		{
-			config.put(key, value);
+			if (key.equals(LOCAL_STORAGE_ROOT_DIRECTORY))
+			{
+				String absoluteDir = Environment.getExternalStorageDirectory().getAbsolutePath() + (String) value;
+				config.put(key,  absoluteDir);
+				
+				String uploadDir = absoluteDir + UPLOAD_DIRECTORY;
+				config.put(LOCAL_STORAGE_UPLOAD_DIRECTORY, uploadDir);
+			}
+			else
+			{
+				config.put(key, value);
+			}
 		}
 		else
 		{

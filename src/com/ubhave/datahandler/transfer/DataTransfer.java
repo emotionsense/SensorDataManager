@@ -34,11 +34,13 @@ public class DataTransfer implements DataTransferInterface
 	{
 		if (isConnectedToANetwork())
 		{
-			File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
-			File[] files = directory.listFiles();
-			for (File file : files)
+			try
 			{
-				try
+				String uploadDirectory = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY);	
+				File directory = new File(uploadDirectory);
+				File[] files = directory.listFiles();
+				
+				for (File file : files)
 				{
 					HashMap<String, String> paramsMap = new HashMap<String, String>();
 					paramsMap.put("password", (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL_PASSWD));
@@ -59,10 +61,11 @@ public class DataTransfer implements DataTransferInterface
 						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
 					}
 				}
-				catch (DataHandlerException e)
-				{
-					Log.e(TAG, Log.getStackTraceString(e));
-				}
+				
+			}
+			catch (DataHandlerException e)
+			{
+				Log.e(TAG, Log.getStackTraceString(e));
 			}
 		}
 
