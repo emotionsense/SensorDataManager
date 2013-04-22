@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.store.DataStorageInterface;
@@ -93,22 +92,7 @@ public class DataManager implements DataManagerInterface
 
 	private DataFormatter getDataFormatter(int sensorType)
 	{
-		DataFormatter formatter = null;
-		try
-		{
-			if (((Integer) config.get(DataStorageConfig.LOCAL_STORAGE_DATA_FORMAT)) == DataStorageConfig.JSON_FORMAT)
-			{
-				formatter = DataFormatter.getJSONFormatter(context, sensorType);
-			}
-			else
-			{
-				formatter = DataFormatter.getCSVFormatter(sensorType);
-			}
-		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
-		}
+		DataFormatter formatter = DataFormatter.getJSONFormatter(context, sensorType);
 		return formatter;
 	}
 
