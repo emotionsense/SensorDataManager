@@ -1,6 +1,7 @@
 package com.ubhave.datahandler;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ubhave.sensormanager.ESException;
@@ -33,5 +34,7 @@ public interface DataManagerInterface
 	/*
 	 * Downloading a file
 	 */
-	// TODO
+	public int addRemoteToSyncList(final String url, final HashMap<String, String> queryParameters, final String filePath) throws DataHandlerException;
+	public void removeFromSyncList(int id) throws DataHandlerException;
+	public void syncUpdatedFiles();
 }
