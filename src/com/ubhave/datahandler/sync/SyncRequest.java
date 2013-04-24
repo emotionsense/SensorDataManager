@@ -73,13 +73,9 @@ public class SyncRequest
 	{
 		try
 		{
-			String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
-			params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_DATE_MODIFIED_VALUE));
-			String response = WebConnection.postToServer(baseURL, params);
-			params.remove(requestKey);
-
-			if (remoteFileLastUpdated(response) > localFileLastUpdated())
+			if (remoteFileLastUpdated() > localFileLastUpdated())
 			{
+				String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
 				params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_GET_FILE_VALUE));
 				String fileContents = WebConnection.postToServer(baseURL, params);
 				params.remove(requestKey);
@@ -109,11 +105,15 @@ public class SyncRequest
 		}
 	}
 	
-	private long remoteFileLastUpdated(final String serverResponse)
+	private long remoteFileLastUpdated()
 	{
 		try
 		{
-			// TODO this is wrong
+			String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
+			params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_DATE_MODIFIED_VALUE));
+			String serverResponse = WebConnection.postToServer(baseURL, params);
+			params.remove(requestKey);
+			
 			String responseKey = (String) config.get(FileSyncConfig.RESPONSE_DATE_MODIFIED_KEY);
 			JSONParser parser = new JSONParser();
 			JSONObject response = (JSONObject) parser.parse(serverResponse);
