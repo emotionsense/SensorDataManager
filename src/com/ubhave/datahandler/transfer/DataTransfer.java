@@ -10,10 +10,10 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.ubhave.datahandler.DataHandlerException;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.http.WebConnection;
 
 public class DataTransfer implements DataTransferInterface

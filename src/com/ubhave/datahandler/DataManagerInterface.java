@@ -3,6 +3,7 @@ package com.ubhave.datahandler;
 import java.io.IOException;
 import java.util.List;
 
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.sync.FileUpdatedListener;
 import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.sensormanager.ESException;

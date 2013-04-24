@@ -1,6 +1,6 @@
 package com.ubhave.datahandler.sync;
 
-import com.ubhave.datahandler.DataHandlerException;
+import com.ubhave.datahandler.except.DataHandlerException;
 
 public interface FileSyncInterface
 {
