@@ -3,7 +3,6 @@ package com.ubhave.datahandler.config;
 
 public abstract class TransferPolicyConfig
 {
-
 	/*
 	 * Config Values
 	 */
