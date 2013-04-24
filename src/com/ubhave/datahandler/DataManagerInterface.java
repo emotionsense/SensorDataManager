@@ -35,7 +35,7 @@ public interface DataManagerInterface
 	/*
 	 * Downloading a file
 	 */
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException;
+	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener) throws DataHandlerException;
 	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException;
 	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException;
 	public void attemptFileSync();

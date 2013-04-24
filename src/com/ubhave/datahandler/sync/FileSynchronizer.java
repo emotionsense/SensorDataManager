@@ -38,9 +38,9 @@ public class FileSynchronizer implements FileSyncInterface
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException
+	public int subscribeToRemoteFileUpdate(final String url, final String fileTarget, FileUpdatedListener listener) throws DataHandlerException
 	{
-		SyncRequest request = new SyncRequest(context, url);
+		SyncRequest request = new SyncRequest(context, url, fileTarget);
 		return subscribeToRemoteFileUpdate(request, listener);
 	}
 	

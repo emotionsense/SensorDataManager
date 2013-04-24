@@ -158,9 +158,9 @@ public class DataManager implements DataManagerInterface
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException
+	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener) throws DataHandlerException
 	{
-		return fileSync.subscribeToRemoteFileUpdate(url, listener);
+		return fileSync.subscribeToRemoteFileUpdate(url, targetFile, listener);
 	}
 	
 	@Override
