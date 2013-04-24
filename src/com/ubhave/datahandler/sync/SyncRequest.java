@@ -73,21 +73,18 @@ public class SyncRequest
 	{
 		try
 		{
-			String localFilePath = "null"; // TODO
-			String remoteURL = "null"; // TODO
-
 			String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
-
-			HashMap<String, String> params = getRequestParams();
 			params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_DATE_MODIFIED_VALUE));
-			String response = WebConnection.postToServer(remoteURL, params);
+			String response = WebConnection.postToServer(baseURL, params);
+			params.remove(requestKey);
 
-			if (remoteFileLastUpdated(response) > localFileLastUpdated(localFilePath))
+			if (remoteFileLastUpdated(response) > localFileLastUpdated())
 			{
 				params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_GET_FILE_VALUE));
-				String fileContents = WebConnection.postToServer(remoteURL, params);
+				String fileContents = WebConnection.postToServer(baseURL, params);
+				params.remove(requestKey);
 
-				FileOutputStream fos = context.openFileOutput(localFilePath, Context.MODE_PRIVATE);
+				FileOutputStream fos = context.openFileOutput(targetFile, Context.MODE_PRIVATE);
 				fos.write(fileContents.getBytes());
 				fos.close();
 			}
@@ -98,17 +95,11 @@ public class SyncRequest
 		}
 	}
 	
-	private HashMap<String, String> getRequestParams()
-	{
-		// TODO add file-specific params
-		return new HashMap<String, String>();
-	}
-	
-	private long localFileLastUpdated(final String filePath)
+	private long localFileLastUpdated()
 	{
 		try
 		{
-			File f = new File(filePath);
+			File f = new File(targetFile);
 			return f.lastModified();
 		}
 		catch (Exception e)
