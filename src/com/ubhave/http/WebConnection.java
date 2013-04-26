@@ -59,10 +59,13 @@ public class WebConnection
 			HttpPost httppost = new HttpPost(serverUrl);
 			MultipartEntity multipartEntity = new MultipartEntity();
 
-			FileBody fileBody = new FileBody(file);
-			if (fileBody != null)
+			if (file != null)
 			{
-				multipartEntity.addPart("uploadedfile", fileBody);
+				FileBody fileBody = new FileBody(file);
+				if (fileBody != null)
+				{
+					multipartEntity.addPart("uploadedfile", fileBody);
+				}
 			}
 
 			if (paramsMap != null)

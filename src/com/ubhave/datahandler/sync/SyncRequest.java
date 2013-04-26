@@ -16,11 +16,10 @@ import com.ubhave.datahandler.config.FileSyncConfig;
 public class SyncRequest extends BroadcastReceiver
 {
 	private final static String SYNC_URL_KEY = "SyncRequest";
-	public static final String ACTION_NAME = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
-	private final static int REQUEST_CODE = 112;
+	private final static  String ACTION_NAME = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
+	private final static int REQUEST_CODE = 891;
 	
 	private final Context context;
-	private FileUpdatedListener listener;
 	private final String baseURL;
 	private final String targetFile;
 	
@@ -28,6 +27,7 @@ public class SyncRequest extends BroadcastReceiver
 	private HashMap<String, String> params;
 	private long syncInterval;
 	
+	private FileUpdatedListener listener;
 	private final AlarmManager alarmManager;
 	private final PendingIntent pendingIntent;
 	private boolean hasStarted, isSyncing;
@@ -157,11 +157,11 @@ public class SyncRequest extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String url = intent.getStringExtra(SYNC_URL_KEY);
-		Log.d(SYNC_URL_KEY, "Broadcast Received: "+url);
 		if (url != null)
 		{
 			if (baseURL.equals(url))
 			{
+				Log.d(SYNC_URL_KEY, "Sync attempt starting");
 				attemptSync();
 			}
 		}
@@ -174,19 +174,31 @@ public class SyncRequest extends BroadcastReceiver
 			SyncTask s = new SyncTask()
 			{
 				@Override
-				public void onPreExecute()
+				protected void onPreExecute()
 				{
+					super.onPreExecute();
 					isSyncing = true;
 				}
 				
 				@Override
-				protected void onPostExecute(Void result)
+				protected void onPostExecute(Boolean result)
 				{
+					super.onPostExecute(result);
+					if (result && listener != null)
+					{
+						Log.d("SyncRequest", "Notifying listener");
+						notifyListener();
+					}
+					else
+					{
+						Log.d("SyncRequest", "Result: "+result.toString());
+						Log.d("SyncRequest", "Listener null: "+(listener==null));
+					}
 					isSyncing = false;
 				}
+				
 			};
 			s.setContext(context);
-			s.setListener(listener);
 			s.setBaseURL(baseURL);
 			s.setTargetFile(targetFile);
 			s.setParams(params);
@@ -195,6 +207,18 @@ public class SyncRequest extends BroadcastReceiver
 			s.setGetFileValue(fileParamValue);
 			s.setDateResponseKey(dateResponseFieldKey);
 			s.execute();
+		}
+		else
+		{
+			Log.d(SYNC_URL_KEY, "Sync in progress");
+		}
+	}
+	
+	private void notifyListener()
+	{
+		if (listener != null)
+		{
+			listener.onFileUpdated();
 		}
 	}
 }
