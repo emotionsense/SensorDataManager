@@ -3,7 +3,12 @@ package com.ubhave.datahandler;
 import java.io.IOException;
 import java.util.List;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -35,10 +40,19 @@ public class DataManager implements DataManagerInterface
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
 	private final FileSyncInterface fileSync;
-	
+
+	private AlarmManager alarmManager;
+	private PendingIntent pendingIntent;
+
 	private final DataHandlerEventManager eventManager;
 
-	public static DataManager getInstance(final Context context) throws ESException, TriggerException
+	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
+	public final static String ACTION_NAME_DATA_TRANSFER_ALARM = "com.ubhave.datahandler.sync.DATA_TRANSFER_ALARM";
+
+	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
+	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
+
+	public static DataManager getInstance(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		if (instance == null)
 		{
@@ -53,15 +67,53 @@ public class DataManager implements DataManagerInterface
 		return instance;
 	}
 
-	private DataManager(final Context context) throws ESException, TriggerException
+	private DataManager(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
 		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
 		fileSync = new FileSynchronizer(context);
-		
+
 		eventManager = new DataHandlerEventManager(context, this);
+
+		setupAlarmForTransfer();
+	}
+
+	private void setupAlarmForTransfer() throws DataHandlerException
+	{
+		Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
+		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE_DATA_TRANSFER, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+
+		int transferPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
+
+		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
+		{
+			IntentFilter intentFilter = new IntentFilter(DataManager.ACTION_NAME_DATA_TRANSFER_ALARM);
+			// set to 15 mins, should be fine as default file upload interval is
+			// 30 hours, if needed this could be exposed in the config
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 15 * 60 * 60 * 1000,
+					pendingIntent);
+
+			BroadcastReceiver receiver = new BroadcastReceiver()
+			{
+				@Override
+				public void onReceive(Context arg0, Intent arg1)
+				{
+					new Thread()
+					{
+						public void run()
+						{
+							DataManager.this.transferStoredData();
+						}
+					}.start();
+				}
+			};
+
+			context.registerReceiver(receiver, intentFilter);
+		}
 	}
 
 	@Override
@@ -157,25 +209,27 @@ public class DataManager implements DataManagerInterface
 			transfer.attemptDataUpload();
 		}
 	}
-	
+
 	@Override
-	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener) throws DataHandlerException
+	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener)
+			throws DataHandlerException
 	{
 		return fileSync.subscribeToRemoteFileUpdate(url, targetFile, listener);
 	}
-	
+
 	@Override
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException
+	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener)
+			throws DataHandlerException
 	{
 		return fileSync.subscribeToRemoteFileUpdate(request, listener);
 	}
-	
+
 	@Override
 	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException
 	{
 		fileSync.unsubscribeFromRemoteFileUpdate(key);
 	}
-	
+
 	@Override
 	public void attemptFileSync()
 	{
