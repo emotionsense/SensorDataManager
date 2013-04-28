@@ -9,7 +9,7 @@ import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
-public interface DataManagerInterface
+public interface ESDataManagerInterface
 {
 	/*
 	 * Updating Data Manager config
