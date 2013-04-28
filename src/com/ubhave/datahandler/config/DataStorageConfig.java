@@ -9,8 +9,8 @@ public class DataStorageConfig
 	 * Config Keys
 	 */
 	public final static String LOCAL_STORAGE_ROOT_DIRECTORY_NAME = "localDir";
-	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH = "uploadDirPath";
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME = "uploadDirName";
+	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH = "uploadDirPath"; // Note: not user defined
 	public final static String LOCAL_STORAGE_DATA_FORMAT = "dataFormat";
 	public final static String FILE_MAX_SIZE = "fileSize";
 	public final static String FILE_LIFE_MILLIS = "fileDuration";
@@ -27,7 +27,6 @@ public class DataStorageConfig
 	{
 		HashSet<String> validKeys = new HashSet<String>();
 		validKeys.add(LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
-		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		return validKeys;
 	}
