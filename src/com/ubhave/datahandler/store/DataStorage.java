@@ -307,6 +307,11 @@ public class DataStorage implements DataStorageInterface
 	private void writeData(String directoryName, String data) throws DataHandlerException
 	{
 		String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+		if (rootPath.contains(DataStorageConfig.DEFAULT_ROOT_DIRECTORY))
+		{
+			throw new DataHandlerException(DataHandlerException.WRITING_TO_DEFAULT_DIRECTORY);
+		}
+		
 		synchronized (getLock(directoryName))
 		{
 			try
