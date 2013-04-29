@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
-import com.ubhave.datahandler.alarm.AlarmListener;
-import com.ubhave.datahandler.alarm.PolicyAlarm;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -36,17 +33,15 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataHandlerConfig config;
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
+	private final DataTransferAlarm alarm;
 	private final FileSyncInterface fileSync;
-	private final PolicyAlarm policyAlarm;
-	private final AlarmListener alarmListener;
 
 	// TODO extract to appropriate config file
 	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
-	public final static String ACTION_NAME_DATA_TRANSFER_ALARM = "com.ubhave.datahandler.sync.DATA_TRANSFER_ALARM";
-
+	
 	// TODO extract to appropriate config file
 	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
-	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
+	
 
 	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
 	{
@@ -71,63 +66,17 @@ public class ESDataManager implements ESDataManagerInterface
 		transfer = new DataTransfer(context);
 		fileSync = new FileSynchronizer(context);
 		
-		policyAlarm = getPolicyAlarm();
-		alarmListener = getAlarmListener();
-
+		alarm = new DataTransferAlarm(context, this);
 		setupAlarmForTransfer();
-	}
-	
-	private PolicyAlarm getPolicyAlarm()
-	{
-		Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
-		PolicyAlarm policyAlarm = new PolicyAlarm("dataTransferAlarm", context, intent, REQUEST_CODE_DATA_TRANSFER,
-				ACTION_NAME_DATA_TRANSFER_ALARM);
-		return policyAlarm;
-	}
-	
-	private AlarmListener getAlarmListener()
-	{
-		AlarmListener alarmListener = new AlarmListener()
-		{
-			@Override
-			public boolean intentMatches(Intent intent)
-			{
-				return true;
-			}
-
-			@Override
-			public void alarmTriggered()
-			{
-				new Thread()
-				{
-					public void run()
-					{
-						ESDataManager.this.transferStoredData();
-					}
-				}.start();
-			}
-		};
-		return alarmListener;
 	}
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
 		int transferPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
-
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
 			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
-			if (connectionType == DataTransferConfig.CONNECTION_TYPE_WIFI)
-			{
-				policyAlarm.setTransferPolicy(PolicyAlarm.TRANSFER_POLICY.WIFI_ONLY);
-			}
-			else if (connectionType == DataTransferConfig.CONNECTION_TYPE_ANY)
-			{
-				policyAlarm.setTransferPolicy(PolicyAlarm.TRANSFER_POLICY.ANY_NETWORK);
-			}
-
-			policyAlarm.setListener(alarmListener);
-			policyAlarm.start();
+			alarm.setConnectionTypeAndStart(connectionType);
 		}
 	}
 
@@ -135,7 +84,6 @@ public class ESDataManager implements ESDataManagerInterface
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
 		config.setConfig(key, value);
-
 		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
 		{
 			if (((Integer) value) == DataTransferConfig.TRANSFER_PERIODICALLY)
@@ -144,10 +92,7 @@ public class ESDataManager implements ESDataManagerInterface
 			}
 			else
 			{
-				if (policyAlarm.hasStarted())
-				{
-					policyAlarm.stop();
-				}
+				alarm.stop();
 			}
 		}
 	}
@@ -160,7 +105,6 @@ public class ESDataManager implements ESDataManagerInterface
 		long duration = System.currentTimeMillis() - startTime;
 
 		Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
-
 		return recentData;
 	}
 
