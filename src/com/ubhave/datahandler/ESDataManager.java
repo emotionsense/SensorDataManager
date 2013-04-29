@@ -37,6 +37,8 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
 	private final FileSyncInterface fileSync;
+	private final PolicyAlarm policyAlarm;
+	private final AlarmListener alarmListener;
 
 	// TODO extract to appropriate config file
 	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
@@ -68,8 +70,44 @@ public class ESDataManager implements ESDataManagerInterface
 		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
 		fileSync = new FileSynchronizer(context);
+		
+		policyAlarm = getPolicyAlarm();
+		alarmListener = getAlarmListener();
 
 		setupAlarmForTransfer();
+	}
+	
+	private PolicyAlarm getPolicyAlarm()
+	{
+		Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
+		PolicyAlarm policyAlarm = new PolicyAlarm("dataTransferAlarm", context, intent, REQUEST_CODE_DATA_TRANSFER,
+				ACTION_NAME_DATA_TRANSFER_ALARM);
+		return policyAlarm;
+	}
+	
+	private AlarmListener getAlarmListener()
+	{
+		AlarmListener alarmListener = new AlarmListener()
+		{
+			@Override
+			public boolean intentMatches(Intent intent)
+			{
+				return true;
+			}
+
+			@Override
+			public void alarmTriggered()
+			{
+				new Thread()
+				{
+					public void run()
+					{
+						ESDataManager.this.transferStoredData();
+					}
+				}.start();
+			}
+		};
+		return alarmListener;
 	}
 
 	private void setupAlarmForTransfer() throws DataHandlerException
@@ -78,30 +116,16 @@ public class ESDataManager implements ESDataManagerInterface
 
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
-			AlarmListener alarmListener = new AlarmListener()
+			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
+			if (connectionType == DataTransferConfig.CONNECTION_TYPE_WIFI)
 			{
-				@Override
-				public boolean intentMatches(Intent intent)
-				{
-					return true;
-				}
+				policyAlarm.setTransferPolicy(PolicyAlarm.TRANSFER_POLICY.WIFI_ONLY);
+			}
+			else if (connectionType == DataTransferConfig.CONNECTION_TYPE_ANY)
+			{
+				policyAlarm.setTransferPolicy(PolicyAlarm.TRANSFER_POLICY.ANY_NETWORK);
+			}
 
-				@Override
-				public void alarmTriggered()
-				{
-					new Thread()
-					{
-						public void run()
-						{
-							ESDataManager.this.transferStoredData();
-						}
-					}.start();
-				}
-			};
-
-			Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
-			PolicyAlarm policyAlarm = new PolicyAlarm("dataTransferAlarm", context, intent, REQUEST_CODE_DATA_TRANSFER,
-					ACTION_NAME_DATA_TRANSFER_ALARM);
 			policyAlarm.setListener(alarmListener);
 			policyAlarm.start();
 		}
@@ -111,6 +135,21 @@ public class ESDataManager implements ESDataManagerInterface
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
 		config.setConfig(key, value);
+
+		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
+		{
+			if (((Integer) value) == DataTransferConfig.TRANSFER_PERIODICALLY)
+			{
+				setupAlarmForTransfer();
+			}
+			else
+			{
+				if (policyAlarm.hasStarted())
+				{
+					policyAlarm.stop();
+				}
+			}
+		}
 	}
 
 	@Override
