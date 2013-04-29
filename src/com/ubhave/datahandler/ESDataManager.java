@@ -3,15 +3,13 @@ package com.ubhave.datahandler;
 import java.io.IOException;
 import java.util.List;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
+import com.ubhave.datahandler.alarm.AlarmListener;
+import com.ubhave.datahandler.alarm.PolicyAlarm;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -39,9 +37,6 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
 	private final FileSyncInterface fileSync;
-
-	private AlarmManager alarmManager;
-	private PendingIntent pendingIntent;
 
 	// TODO extract to appropriate config file
 	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
@@ -79,25 +74,20 @@ public class ESDataManager implements ESDataManagerInterface
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
-		Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
-		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE_DATA_TRANSFER, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
-
 		int transferPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
 
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
-			IntentFilter intentFilter = new IntentFilter(ESDataManager.ACTION_NAME_DATA_TRANSFER_ALARM);
-			// set to 15 mins, should be fine as default file upload interval is
-			// 30 hours, if needed this could be exposed in the config
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 15 * 60 * 1000,
-					pendingIntent);
-
-			BroadcastReceiver receiver = new BroadcastReceiver()
+			AlarmListener alarmListener = new AlarmListener()
 			{
 				@Override
-				public void onReceive(Context arg0, Intent arg1)
+				public boolean intentMatches(Intent intent)
+				{
+					return true;
+				}
+
+				@Override
+				public void alarmTriggered()
 				{
 					new Thread()
 					{
@@ -109,7 +99,11 @@ public class ESDataManager implements ESDataManagerInterface
 				}
 			};
 
-			context.registerReceiver(receiver, intentFilter);
+			Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
+			PolicyAlarm policyAlarm = new PolicyAlarm("dataTransferAlarm", context, intent, REQUEST_CODE_DATA_TRANSFER,
+					ACTION_NAME_DATA_TRANSFER_ALARM);
+			policyAlarm.setListener(alarmListener);
+			policyAlarm.start();
 		}
 	}
 
