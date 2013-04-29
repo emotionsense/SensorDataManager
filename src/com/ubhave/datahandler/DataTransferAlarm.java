@@ -11,6 +11,7 @@ public class DataTransferAlarm implements AlarmListener
 {
 	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
 	public final static String ACTION_NAME_DATA_TRANSFER_ALARM = "com.ubhave.datahandler.sync.DATA_TRANSFER_ALARM";
+	private final static String alarmId = "dataTransferAlarm";
 	
 	private final Context context;
 	private final ESDataManager dataManager;
@@ -49,7 +50,7 @@ public class DataTransferAlarm implements AlarmListener
 	private PolicyAlarm getPolicyAlarm()
 	{
 		Intent intent = new Intent(ACTION_NAME_DATA_TRANSFER_ALARM);
-		PolicyAlarm policyAlarm = new PolicyAlarm("dataTransferAlarm", context, intent, REQUEST_CODE_DATA_TRANSFER, ACTION_NAME_DATA_TRANSFER_ALARM);
+		PolicyAlarm policyAlarm = new PolicyAlarm(alarmId, context, intent, REQUEST_CODE_DATA_TRANSFER, ACTION_NAME_DATA_TRANSFER_ALARM);
 		return policyAlarm;
 	}
 	
