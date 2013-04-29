@@ -25,9 +25,8 @@ public class ESDataManager implements ESDataManagerInterface
 {
 	private static final String TAG = "DataManager";
 	private static final Object singletonLock = new Object();
-	private static ESDataManager instance;
-
 	private static final Object fileTransferLock = new Object();
+	private static ESDataManager instance;
 
 	private final Context context;
 	private final DataHandlerConfig config;
@@ -35,13 +34,6 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataTransferInterface transfer;
 	private final DataTransferAlarm alarm;
 	private final FileSyncInterface fileSync;
-
-	// TODO extract to appropriate config file
-	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
-	
-	// TODO extract to appropriate config file
-	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
-	
 
 	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
 	{
