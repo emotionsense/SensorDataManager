@@ -3,22 +3,19 @@ package com.ubhave.datahandler.sync;
 import java.util.HashMap;
 import java.util.Set;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
 
 import com.ubhave.datahandler.ESDataManager;
+import com.ubhave.datahandler.alarm.AlarmListener;
+import com.ubhave.datahandler.alarm.PolicyAlarm;
 import com.ubhave.datahandler.config.FileSyncConfig;
 
-public class SyncRequest extends BroadcastReceiver
+public class SyncRequest implements AlarmListener
 {
 	private final static String SYNC_URL_KEY = "SyncRequest";
 
-	
 	private final Context context;
 	private final String baseURL;
 	private final String targetFile;
@@ -28,9 +25,8 @@ public class SyncRequest extends BroadcastReceiver
 	private long syncInterval;
 	
 	private FileUpdatedListener listener;
-	private final AlarmManager alarmManager;
-	private final PendingIntent pendingIntent;
-	private boolean hasStarted, isSyncing;
+	private final PolicyAlarm alarm;
+	private boolean isSyncing;
 
 	public SyncRequest(final Context context, final String url, final String file)
 	{
@@ -38,11 +34,7 @@ public class SyncRequest extends BroadcastReceiver
 		this.targetFile = file;
 		this.baseURL = url;
 		
-		Intent intent = new Intent(ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
-		intent.putExtra(SYNC_URL_KEY, url);
-		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		pendingIntent = PendingIntent.getBroadcast(context, ESDataManager.REQUEST_CODE_SYNC_REQUEST, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		hasStarted = false;
+		alarm = getAlarm();
 		isSyncing = false;
 		
 		// Set up default values
@@ -50,9 +42,22 @@ public class SyncRequest extends BroadcastReceiver
 		this.requestTypeKey = FileSyncConfig.DEFAULT_REQUEST_TYPE_PARAM;
 		this.dateParamValue = FileSyncConfig.DEFAULT_REQUEST_DATE_MODIFIED;
 		this.fileParamValue = FileSyncConfig.DEFAULT_REQUEST_GET_FILE;
-		this.syncInterval = FileSyncConfig.DEFAULT_DAILY_SYNC_FREQUENCY;
+		this.syncInterval = FileSyncConfig.DEFAULT_WIFI_SYNC_LIMIT;
 		this.dateResponseFieldKey = FileSyncConfig.DEFAULT_RESPONSE_DATE_MODIFIED;
 		this.listener = null;
+	}
+	
+	private PolicyAlarm getAlarm()
+	{
+		Intent intent = new Intent(ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
+		intent.putExtra(SYNC_URL_KEY, baseURL);
+		
+		PolicyAlarm alarm = new PolicyAlarm(targetFile, context, intent, ESDataManager.REQUEST_CODE_SYNC_REQUEST, ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
+		alarm.setListener(this);
+		alarm.setSyncInterval(FileSyncConfig.DEFAULT_SYNC_FREQUENCY);
+		alarm.setWaitForWifiLimit(FileSyncConfig.DEFAULT_WIFI_SYNC_LIMIT);
+		
+		return alarm;
 	}
 	
 	public void setListener(FileUpdatedListener listener)
@@ -133,41 +138,24 @@ public class SyncRequest extends BroadcastReceiver
 
 	public void start()
 	{
-		if (!hasStarted)
-		{
-			hasStarted = true;
-			attemptSync();
-			IntentFilter intentFilter = new IntentFilter(ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), syncInterval, pendingIntent);
-			context.registerReceiver(this, intentFilter);
-		}
+		alarm.start();
 	}
 	
 	public void stop()
 	{
-		if (hasStarted)
-		{
-			hasStarted = false;
-			alarmManager.cancel(pendingIntent);
-			context.unregisterReceiver(this);
-		}
+		alarm.stop();
 	}
 	
-	@Override
-	public void onReceive(Context context, Intent intent)
+	private void notifyListener()
 	{
-		String url = intent.getStringExtra(SYNC_URL_KEY);
-		if (url != null)
+		if (listener != null)
 		{
-			if (baseURL.equals(url))
-			{
-				Log.d(SYNC_URL_KEY, "Sync attempt starting");
-				attemptSync();
-			}
+			listener.onFileUpdated();
 		}
 	}
 
-	public void attemptSync()
+	@Override
+	public void alarmTriggered()
 	{
 		if (!isSyncing)
 		{
@@ -186,13 +174,7 @@ public class SyncRequest extends BroadcastReceiver
 					super.onPostExecute(result);
 					if (result && listener != null)
 					{
-						Log.d("SyncRequest", "Notifying listener");
 						notifyListener();
-					}
-					else
-					{
-						Log.d("SyncRequest", "Result: "+result.toString());
-						Log.d("SyncRequest", "Listener null: "+(listener==null));
 					}
 					isSyncing = false;
 				}
@@ -213,12 +195,15 @@ public class SyncRequest extends BroadcastReceiver
 			Log.d(SYNC_URL_KEY, "Sync in progress");
 		}
 	}
-	
-	private void notifyListener()
+
+	@Override
+	public boolean intentMatches(Intent intent)
 	{
-		if (listener != null)
+		String url = intent.getStringExtra(SYNC_URL_KEY);
+		if (url != null)
 		{
-			listener.onFileUpdated();
+			return baseURL.equals(url);
 		}
+		return false;
 	}
 }
