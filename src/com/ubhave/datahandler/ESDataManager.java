@@ -25,6 +25,7 @@ import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.triggermanager.TriggerException;
 
 public class ESDataManager implements ESDataManagerInterface
 {
@@ -49,7 +50,7 @@ public class ESDataManager implements ESDataManagerInterface
 	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
 	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
 
-	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
+	public static ESDataManager getInstance(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		if (instance == null)
 		{
@@ -64,7 +65,7 @@ public class ESDataManager implements ESDataManagerInterface
 		return instance;
 	}
 
-	private ESDataManager(final Context context) throws ESException, DataHandlerException
+	private ESDataManager(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
