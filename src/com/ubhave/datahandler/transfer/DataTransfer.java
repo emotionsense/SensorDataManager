@@ -35,10 +35,6 @@ public class DataTransfer implements DataTransferInterface
 	@Override
 	public void attemptDataUpload()
 	{
-		// this method uploads data to the server
-		// if the conditions for the transfer are met: connection type, 24 hour
-		// timeout if using 3g connection
-
 		int connectionType = DataTransferConfig.DEFAULT_CONNECTION_TYPE_FOR_TRANSFER;
 		try
 		{
@@ -49,13 +45,8 @@ public class DataTransfer implements DataTransferInterface
 			e.printStackTrace();
 		}
 
-		// any network
-		if (((connectionType == DataTransferConfig.CONNECTION_TYPE_ANY) && (isConnectedToAnyNetwork()))
-		// use only wifi
-				|| ((connectionType == DataTransferConfig.CONNECTION_TYPE_WIFI) && (isConnectedToWiFi()))
-				// use only wifi but if it's been more than 24 hours from the last
-				// upload time then use any available n/w
-				|| ((connectionType == DataTransferConfig.CONNECTION_TYPE_WIFI) && (isLastUploadTimeoutReached()) && (isConnectedToAnyNetwork())))
+		if (((connectionType == DataTransferConfig.CONNECTION_TYPE_ANY) && (isConnectedToANetwork()))
+				|| ((connectionType == DataTransferConfig.CONNECTION_TYPE_WIFI) && (isConnectedToWiFi())))
 		{
 			try
 			{
@@ -120,7 +111,7 @@ public class DataTransfer implements DataTransferInterface
 		return false;
 	}
 
-	private boolean isConnectedToAnyNetwork()
+	private boolean isConnectedToANetwork()
 	{
 		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -131,17 +122,9 @@ public class DataTransfer implements DataTransferInterface
 			return true;
 		}
 
-		if (mNetwork.isConnected())
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean isLastUploadTimeoutReached()
-	{
+		// TODO - do we need this functionality ?
 		// check if no files have been transfered in the last 24 hours
+		// if yes then use mobile network
 
 		long lastUploadTime = getLogsUploadTime();
 
@@ -149,7 +132,10 @@ public class DataTransfer implements DataTransferInterface
 		{
 			if ((System.currentTimeMillis() - lastUploadTime) > (long) (24 * 60 * 60 * 1000))
 			{
-				return true;
+				if (mNetwork.isConnected())
+				{
+					return true;
+				}
 			}
 		}
 
