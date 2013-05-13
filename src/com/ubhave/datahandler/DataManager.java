@@ -44,6 +44,8 @@ public class DataManager implements DataManagerInterface
 	private AlarmManager alarmManager;
 	private PendingIntent pendingIntent;
 
+	private final DataHandlerEventManager eventManager;
+
 	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
 	public final static String ACTION_NAME_DATA_TRANSFER_ALARM = "com.ubhave.datahandler.sync.DATA_TRANSFER_ALARM";
 
@@ -72,6 +74,8 @@ public class DataManager implements DataManagerInterface
 		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
 		fileSync = new FileSynchronizer(context);
+
+		eventManager = new DataHandlerEventManager(context, this);
 
 		setupAlarmForTransfer();
 	}
@@ -116,6 +120,10 @@ public class DataManager implements DataManagerInterface
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
 		config.setConfig(key, value);
+		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
+		{
+			eventManager.setPolicy((Integer) value);
+		}
 	}
 
 	@Override
