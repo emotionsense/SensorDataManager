@@ -125,6 +125,28 @@ public class LocationFormatter extends PullSensorJSONFormatter
 			setRawData = false;
 		}
 
+<<<<<<< HEAD
+		double latitude = (Double) jsonData.get(LATITUDE);
+		double longitude = (Double) jsonData.get(LONGITUDE);
+		float accuracy = ((Double) jsonData.get(ACCURACY)).floatValue();
+		float speed = ((Double)  jsonData.get(SPEED)).floatValue();
+		float bearing = ((Double)  jsonData.get(BEARING)).floatValue();
+		String provider = (String) jsonData.get(PROVIDER);
+		long timestamp = (Long) jsonData.get(TIME);
+
+		Location location = new Location(provider);
+		location.setLatitude(latitude);
+		location.setLongitude(longitude);
+		location.setAccuracy(accuracy);
+		location.setSpeed(speed);
+		location.setBearing(bearing);
+		location.setTime(timestamp);
+
+		LocationData locData = new LocationData(senseStartTimestamp, sensorConfig);
+		locData.setLocation(location);
+		
+		return locData;
+=======
 		try
 		{
 			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
@@ -135,6 +157,7 @@ public class LocationFormatter extends PullSensorJSONFormatter
 			e.printStackTrace();
 			return null;
 		}
+>>>>>>> Updating to use latest SensorManager library
 	}
 
 }

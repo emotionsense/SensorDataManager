@@ -98,6 +98,12 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 			setRawData = false;
 		}
 		
+<<<<<<< HEAD
+		ApplicationData applicationData = new ApplicationData(senseStartTimestamp, sensorConfig);
+		applicationData.setApplications(appList);
+
+		return applicationData;
+=======
 		try
 		{
 			ApplicationProcessor processor = (ApplicationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
@@ -108,5 +114,6 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 			e.printStackTrace();
 			return null;
 		}
+>>>>>>> Updating to use latest SensorManager library
 	}
 }
