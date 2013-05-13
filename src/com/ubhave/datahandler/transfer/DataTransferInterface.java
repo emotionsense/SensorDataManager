@@ -7,7 +7,7 @@ public interface DataTransferInterface
 	/*
 	 * Transferring stored data
 	 */
-	public void attemptDataUpload();
+	public void attemptDataUpload(final Object fileTransferLock);
 	
 	/*
 	 * Immediately posting data

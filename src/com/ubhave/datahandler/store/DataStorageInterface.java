@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.DataHandlerException;
+import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -25,5 +26,5 @@ public interface DataStorageInterface
 	/*
 	 * Initiating an upload
 	 */
-	public void moveArchivedFilesForUpload();
+	public void movesFilesAndUpload(final DataTransferInterface transfer);
 }
