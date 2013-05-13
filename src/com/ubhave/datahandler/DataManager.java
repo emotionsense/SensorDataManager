@@ -27,11 +27,11 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.triggermanager.TriggerException;
 
-public class ESDataManager implements ESDataManagerInterface
+public class DataManager implements DataManagerInterface
 {
 	private static final String TAG = "DataManager";
 	private static final Object singletonLock = new Object();
-	private static ESDataManager instance;
+	private static DataManager instance;
 
 	private static final Object fileTransferLock = new Object();
 
@@ -50,7 +50,7 @@ public class ESDataManager implements ESDataManagerInterface
 	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
 	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
 
-	public static ESDataManager getInstance(final Context context) throws ESException, TriggerException, DataHandlerException
+	public static DataManager getInstance(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		if (instance == null)
 		{
@@ -58,14 +58,14 @@ public class ESDataManager implements ESDataManagerInterface
 			{
 				if (instance == null)
 				{
-					instance = new ESDataManager(context);
+					instance = new DataManager(context);
 				}
 			}
 		}
 		return instance;
 	}
 
-	private ESDataManager(final Context context) throws ESException, TriggerException, DataHandlerException
+	private DataManager(final Context context) throws ESException, TriggerException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
@@ -87,7 +87,7 @@ public class ESDataManager implements ESDataManagerInterface
 
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
-			IntentFilter intentFilter = new IntentFilter(ESDataManager.ACTION_NAME_DATA_TRANSFER_ALARM);
+			IntentFilter intentFilter = new IntentFilter(DataManager.ACTION_NAME_DATA_TRANSFER_ALARM);
 			// set to 15 mins, should be fine as default file upload interval is
 			// 30 hours, if needed this could be exposed in the config
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 15 * 60 * 60 * 1000,
@@ -102,7 +102,7 @@ public class ESDataManager implements ESDataManagerInterface
 					{
 						public void run()
 						{
-							ESDataManager.this.transferStoredData();
+							DataManager.this.transferStoredData();
 						}
 					}.start();
 				}
