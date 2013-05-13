@@ -32,7 +32,7 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataHandlerConfig config;
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
-	private final DataTransferAlarmListener dataTransferAlarmListener;
+	private final DataTransferAlarm alarm;
 	private final FileSyncInterface fileSync;
 
 	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
@@ -58,7 +58,7 @@ public class ESDataManager implements ESDataManagerInterface
 		transfer = new DataTransfer(context);
 		fileSync = new FileSynchronizer(context);
 		
-		dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
+		alarm = new DataTransferAlarm(context, this);
 		setupAlarmForTransfer();
 	}
 
@@ -68,7 +68,7 @@ public class ESDataManager implements ESDataManagerInterface
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
 			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
-			dataTransferAlarmListener.setConnectionTypeAndStart(connectionType);
+			alarm.setConnectionTypeAndStart(connectionType);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class ESDataManager implements ESDataManagerInterface
 			}
 			else
 			{
-				dataTransferAlarmListener.stop();
+				alarm.stop();
 			}
 		}
 	}

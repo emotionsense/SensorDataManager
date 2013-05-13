@@ -8,13 +8,13 @@ import com.ubhave.datahandler.alarm.PolicyAlarm;
 import com.ubhave.datahandler.config.DataHandlerConstants;
 import com.ubhave.datahandler.config.DataTransferConfig;
 
-public class DataTransferAlarmListener implements AlarmListener
+public class DataTransferAlarm implements AlarmListener
 {
 	private final Context context;
 	private final ESDataManager dataManager;
 	private final PolicyAlarm policyAlarm;
 	
-	public DataTransferAlarmListener(final Context context, final ESDataManager dataManager)
+	public DataTransferAlarm(final Context context, final ESDataManager dataManager)
 	{
 		this.context = context;
 		this.dataManager = dataManager;
