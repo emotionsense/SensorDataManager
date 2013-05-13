@@ -21,15 +21,17 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -47,6 +49,15 @@ public abstract class JSONFormatter extends DataFormatter
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	
+	protected final Context applicationContext;
+	protected final int sensorType;
+	
+	public JSONFormatter(Context c, int sensorType)
+	{
+		applicationContext = c;
+		this.sensorType = sensorType;
+	}
 
 	public JSONObject toJSON(final SensorData data)
 	{
@@ -93,6 +104,26 @@ public abstract class JSONFormatter extends DataFormatter
 			Log.e(TAG, Log.getStackTraceString(e));
 			return null;
 		}
+	}
+	
+	protected<T> ArrayList<T> getJSONArray(JSONObject data, String key, Class<T> c) throws NullPointerException
+	{
+		ArrayList<T> list = new ArrayList<T>();
+		JSONArray jsonArray = (JSONArray) data.get(key);
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			try
+			{
+				T member = c.cast(jsonArray.get(i));
+				list.add(member);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+		}
+		return list;
 	}
 
 	@SuppressWarnings("unchecked")

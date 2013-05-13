@@ -23,9 +23,12 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.SmsData;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class SmsFormatter extends PushSensorJSONFormatter
 {
@@ -33,6 +36,11 @@ public class SmsFormatter extends PushSensorJSONFormatter
 	private final static String WORD_COUNT = "wordCount";
 	private final static String EVENT_TYPE = "eventType";
 	private final static String ADDRESS = "address";
+	
+	public SmsFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_SMS);
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
