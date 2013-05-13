@@ -1,7 +1,6 @@
 package com.ubhave.datahandler;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
@@ -12,8 +11,6 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.store.DataStorageInterface;
-import com.ubhave.datahandler.sync.FileSyncInterface;
-import com.ubhave.datahandler.sync.FileSynchronizer;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
@@ -32,8 +29,6 @@ public class DataManager implements DataManagerInterface
 	private final DataHandlerConfig config;
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
-	private final FileSyncInterface fileSync;
-	
 	private final DataHandlerEventManager eventManager;
 
 	public static DataManager getInstance(final Context context) throws ESException, TriggerException
@@ -57,8 +52,6 @@ public class DataManager implements DataManagerInterface
 		config = DataHandlerConfig.getInstance();
 		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
-		fileSync = new FileSynchronizer(context);
-		
 		eventManager = new DataHandlerEventManager(context, this);
 	}
 
@@ -154,23 +147,5 @@ public class DataManager implements DataManagerInterface
 		{
 			transfer.attemptDataUpload();
 		}
-	}
-	
-	@Override
-	public int addRemoteToSyncList(final String url, final HashMap<String, String> queryParameters, final String filePath) throws DataHandlerException
-	{
-		return fileSync.addRemoteToSyncList(url, queryParameters, filePath);
-	}
-	
-	@Override
-	public void removeFromSyncList(int id) throws DataHandlerException
-	{
-		fileSync.removeFromSyncList(id);
-	}
-	
-	@Override
-	public void syncUpdatedFiles()
-	{
-		fileSync.syncUpdatedFiles();
 	}
 }
