@@ -41,11 +41,6 @@ public class FileSynchronizer implements FileSyncInterface
 	@Override
 	public int subscribeToRemoteFileUpdate(final String url, final String fileTarget, FileUpdatedListener listener) throws DataHandlerException
 	{
-		if (listener == null)
-		{
-			throw new FileSyncException(FileSyncException.NO_LISTENER);
-		}
-		
 		SyncRequest request = new SyncRequest(context, url, fileTarget);
 		request.setListener(listener);
 		return subscribeToRemoteFileUpdate(request, listener);
@@ -54,12 +49,6 @@ public class FileSynchronizer implements FileSyncInterface
 	@Override
 	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException
 	{
-		if (listener == null)
-		{
-			throw new FileSyncException(FileSyncException.NO_LISTENER);
-		}
-		
-		request.setListener(listener);
 		for (int i=0; i<fileSyncRequests.size(); i++)
 		{
 			SyncRequest r = fileSyncRequests.valueAt(i);

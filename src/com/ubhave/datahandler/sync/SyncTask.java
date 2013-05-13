@@ -13,16 +13,21 @@ import android.util.Log;
 
 import com.ubhave.http.WebConnection;
 
-public class SyncTask extends AsyncTask<Void, Void, Boolean>
+public class SyncTask extends AsyncTask<Void, Void, Void>
 {
-
 	private final static String LOG_TAG = "SyncTask";
 	
 	private Context context;
+	private FileUpdatedListener listener;
 	private String baseURL, targetFile;
 	private HashMap<String, String> params;
 	private String requestTypeKey, dateParamValue, fileParamValue;
 	private String dateResponseFieldKey;
+	
+	public void setListener(FileUpdatedListener listener)
+	{
+		this.listener = listener;
+	}
 	
 	public void setBaseURL(String url)
 	{
@@ -65,10 +70,11 @@ public class SyncTask extends AsyncTask<Void, Void, Boolean>
 	}
 
 	@Override
-	protected Boolean doInBackground(Void... ps)
+	protected Void doInBackground(Void... ps)
 	{
 		try
 		{
+			Log.d(LOG_TAG, "Sync attempt: "+baseURL);
 			if (remoteFileLastUpdated() > localFileLastUpdated())
 			{
 				Log.d(LOG_TAG, "Downloading from: "+baseURL);
@@ -76,41 +82,35 @@ public class SyncTask extends AsyncTask<Void, Void, Boolean>
 				String fileContents = WebConnection.postToServer(baseURL, params);
 				params.remove(requestTypeKey);
 
-				Log.d(LOG_TAG, "Writing file: "+targetFile);
 				FileOutputStream fos = context.openFileOutput(targetFile, Context.MODE_PRIVATE);
 				fos.write(fileContents.getBytes());
 				fos.close();
-				return Boolean.TRUE;
+				
+				if (listener != null)
+				{
+					listener.onFileUpdated();
+				}
 			}
 			else
 			{
-				return Boolean.FALSE;
+				Log.d(LOG_TAG, "Nothing to sync: "+baseURL);
 			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			return Boolean.FALSE;
 		}
+		return null;
 	}
 	
 	private long localFileLastUpdated()
 	{
 		try
 		{
-			File f = new File(context.getFilesDir()+"/"+targetFile);
-			if (!f.exists())
-			{
-				Log.d(LOG_TAG, "Local file missing");
-				return 0;
-			}
-			else
-			{
-				long lastModified = f.lastModified();
-				Log.d(LOG_TAG, "Local last modified "+targetFile+": "+lastModified);
-				return f.lastModified();
-			}
-			
+			File f = new File(targetFile);
+			long lastModified = f.lastModified();
+			Log.d(LOG_TAG, "Local last modified "+targetFile+": "+lastModified);
+			return f.lastModified();
 		}
 		catch (Exception e)
 		{
@@ -126,11 +126,11 @@ public class SyncTask extends AsyncTask<Void, Void, Boolean>
 			params.put(requestTypeKey, dateParamValue);
 			String serverResponse = WebConnection.postToServer(baseURL, params);
 			params.remove(requestTypeKey);
-			Log.d("SyncTask", serverResponse);
 			
 			JSONParser parser = new JSONParser();
 			JSONObject response = (JSONObject) parser.parse(serverResponse);
 			long lastModified = (Long) response.get(dateResponseFieldKey);
+			
 			Log.d(LOG_TAG, "Remote last modified "+targetFile+": "+lastModified);
 			return lastModified;
 		}
@@ -140,4 +140,5 @@ public class SyncTask extends AsyncTask<Void, Void, Boolean>
 			return 0;
 		}
 	}
+
 }
