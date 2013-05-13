@@ -30,7 +30,7 @@ public class SyncRequest
 		
 		this.targetFile = file;
 		this.baseURL = url;
-		this.syncInterval = FileSyncConfig.DEFAULT_DAILY_SYNC_FREQUENCY;
+		this.syncInterval = FileSyncConfig.DEFAULT_SYNC_FREQUENCY;
 		this.params = new HashMap<String, String>();
 	}
 
