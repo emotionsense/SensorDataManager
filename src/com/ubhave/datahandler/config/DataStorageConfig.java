@@ -51,6 +51,7 @@ public class DataStorageConfig
 	{
 		HashMap<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME, DEFAULT_UPLOAD_DIRECTORY_NAME);
+		//defaults.put(LOCAL_STORAGE_DATA_FORMAT, DEFAULT_DATA_FORMAT);
 		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE);
 		defaults.put(FILE_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
 		return defaults;
