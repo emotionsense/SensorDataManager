@@ -33,13 +33,6 @@ public class DataHandlerConfig
 		validKeys.addAll(DataStorageConfig.validKeys());
 		validKeys.addAll(DataTransferConfig.validKeys());
 	}
-	
-	private void updateLocalUploadDirectoryPath()
-	{
-		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
-		String uploadDir = absoluteDir + config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
-		config.put(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH, uploadDir);
-	}
 
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
@@ -49,12 +42,9 @@ public class DataHandlerConfig
 			{
 				String absoluteDir = Environment.getExternalStorageDirectory().getAbsolutePath() + (String) value;
 				config.put(key,  absoluteDir);
-				updateLocalUploadDirectoryPath();
-			}
-			else if (key.equals(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME))
-			{
-				config.put(key, value);
-				updateLocalUploadDirectoryPath();
+				
+				String uploadDir = absoluteDir + config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
+				config.put(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH, uploadDir);
 			}
 			else
 			{
