@@ -8,7 +8,6 @@ public class DataHandlerException extends Exception
 	public final static int NO_URL_TARGET = 11;
 	public final static int IO_EXCEPTION = 12;
 	public final static int UNIMPLEMENTED = 13;
-	public final static int WRITING_TO_DEFAULT_DIRECTORY = 14;
 	
 	private final int errorCode;
 	
