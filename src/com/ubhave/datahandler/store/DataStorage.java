@@ -63,10 +63,10 @@ public class DataStorage implements DataStorageInterface
 				}
 			}
 		}
-
+		
 		if (latestFile != null)
 		{
-			if (isFileLimitReached(latestFile))
+			if (isFileDurationLimitReached(latestFile.getName(), (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS)))
 			{
 				moveDirectoryContentsForUpload(directoryFullPath);
 				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
@@ -79,45 +79,24 @@ public class DataStorage implements DataStorageInterface
 		return latestFile.getAbsolutePath();
 	}
 
-	private boolean isFileLimitReached(File file)
+	private boolean isFileDurationLimitReached(String fileName, long duration)
 	{
-		long durationLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
-		try
-		{
-			durationLimit = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-			sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
-		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
-		}
-
-		String fileName = file.getName();
-
 		String timeStr = fileName.substring(0, fileName.indexOf(".log"));
 		long fileTimestamp = Long.parseLong(timeStr);
 		long currTime = System.currentTimeMillis();
-
-		if ((currTime - fileTimestamp) > durationLimit)
+		if ((currTime - fileTimestamp) > duration)
 		{
 			return true;
 		}
-
-		long fileSize = file.length();
-
-		if (fileSize > sizeLimit)
+		else
 		{
-			return true;
+			return false;
 		}
-
-		return false;
 	}
-
+	
 	private void moveFileToUploadDir(final File file)
 	{
-		// start a background thread to move files + transfer log files to the
-		// server
+		// start a background thread to move files + transfer log files to the server
 		new Thread()
 		{
 			public void run()
@@ -155,7 +134,7 @@ public class DataStorage implements DataStorageInterface
 			{
 				moveFileToUploadDir(file);
 			}
-			else if (isFileLimitReached(file))
+			else if (isFileDurationLimitReached(file.getName(), (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS)))
 			{
 				if (file.length() <= 0)
 				{
@@ -173,7 +152,7 @@ public class DataStorage implements DataStorageInterface
 			}
 		}
 	}
-
+	
 	@Override
 	public void moveArchivedFilesForUpload()
 	{
@@ -324,7 +303,7 @@ public class DataStorage implements DataStorageInterface
 				{
 					file.createNewFile();
 				}
-
+				
 				// append mode
 				FileOutputStream fos = new FileOutputStream(file, true);
 				fos.write(data.getBytes());

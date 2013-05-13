@@ -11,13 +11,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import com.ubhave.datahandler.DataManager;
 import com.ubhave.datahandler.config.FileSyncConfig;
 
 public class SyncRequest extends BroadcastReceiver
 {
 	private final static String SYNC_URL_KEY = "SyncRequest";
-
+	private final static  String ACTION_NAME = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
+	private final static int REQUEST_CODE = 891;
 	
 	private final Context context;
 	private final String baseURL;
@@ -38,10 +38,10 @@ public class SyncRequest extends BroadcastReceiver
 		this.targetFile = file;
 		this.baseURL = url;
 		
-		Intent intent = new Intent(DataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
+		Intent intent = new Intent(ACTION_NAME);
 		intent.putExtra(SYNC_URL_KEY, url);
 		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		pendingIntent = PendingIntent.getBroadcast(context, DataManager.REQUEST_CODE_SYNC_REQUEST, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		hasStarted = false;
 		isSyncing = false;
 		
@@ -137,7 +137,7 @@ public class SyncRequest extends BroadcastReceiver
 		{
 			hasStarted = true;
 			attemptSync();
-			IntentFilter intentFilter = new IntentFilter(DataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
+			IntentFilter intentFilter = new IntentFilter(ACTION_NAME);
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), syncInterval, pendingIntent);
 			context.registerReceiver(this, intentFilter);
 		}
