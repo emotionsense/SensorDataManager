@@ -7,9 +7,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
-import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.store.DataStorageInterface;
 import com.ubhave.datahandler.transfer.DataTransfer;
@@ -60,7 +57,7 @@ public class DataManager implements DataManagerInterface
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
 		config.setConfig(key, value);
-		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
+		if (key.equals(DataHandlerConfig.DATA_POLICY))
 		{
 			eventManager.setPolicy((Integer) value);
 		}
@@ -82,12 +79,12 @@ public class DataManager implements DataManagerInterface
 	{
 		try
 		{
-			return ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY)) == DataTransferConfig.TRANSFER_IMMEDIATE;
+			return ((Integer) config.get(DataHandlerConfig.DATA_POLICY)) == DataHandlerConfig.TRANSFER_IMMEDIATE;
 		}
 		catch (DataHandlerException e)
 		{
 			e.printStackTrace();
-			return false;
+			return true;
 		}
 	}
 
@@ -96,7 +93,7 @@ public class DataManager implements DataManagerInterface
 		DataFormatter formatter = null;
 		try
 		{
-			if (((Integer) config.get(DataStorageConfig.LOCAL_STORAGE_DATA_FORMAT)) == DataStorageConfig.JSON_FORMAT)
+			if (((Integer) config.get(DataHandlerConfig.DATA_FORMAT)) == DataHandlerConfig.JSON_FORMAT)
 			{
 				formatter = DataFormatter.getJSONFormatter(context, sensorType);
 			}
@@ -120,7 +117,7 @@ public class DataManager implements DataManagerInterface
 			DataFormatter formatter = getDataFormatter(data.getSensorType());
 			if (shouldTransferImmediately())
 			{
-				transfer.postData(formatter.toString(data));
+				transfer.postData(formatter.toString(data), (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL));
 			}
 			else
 			{
@@ -134,7 +131,7 @@ public class DataManager implements DataManagerInterface
 	{
 		if (shouldTransferImmediately())
 		{
-			transfer.postError(error);
+			transfer.postError(error, (String) config.get(DataHandlerConfig.ERROR_POST_TARGET_URL));
 		}
 		else
 		{
@@ -147,7 +144,7 @@ public class DataManager implements DataManagerInterface
 	{
 		if (shouldTransferImmediately())
 		{
-			transfer.postExtra(tag, data);
+			transfer.postExtra(tag, data, (String) config.get(DataHandlerConfig.EXTRA_POST_TARGET_URL));
 		}
 		else
 		{

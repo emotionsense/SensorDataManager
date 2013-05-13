@@ -17,9 +17,8 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
-import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -66,7 +65,8 @@ public class DataStorage implements DataStorageInterface
 		
 		if (latestFile != null)
 		{
-			if (isFileDurationLimitReached(latestFile.getName(), (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS)))
+			// TODO this should not check against a default value
+			if (isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 			{
 				moveDirectoryContentsForUpload(directoryFullPath);
 				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
@@ -106,7 +106,7 @@ public class DataStorage implements DataStorageInterface
 				{
 					try
 					{
-						String uploadDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
+						String uploadDir = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY);
 						File directory = new File(uploadDir);
 						if (!directory.exists())
 						{
@@ -134,7 +134,7 @@ public class DataStorage implements DataStorageInterface
 			{
 				moveFileToUploadDir(file);
 			}
-			else if (isFileDurationLimitReached(file.getName(), (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS)))
+			else if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
 			{
 				if (file.length() <= 0)
 				{
@@ -158,12 +158,12 @@ public class DataStorage implements DataStorageInterface
 	{
 		try
 		{
-			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
 			File[] rootDirectory = (new File(rootPath)).listFiles();
 			for (File directory : rootDirectory)
 			{
 				String directoryName = directory.getName();
-				if (!directoryName.contains((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME)))
+				if (!directoryName.contains(DataHandlerConfig.UPLOAD_DIRECTORY))
 				{
 					synchronized (getLock(directoryName))
 					{
@@ -227,7 +227,7 @@ public class DataStorage implements DataStorageInterface
 		try
 		{
 			String sensorName = SensorUtils.getSensorName(sensorId);
-			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
 			JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
 			synchronized (getLock(sensorName))
 			{
@@ -285,7 +285,7 @@ public class DataStorage implements DataStorageInterface
 
 	private void writeData(String directoryName, String data) throws DataHandlerException
 	{
-		String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+		String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
 		synchronized (getLock(directoryName))
 		{
 			try

@@ -2,7 +2,6 @@ package com.ubhave.datahandler;
 
 import android.content.Context;
 
-import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.SensorDataListener;
@@ -10,12 +9,14 @@ import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 import com.ubhave.triggermanager.TriggerException;
+import com.ubhave.triggermanager.TriggerManager;
 import com.ubhave.triggermanager.TriggerReceiver;
+import com.ubhave.triggermanager.triggers.TriggerUtils;
 
 public class DataHandlerEventManager implements TriggerReceiver, SensorDataListener
 {
 	private final ESSensorManager sensorManager;
-//	private final TriggerManager triggerManager;
+	private final TriggerManager triggerManager;
 	private int subscriptionId;
 	private int currentPolicy;
 	
@@ -24,12 +25,8 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 	public DataHandlerEventManager(final Context context, final DataManager dataHandler) throws ESException, TriggerException
 	{
 		sensorManager = ESSensorManager.getSensorManager(context);
-//		triggerManager = TriggerManager.getTriggerManager(context);
-		
-		/*
-		 * TODO: implement transfer policy
-		 */
-		currentPolicy = DataTransferConfig.TRANSFER_ON_CONNECTION;
+		triggerManager = TriggerManager.getTriggerManager(context);
+		currentPolicy = DataHandlerConfig.TRANSFER_IMMEDIATE;
 		this.dataHandler = dataHandler;
 	}
 
@@ -45,13 +42,12 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 
 	private void removeListener()
 	{
-		// TODO: untested
-//		if (currentPolicy == DataTransferConfig.TRANFER_BULK_ON_INTERVAL)
-//		{
-//			triggerManager.removeTrigger(subscriptionId);
-//		}
-//		else
-			if (currentPolicy == DataTransferConfig.TRANSFER_ON_CONNECTION || currentPolicy == DataTransferConfig.TRANSFER_ON_WIFI)
+		if (currentPolicy == DataHandlerConfig.TRANFER_BULK_ON_INTERVAL)
+		{
+			triggerManager.removeTrigger(subscriptionId);
+		}
+		else if (currentPolicy == DataHandlerConfig.TRANSFER_ON_CONNECTION
+				|| currentPolicy == DataHandlerConfig.TRANSFER_ON_WIFI)
 		{
 			try
 			{
@@ -68,21 +64,19 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 	{
 		try
 		{
-			// TODO: untested
-//			if (policy == DataTransferConfig.TRANFER_BULK_ON_INTERVAL)
-//			{
-//				triggerManager.addTrigger(TriggerUtils.CLOCK_TRIGGER_ON_INTERVAL, this, null);
-//			}
-//			else
-				if (policy == DataTransferConfig.TRANSFER_ON_WIFI)
+			if (policy == DataHandlerConfig.TRANFER_BULK_ON_INTERVAL)
+			{
+				triggerManager.addTrigger(TriggerUtils.CLOCK_TRIGGER_ON_INTERVAL, this, null);
+			}
+			else if (policy == DataHandlerConfig.TRANSFER_ON_WIFI)
 			{
 				sensorManager.subscribeToSensorData(SensorUtils.SENSOR_TYPE_CONNECTION_STATE, this);
 			}
 		}
-//		catch (TriggerException e)
-//		{
-//			e.printStackTrace();
-//		}
+		catch (TriggerException e)
+		{
+			e.printStackTrace();
+		}
 		catch (ESException e)
 		{
 			e.printStackTrace();
@@ -107,11 +101,11 @@ public class DataHandlerEventManager implements TriggerReceiver, SensorDataListe
 		ConnectionStateData connectionData = (ConnectionStateData) data;
 		if (connectionData.isConnected())
 		{
-			if (currentPolicy == DataTransferConfig.TRANSFER_ON_CONNECTION)
+			if (currentPolicy == DataHandlerConfig.TRANSFER_ON_CONNECTION)
 			{
 				dataHandler.transferStoredData();
 			}
-			else if (currentPolicy == DataTransferConfig.TRANSFER_ON_WIFI)
+			else if (currentPolicy == DataHandlerConfig.TRANSFER_ON_WIFI)
 			{
 				if (connectionData.getNetworkType() == ConnectionStateData.WIFI_CONNECTION)
 				{

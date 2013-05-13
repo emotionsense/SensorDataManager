@@ -13,7 +13,7 @@ public interface DataTransferInterface
 	 * Immediately posting data
 	 * Note: these are unimplemented
 	 */
-	public void postData(final String data) throws DataHandlerException;
-	public void postError(final String error) throws DataHandlerException;
-	public void postExtra(final String tag, final String data) throws DataHandlerException;
+	public void postData(final String data, final String url) throws DataHandlerException;
+	public void postError(final String error, final String url) throws DataHandlerException;
+	public void postExtra(final String tag, final String data, final String url) throws DataHandlerException;
 }
