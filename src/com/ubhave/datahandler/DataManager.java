@@ -73,7 +73,7 @@ public class DataManager implements DataManagerInterface
 		return recentData;
 	}
 
-	private boolean shouldTransferImmediately()
+	private boolean transferImmediately()
 	{
 		try
 		{
@@ -113,7 +113,7 @@ public class DataManager implements DataManagerInterface
 		if (data != null)
 		{
 			DataFormatter formatter = getDataFormatter(data.getSensorType());
-			if (shouldTransferImmediately())
+			if (transferImmediately())
 			{
 				transfer.postData(formatter.toString(data), (String) config.get(DataHandlerConfig.DATA_POST_TARGET_URL));
 			}
@@ -127,7 +127,7 @@ public class DataManager implements DataManagerInterface
 	@Override
 	public void logError(final String error) throws DataHandlerException
 	{
-		if (shouldTransferImmediately())
+		if (transferImmediately())
 		{
 			transfer.postError(error, (String) config.get(DataHandlerConfig.ERROR_POST_TARGET_URL));
 		}
@@ -140,7 +140,7 @@ public class DataManager implements DataManagerInterface
 	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
-		if (shouldTransferImmediately())
+		if (transferImmediately())
 		{
 			transfer.postExtra(tag, data, (String) config.get(DataHandlerConfig.EXTRA_POST_TARGET_URL));
 		}
