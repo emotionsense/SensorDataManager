@@ -42,10 +42,6 @@ import org.apache.http.params.CoreProtocolPNames;
 
 public class WebConnection
 {
-	public static String postToServer(final String serverUrl, final HashMap<String, String> params)
-	{
-		return postDataToServer(serverUrl, null, params);
-	}
 
 	public static String postDataToServer(String serverUrl, File file, HashMap<String, String> paramsMap)
 	{
@@ -57,6 +53,7 @@ public class WebConnection
 			httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60 * 1000);
 
 			HttpPost httppost = new HttpPost(serverUrl);
+
 			MultipartEntity multipartEntity = new MultipartEntity();
 
 			FileBody fileBody = new FileBody(file);
