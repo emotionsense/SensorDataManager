@@ -9,7 +9,6 @@ public class DataHandlerException extends Exception
 	public final static int STORAGE_OVER_QUOTA = 2;
 	public final static int NO_URL_TARGET = 3;
 	public final static int IO_EXCEPTION = 4;
-	public final static int UNIMPLEMENTED = 5;
 	
 	private final int errorCode;
 	

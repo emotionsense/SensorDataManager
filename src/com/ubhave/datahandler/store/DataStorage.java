@@ -19,17 +19,17 @@ import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.DataHandlerConfig;
 import com.ubhave.datahandler.DataHandlerException;
-import com.ubhave.datahandler.transfer.DataTransferInterface;
+import com.ubhave.datahandler.DataManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class DataStorage implements DataStorageInterface
+public class DataStorage
 {
 	private static final String TAG = "DataStorage";
-	private static final Object fileTransferLock = new Object();
-	private static final String UNKNOWN_SENSOR = "Unknown_Sensor";
-	private static final String ERROR_DIRECTORY_NAME = "Error_Log";
+
+	private final static String UNKNOWN_SENSOR = "Unknown_Sensor";
+	private final static String ERROR_DIRECTORY_NAME = "Error_Log";
 
 	private final Context context;
 
@@ -61,19 +61,16 @@ public class DataStorage implements DataStorageInterface
 				}
 			}
 		}
-		
-		if (latestFile != null)
+
+		if (latestFile == null || isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 		{
-			// TODO this should not check against a default value
-			if (isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
+			if (latestFile != null
+					&& isFileDurationLimitReached(latestFile.getName(), DataHandlerConfig.DEFAULT_FILE_DURATION))
 			{
-//				moveFilesForUploadingToServer(directoryFullPath); // TODO removed for now
-				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
+				moveFilesForUploadingToServer(directoryFullPath);
 			}
-		}
-		else
-		{
 			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
+
 		}
 		return latestFile.getAbsolutePath();
 	}
@@ -92,39 +89,25 @@ public class DataStorage implements DataStorageInterface
 			return false;
 		}
 	}
-	
-	private void moveFileToUploadDir(final File file, final DataTransferInterface transfer)
-	{
-		// start a background thread to move files + transfer log files to the server
-		new Thread()
-		{
-			public void run()
-			{
-				// move files
-				synchronized (fileTransferLock)
-				{
-					File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
-					if (!directory.exists())
-					{
-						directory.mkdirs();
-					}
-					file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
-				}
-				transfer.attemptDataUpload(fileTransferLock);
-			}
-		}.start();
-	}
 
-	private void moveDirectoryContentsForUpload(String directoryFullPath, final DataTransferInterface transfer) throws DataHandlerException, IOException
+	private void moveFilesForUploadingToServer(String directoryFullPath) throws DataHandlerException, IOException
 	{
 		Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
+
 		File directory = new File(directoryFullPath);
 		File[] files = directory.listFiles();
 		for (File file : files)
 		{
 			if (file.getName().endsWith(".gz"))
 			{
-				moveFileToUploadDir(file, transfer);
+				try
+				{
+					DataManager.getInstance(context).moveFileToUploadDir(file);
+				}
+				catch (Exception e)
+				{
+					Log.e(TAG, Log.getStackTraceString(e));
+				}
 			}
 			else if (isFileDurationLimitReached(file.getName(), DataHandlerConfig.DEFAULT_RECENT_DURATION))
 			{
@@ -136,41 +119,27 @@ public class DataStorage implements DataStorageInterface
 				{
 					Log.d(TAG, "gzip file " + file);
 					File gzippedFile = gzipFile(file);
-					moveFileToUploadDir(gzippedFile, transfer);
-					Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
-					Log.d(TAG, "deleting file: " + file.getAbsolutePath());
-					file.delete();
-				}
-			}
-		}
-	}
-	
-	@Override
-	public void movesFilesAndUpload(final DataTransferInterface transfer)
-	{
-		File[] rootDirectory = (new File(DataHandlerConfig.PHONE_STORAGE_DIR)).listFiles();
-		for (File directory : rootDirectory)
-		{
-			String directoryName = directory.getName();
-			if (!directoryName.contains(DataHandlerConfig.UPLOAD_DIRECTORY))
-			{
-				synchronized (getLock(directoryName))  // TODO check/test lock is correct
-				{
+
 					try
 					{
-						moveDirectoryContentsForUpload(directory.getAbsolutePath(), transfer);
+						DataManager.getInstance(context).moveFileToUploadDir(gzippedFile);
+						Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
+						Log.d(TAG, "deleting file: " + file.getAbsolutePath());
+						file.delete();
 					}
-					catch (Exception e)
+					catch (Exception te)
 					{
-						e.printStackTrace();
+						Log.e(TAG, Log.getStackTraceString(te));
 					}
 				}
+
 			}
 		}
 	}
 
 	private File gzipFile(File inputFile) throws IOException
 	{
+
 		byte[] buffer = new byte[1024];
 
 		String parentFullPath = inputFile.getParent();
@@ -204,7 +173,6 @@ public class DataStorage implements DataStorageInterface
 		return imeiPhone;
 	}
 
-	@Override
 	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
 	{
 		String sensorName = SensorUtils.getSensorName(sensorId);
@@ -221,23 +189,29 @@ public class DataStorage implements DataStorageInterface
 			{
 				for (File file : files)
 				{
-					String line;
 					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-					while ((line = br.readLine()) != null)
+					while (true)
 					{
-						// TODO: add support for other formatters
-						// convert json string to sensor data object
-						long timestamp = jsonFormatter.getTimestamp(line);
-						if (timestamp >= startTimestamp)
+						String line = br.readLine();
+						if (line == null)
 						{
-							SensorData sensorData = jsonFormatter.toSensorData(line);
-							if (sensorData.getTimestamp() >= startTimestamp)
+							br.close();
+							break;
+						}
+						else
+						{
+							// convert json string to sensor data object
+							long timestamp = jsonFormatter.getTimestamp(line);
+							if (timestamp >= startTimestamp)
 							{
-								outputList.add(sensorData);
+								SensorData sensorData = jsonFormatter.toSensorData(line);
+								if (sensorData.getTimestamp() >= startTimestamp)
+								{
+									outputList.add(sensorData);
+								}
 							}
 						}
 					}
-					br.close();
 				}
 			}
 		}
@@ -277,12 +251,12 @@ public class DataStorage implements DataStorageInterface
 				}
 
 				String fileFullPath = getFileName(directoryFullPath);
+
 				file = new File(fileFullPath);
 				if (!file.exists())
 				{
 					file.createNewFile();
 				}
-				
 				// append mode
 				FileOutputStream fos = new FileOutputStream(file, true);
 				fos.write(data.getBytes());
@@ -297,7 +271,6 @@ public class DataStorage implements DataStorageInterface
 		}
 	}
 
-	@Override
 	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException
 	{
 		String sensorName;
@@ -310,16 +283,15 @@ public class DataStorage implements DataStorageInterface
 			sensorName = UNKNOWN_SENSOR;
 		}
 		String directoryName = sensorName;
+
 		writeData(directoryName, formatter.toString(data));
 	}
 
-	@Override
 	public void logError(final String error) throws DataHandlerException
 	{
 		writeData(ERROR_DIRECTORY_NAME, error);
 	}
 
-	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
 		writeData(tag, data);
