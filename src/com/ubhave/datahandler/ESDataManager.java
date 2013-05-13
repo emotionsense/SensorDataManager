@@ -43,11 +43,9 @@ public class ESDataManager implements ESDataManagerInterface
 	private AlarmManager alarmManager;
 	private PendingIntent pendingIntent;
 
-	// TODO extract to appropriate config file
 	public final static String ACTION_NAME_SYNC_REQUEST_ALARM = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
 	public final static String ACTION_NAME_DATA_TRANSFER_ALARM = "com.ubhave.datahandler.sync.DATA_TRANSFER_ALARM";
 
-	// TODO extract to appropriate config file
 	public final static int REQUEST_CODE_SYNC_REQUEST = 8950;
 	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
 
@@ -91,7 +89,7 @@ public class ESDataManager implements ESDataManagerInterface
 			IntentFilter intentFilter = new IntentFilter(ESDataManager.ACTION_NAME_DATA_TRANSFER_ALARM);
 			// set to 15 mins, should be fine as default file upload interval is
 			// 30 hours, if needed this could be exposed in the config
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 15 * 60 * 1000,
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 15 * 60 * 60 * 1000,
 					pendingIntent);
 
 			BroadcastReceiver receiver = new BroadcastReceiver()

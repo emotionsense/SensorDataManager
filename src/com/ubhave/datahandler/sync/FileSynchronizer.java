@@ -96,7 +96,7 @@ public class FileSynchronizer implements FileSyncInterface
 	{
 		for (int i=0; i<fileSyncRequests.size(); i++)
 		{
-			fileSyncRequests.valueAt(i).alarmTriggered();
+			fileSyncRequests.valueAt(i).attemptSync();
 		}	
 	}
 }
