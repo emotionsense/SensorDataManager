@@ -40,6 +40,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class ApplicationFormatter extends PullSensorJSONFormatter
 {
+	private final static String APPLICATION = "application";
 	private final static String APPLICATION_RESULT = "applicationResult";
 
 	private final static String UNAVAILABLE = "unavailable";
@@ -61,7 +62,9 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 		{
 			for (String result : results)
 			{
-				resultJSON.add(result);
+				JSONObject appJSON = new JSONObject();
+				appJSON.put(APPLICATION, result);
+				resultJSON.add(appJSON);
 			}
 		}
 		else

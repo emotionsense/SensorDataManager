@@ -112,16 +112,9 @@ public abstract class JSONFormatter extends DataFormatter
 		JSONArray jsonArray = (JSONArray) data.get(key);
 		for (int i = 0; i < jsonArray.size(); i++)
 		{
-			try
-			{
-				T member = c.cast(jsonArray.get(i));
-				list.add(member);
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			
+			JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+			T member = c.cast(jsonObject);
+			list.add(member);
 		}
 		return list;
 	}
