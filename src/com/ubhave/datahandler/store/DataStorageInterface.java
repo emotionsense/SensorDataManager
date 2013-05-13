@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.ubhave.dataformatter.DataFormatter;
-import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 

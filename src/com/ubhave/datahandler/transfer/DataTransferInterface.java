@@ -1,6 +1,6 @@
 package com.ubhave.datahandler.transfer;
 
-import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.DataHandlerException;
 
 public interface DataTransferInterface
 {

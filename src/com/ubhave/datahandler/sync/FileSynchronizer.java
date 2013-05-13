@@ -5,8 +5,7 @@ import java.util.Random;
 import android.content.Context;
 import android.util.SparseArray;
 
-import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datahandler.except.FileSyncException;
+import com.ubhave.datahandler.DataHandlerException;
 
 public class FileSynchronizer implements FileSyncInterface
 {
@@ -32,7 +31,7 @@ public class FileSynchronizer implements FileSyncInterface
 			conflicts++;
 			if (conflicts == 1000)
 			{
-				throw new FileSyncException(FileSyncException.KEY_ALLOCATION_CONFLICT);
+				throw new DataHandlerException(DataHandlerException.KEY_ALLOCATION_CONFLICT);
 			}
 		}
 		return key;
@@ -42,26 +41,15 @@ public class FileSynchronizer implements FileSyncInterface
 	public int subscribeToRemoteFileUpdate(final String url, final String fileTarget, FileUpdatedListener listener) throws DataHandlerException
 	{
 		SyncRequest request = new SyncRequest(context, url, fileTarget);
-		request.setListener(listener);
 		return subscribeToRemoteFileUpdate(request, listener);
 	}
 	
 	@Override
 	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException
 	{
-		for (int i=0; i<fileSyncRequests.size(); i++)
-		{
-			SyncRequest r = fileSyncRequests.valueAt(i);
-			if (r.equals(request))
-			{
-				throw new FileSyncException(FileSyncException.REQUEST_ALREADY_EXISTS);
-			}
-		}
-		
 		int key = getRandomKey();
 		fileSyncRequests.put(key, request);
 		request.start();
-		
 		return key;
 	}
 	
@@ -76,7 +64,7 @@ public class FileSynchronizer implements FileSyncInterface
 		}
 		else
 		{
-			throw new FileSyncException(FileSyncException.KEY_NOT_FOUND);
+			throw new DataHandlerException(DataHandlerException.KEY_NOT_FOUND);
 		}
 	}
 	
@@ -85,7 +73,7 @@ public class FileSynchronizer implements FileSyncInterface
 	{
 		for (int i=0; i<fileSyncRequests.size(); i++)
 		{
-			fileSyncRequests.valueAt(i).attemptSync();
+			fileSyncRequests.valueAt(i).sync();
 		}	
 	}
 }

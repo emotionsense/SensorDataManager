@@ -17,9 +17,9 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.datahandler.DataHandlerException;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;

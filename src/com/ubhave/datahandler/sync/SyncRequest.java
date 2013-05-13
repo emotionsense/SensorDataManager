@@ -1,114 +1,37 @@
 package com.ubhave.datahandler.sync;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.Set;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.util.Log;
 
+import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.FileSyncConfig;
+import com.ubhave.http.WebConnection;
 
-public class SyncRequest extends BroadcastReceiver
+public class SyncRequest
 {
-	private final static String SYNC_URL_KEY = "SyncRequest";
-	public static final String ACTION_NAME = "com.ubhave.datahandler.sync.SYNC_REQUEST_ALARM";
-	private final static int REQUEST_CODE = 112;
-	
 	private final Context context;
-	private FileUpdatedListener listener;
+	private final DataHandlerConfig config;
+	
 	private final String baseURL;
 	private final String targetFile;
-	
-	private String requestTypeKey, dateParamValue, fileParamValue, dateResponseFieldKey;
 	private HashMap<String, String> params;
 	private long syncInterval;
-	
-	private final AlarmManager alarmManager;
-	private final PendingIntent pendingIntent;
-	private boolean hasStarted, isSyncing;
 
-	public SyncRequest(final Context context, final String url, final String file)
+	public SyncRequest(Context context, String url, String file)
 	{
 		this.context = context;
+		this.config = DataHandlerConfig.getInstance();
+		
 		this.targetFile = file;
 		this.baseURL = url;
-		
-		Intent intent = new Intent(ACTION_NAME);
-		intent.putExtra(SYNC_URL_KEY, url);
-		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		pendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		hasStarted = false;
-		isSyncing = false;
-		
-		// Set up default values
-		this.params = new HashMap<String, String>();
-		this.requestTypeKey = FileSyncConfig.DEFAULT_REQUEST_TYPE_PARAM;
-		this.dateParamValue = FileSyncConfig.DEFAULT_REQUEST_DATE_MODIFIED;
-		this.fileParamValue = FileSyncConfig.DEFAULT_REQUEST_GET_FILE;
 		this.syncInterval = FileSyncConfig.DEFAULT_DAILY_SYNC_FREQUENCY;
-		this.dateResponseFieldKey = FileSyncConfig.DEFAULT_RESPONSE_DATE_MODIFIED;
-		this.listener = null;
-	}
-	
-	public void setListener(FileUpdatedListener listener)
-	{
-		this.listener = listener;
-	}
-	
-	public void setParams(HashMap<String, String> params)
-	{
-		this.params = params;
-	}
-	
-	public void setRequestTypeKey(String key)
-	{
-		requestTypeKey = key;
-	}
-	
-	public void setGetDateValue(String value)
-	{
-		dateParamValue = value;
-	}
-	
-	public void setGetFileValue(String key, String value)
-	{
-		fileParamValue = value;
-	}
-	
-	public void setDateResponseKey(String value)
-	{
-		dateResponseFieldKey = value;
-	}
-	
-	public boolean equals(final SyncRequest otherRequest)
-	{
-		if (baseURL.equals(otherRequest.getBaseURL()))
-		{
-			HashMap<String, String> otherParams = otherRequest.getParams();
-			Set<String> paramKeys = params.keySet();
-			if (paramKeys.containsAll(otherParams.keySet()))
-			{
-				for (String key : paramKeys)
-				{
-					if (!params.get(key).equals(otherParams.get(key)))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public String getBaseURL()
-	{
-		return baseURL;
+		this.params = new HashMap<String, String>();
 	}
 
 	public void setSyncInterval(long interval)
@@ -121,7 +44,12 @@ public class SyncRequest extends BroadcastReceiver
 		return syncInterval;
 	}
 
-	public void setParam(final String key, final String value)
+	public String getBaseURL()
+	{
+		return baseURL;
+	}
+
+	public void setParam(String key, String value)
 	{
 		params.put(key, value);
 	}
@@ -133,68 +61,69 @@ public class SyncRequest extends BroadcastReceiver
 
 	public void start()
 	{
-		if (!hasStarted)
-		{
-			hasStarted = true;
-			attemptSync();
-			IntentFilter intentFilter = new IntentFilter(ACTION_NAME);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), syncInterval, pendingIntent);
-			context.registerReceiver(this, intentFilter);
-		}
+		// TODO
 	}
 	
 	public void stop()
 	{
-		if (hasStarted)
+		// TODO
+	}
+
+	public void sync()
+	{
+		try
 		{
-			hasStarted = false;
-			alarmManager.cancel(pendingIntent);
-			context.unregisterReceiver(this);
+			if (remoteFileLastUpdated() > localFileLastUpdated())
+			{
+				String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
+				params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_GET_FILE_VALUE));
+				String fileContents = WebConnection.postToServer(baseURL, params);
+				params.remove(requestKey);
+
+				FileOutputStream fos = context.openFileOutput(targetFile, Context.MODE_PRIVATE);
+				fos.write(fileContents.getBytes());
+				fos.close();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 	
-	@Override
-	public void onReceive(Context context, Intent intent)
+	private long localFileLastUpdated()
 	{
-		String url = intent.getStringExtra(SYNC_URL_KEY);
-		Log.d(SYNC_URL_KEY, "Broadcast Received: "+url);
-		if (url != null)
+		try
 		{
-			if (baseURL.equals(url))
-			{
-				attemptSync();
-			}
+			File f = new File(targetFile);
+			return f.lastModified();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return 0;
 		}
 	}
-
-	public void attemptSync()
+	
+	private long remoteFileLastUpdated()
 	{
-		if (!isSyncing)
+		try
 		{
-			SyncTask s = new SyncTask()
-			{
-				@Override
-				public void onPreExecute()
-				{
-					isSyncing = true;
-				}
-				
-				@Override
-				protected void onPostExecute(Void result)
-				{
-					isSyncing = false;
-				}
-			};
-			s.setContext(context);
-			s.setListener(listener);
-			s.setBaseURL(baseURL);
-			s.setTargetFile(targetFile);
-			s.setParams(params);
-			s.setRequestTypeKey(requestTypeKey);
-			s.setGetDateValue(dateParamValue);
-			s.setGetFileValue(fileParamValue);
-			s.setDateResponseKey(dateResponseFieldKey);
-			s.execute();
+			String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
+			params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_DATE_MODIFIED_VALUE));
+			String serverResponse = WebConnection.postToServer(baseURL, params);
+			params.remove(requestKey);
+			
+			String responseKey = (String) config.get(FileSyncConfig.RESPONSE_DATE_MODIFIED_KEY);
+			JSONParser parser = new JSONParser();
+			JSONObject response = (JSONObject) parser.parse(serverResponse);
+			long date = (Long) response.get(responseKey);
+			return date;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return 0;
 		}
 	}
 }

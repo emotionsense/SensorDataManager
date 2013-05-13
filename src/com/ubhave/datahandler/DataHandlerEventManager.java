@@ -3,7 +3,6 @@ package com.ubhave.datahandler;
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataTransferConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.ESSensorManager;
 import com.ubhave.sensormanager.SensorDataListener;
