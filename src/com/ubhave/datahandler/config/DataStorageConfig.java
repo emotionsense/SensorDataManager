@@ -18,14 +18,14 @@ public class DataStorageConfig
 	/*
 	 * Config Values
 	 */
-//	public final static int JSON_FORMAT = 0;
-//	public final static int CSV_FORMAT = 1;
+	public final static int JSON_FORMAT = 0;
+	public final static int CSV_FORMAT = 1;
 	
 	/*
 	 * Default values
 	 */
 	public final static String DEFAULT_UPLOAD_DIRECTORY_NAME = "to_be_uploaded";
-	//public final static int DEFAULT_DATA_FORMAT = JSON_FORMAT;
+	public final static int DEFAULT_DATA_FORMAT = JSON_FORMAT;
 	public final static long DEFAULT_FILE_SIZE = 1024 * 1024; // 1 MB
 	public final static long DEFAULT_FILE_LIFE_MILLIS = 30 * 60 * 60 * 1000; // 30 hours
 
@@ -51,7 +51,7 @@ public class DataStorageConfig
 	{
 		HashMap<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME, DEFAULT_UPLOAD_DIRECTORY_NAME);
-		//defaults.put(LOCAL_STORAGE_DATA_FORMAT, DEFAULT_DATA_FORMAT);
+		defaults.put(LOCAL_STORAGE_DATA_FORMAT, DEFAULT_DATA_FORMAT);
 		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE);
 		defaults.put(FILE_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
 		return defaults;
