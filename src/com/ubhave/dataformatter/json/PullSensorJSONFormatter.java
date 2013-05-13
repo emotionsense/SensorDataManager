@@ -23,10 +23,7 @@ package com.ubhave.dataformatter.json;
 
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 
 public abstract class PullSensorJSONFormatter extends JSONFormatter
 {
@@ -34,11 +31,6 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 
 	private final static String SLEEP_LENGTH = "postSenseSleepMillis";
 
-	public PullSensorJSONFormatter(final Context context, final int sensorType)
-	{
-		super(context, sensorType);
-	}
-	
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void addGenericConfig(JSONObject json, SensorConfig config)
@@ -47,7 +39,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 		if (sleepLength != null)
 		{
 			json.put(SLEEP_LENGTH, sleepLength);
-			json.put(IS_ADAPTIVELY_SENSED, (Boolean) config.getParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED));
+			json.put(IS_ADAPTIVELY_SENSED, (Boolean) config.getParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED));
 		}
 	}
 
@@ -60,7 +52,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 			config.setParameter(SLEEP_LENGTH, sleepLength);
 			
 			Boolean isAdaptivelySensed = (Boolean) json.get(IS_ADAPTIVELY_SENSED);
-			config.setParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
+			config.setParameter(SensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
 		}
 		catch (NullPointerException e)
 		{

@@ -23,23 +23,16 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.PhoneStateData;
-import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class PhoneStateFormatter extends PushSensorJSONFormatter
 {
+
 	private final static String EVENT_TYPE = "eventType";
 	private final static String DATA = "data";
 	private final static String NUMBER = "number";
-	
-	public PhoneStateFormatter(final Context context)
-	{
-		super(context, SensorUtils.SENSOR_TYPE_PHONE_STATE);
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override

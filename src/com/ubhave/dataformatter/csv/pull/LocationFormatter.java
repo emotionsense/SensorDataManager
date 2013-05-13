@@ -25,7 +25,6 @@ import android.location.Location;
 
 import com.ubhave.dataformatter.csv.CSVFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.LocationConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.LocationData;
 
@@ -62,7 +61,7 @@ public class LocationFormatter extends CSVFormatter
 	@Override
 	protected void addSensorSpecificConfig(StringBuilder builder, SensorConfig config)
 	{
-		builder.append(","+config.getParameter(LocationConfig.ACCURACY_TYPE));
+		builder.append(","+config.getParameter(SensorConfig.LOCATION_ACCURACY));
 	}
 
 	@Override

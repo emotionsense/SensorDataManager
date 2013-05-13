@@ -23,12 +23,9 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
-import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class ConnectionStateFormatter extends PushSensorJSONFormatter
 {
@@ -43,11 +40,6 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 	private final static String NETWORK_TYPE = "networkType";
 	private final static String ROAMING = "roaming";
 	private final static String SSID = "ssid";
-	
-	public ConnectionStateFormatter(final Context context)
-	{
-		super(context, SensorUtils.SENSOR_TYPE_CONNECTION_STATE);
-	}
 
 	private String getConnectionTypeString(int type)
 	{

@@ -26,31 +26,20 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
-import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.AccelerometerData;
-import com.ubhave.sensormanager.process.AbstractProcessor;
-import com.ubhave.sensormanager.process.pull.AccelerometerProcessor;
-import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class AccelerometerFormatter extends PullSensorJSONFormatter
 {
+
 	private final static String X_AXIS = "xAxis";
 	private final static String Y_AXIS = "yAxis";
 	private final static String Z_AXIS = "zAxis";
 	private final static String READING_TIMESTAMPS = "sensorTimeStamps";
 
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
-	
-	public AccelerometerFormatter(final Context context)
-	{
-		super(context, SensorUtils.SENSOR_TYPE_ACCELEROMETER);
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -59,39 +48,36 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 		AccelerometerData accelerometerData = (AccelerometerData) data;
 		ArrayList<float[]> readings = accelerometerData.getSensorReadings();
 		ArrayList<Long> timestamps = accelerometerData.getSensorReadingTimestamps();
-		if (readings != null && timestamps != null)
+
+		JSONArray xs = new JSONArray();
+		JSONArray ys = new JSONArray();
+		JSONArray zs = new JSONArray();
+
+		for (int i=0; i<readings.size(); i++)
 		{
-			// Raw data set
-			JSONArray xs = new JSONArray();
-			JSONArray ys = new JSONArray();
-			JSONArray zs = new JSONArray();
-
-			for (int i=0; i<readings.size(); i++)
-			{
-				float[] sample = readings.get(i);
-				xs.add(sample[0]);
-				ys.add(sample[1]);
-				zs.add(sample[2]);
-			}
-			
-			JSONArray ts = new JSONArray();
-			for (int i=0; i<timestamps.size(); i++)
-			{
-				ts.add(timestamps.get(i));
-			}
-
-			json.put(X_AXIS, xs);
-			json.put(Y_AXIS, ys);
-			json.put(Z_AXIS, zs);
-			json.put(READING_TIMESTAMPS, ts);
+			float[] sample = readings.get(i);
+			xs.add(sample[0]);
+			ys.add(sample[1]);
+			zs.add(sample[2]);
 		}
+		
+		JSONArray ts = new JSONArray();
+		for (int i=0; i<timestamps.size(); i++)
+		{
+			ts.add(timestamps.get(i));
+		}
+
+		json.put(X_AXIS, xs);
+		json.put(Y_AXIS, ys);
+		json.put(Z_AXIS, zs);
+		json.put(READING_TIMESTAMPS, ts);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(SAMPLE_LENGTH, config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
+		json.put(SAMPLE_LENGTH, config.getParameter(SensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
 	}
 
 	@Override
@@ -102,18 +88,13 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 		{
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-			ArrayList<float[]> sensorReadings = new ArrayList<float[]>();
-			ArrayList<Long> sensorReadingTimestamps = null;
-			
-			boolean setRawData = true;
-			boolean setProcessedData = false;
 			try
 			{
-				ArrayList<Double> xs = getJSONArray(jsonData, X_AXIS, Double.class);
-				ArrayList<Double> ys = getJSONArray(jsonData, Y_AXIS, Double.class);
-				ArrayList<Double> zs = getJSONArray(jsonData, Z_AXIS, Double.class);
-				sensorReadingTimestamps = getJSONArray(jsonData, READING_TIMESTAMPS, Long.class);
-			
+				JSONArray xs = (JSONArray) jsonData.get(X_AXIS);
+				JSONArray ys = (JSONArray) jsonData.get(Y_AXIS);
+				JSONArray zs = (JSONArray) jsonData.get(Z_AXIS);
+				
+				ArrayList<float[]> sensorReadings = new ArrayList<float[]>();
 				for (int i=0; i<xs.size(); i++)
 				{
 					float[] sample = new float[3];
@@ -122,7 +103,6 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 					sample[2] = ((Double)zs.get(i)).floatValue();
 					sensorReadings.add(sample);
 				}
-<<<<<<< HEAD
 				
 				JSONArray ts = (JSONArray) jsonData.get(READING_TIMESTAMPS);
 				ArrayList<Long> sensorReadingTimestamps = new ArrayList<Long>();
@@ -136,30 +116,15 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 				accData.setSensorReadingTimestamps(sensorReadingTimestamps);
 				
 				return accData;
-=======
->>>>>>> Updating to use latest SensorManager library
 			}
 			catch (NullPointerException e)
-			{
-				setRawData = false;
-			}
-			
-			try
-			{
-				AccelerometerProcessor processor = (AccelerometerProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-				return processor.process(senseStartTimestamp, sensorReadings, sensorReadingTimestamps, sensorConfig);
-			}
-			catch (ESException e)
 			{
 				e.printStackTrace();
 				return null;
 			}
 		}
 		else
-		{
 			return null;
-		}
-			
 	}
 
 }

@@ -26,18 +26,11 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
-import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.WifiData;
 import com.ubhave.sensormanager.data.pullsensor.WifiScanResult;
-import com.ubhave.sensormanager.process.AbstractProcessor;
-import com.ubhave.sensormanager.process.pull.WifiProcessor;
-import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class WifiFormatter extends PullSensorJSONFormatter
 {
@@ -50,11 +43,6 @@ public class WifiFormatter extends PullSensorJSONFormatter
 
 	private final static String UNAVAILABLE = "unavailable";
 	private final static String SENSE_CYCLES = "senseCycles";
-	
-	public WifiFormatter(final Context context)
-	{
-		super(context, SensorUtils.SENSOR_TYPE_WIFI);
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -87,7 +75,7 @@ public class WifiFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
+		json.put(SENSE_CYCLES, config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
 	@Override
@@ -97,52 +85,28 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 		
-		boolean setRawData = true;
-		boolean setProcessedData = false;
+		JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
 		
-		ArrayList<WifiScanResult> wifiList = null; 
-		try
+		ArrayList<WifiScanResult> wifiList = new ArrayList<WifiScanResult>(); 
+		
+		for (int i = 0; i < jsonArray.size(); i++)
 		{
-			JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
-			wifiList = new ArrayList<WifiScanResult>(); 
+			JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+			String ssid = (String)jsonObject.get(SSID);
+			String bssid = (String)jsonObject.get(BSSID);
+			String capabilities = (String)jsonObject.get(CAPABILITIES);
+			int level = ((Long)jsonObject.get(LEVEL)).intValue();
+			int frequency = ((Long)jsonObject.get(FREQUENCY)).intValue();
 			
-			for (int i = 0; i < jsonArray.size(); i++)
-			{
-				JSONObject jsonObject = (JSONObject)jsonArray.get(i);
-				String ssid = (String)jsonObject.get(SSID);
-				String bssid = (String)jsonObject.get(BSSID);
-				String capabilities = (String)jsonObject.get(CAPABILITIES);
-				int level = ((Long)jsonObject.get(LEVEL)).intValue();
-				int frequency = ((Long)jsonObject.get(FREQUENCY)).intValue();
-				
-				WifiScanResult scanResult = new WifiScanResult(ssid, bssid, capabilities, level, frequency);
-				wifiList.add(scanResult);
-			}
+			WifiScanResult scanResult = new WifiScanResult(ssid, bssid, capabilities, level, frequency);
+			wifiList.add(scanResult);
 		}
-		catch (Exception e)
-		{
-			setRawData = false;
-		}
-
-		try
-		{
-			WifiProcessor processor = (WifiProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-			return processor.process(senseStartTimestamp, wifiList, sensorConfig);
-		}
-		catch (ESException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-<<<<<<< HEAD
 		
 		
 		WifiData wifiData = new WifiData(senseStartTimestamp, sensorConfig);
 		wifiData.setWifiScanData(wifiList);
 
 		return wifiData;
-=======
->>>>>>> Updating to use latest SensorManager library
 	}
 
 }

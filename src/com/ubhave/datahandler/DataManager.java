@@ -177,7 +177,7 @@ public class DataManager
 		{
 			if (((Integer) config.get(DataHandlerConfig.DATA_FORMAT)) == DataHandlerConfig.JSON_FORMAT)
 			{
-				formatter = DataFormatter.getJSONFormatter(context, sensorType);
+				formatter = DataFormatter.getJSONFormatter(sensorType);
 			}
 			else
 			{

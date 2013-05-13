@@ -23,23 +23,15 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ProximityData;
-import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class ProximityFormatter extends PushSensorJSONFormatter
 {
 	private final static String DISTANCE = "distance";
 	private final static String MAX_RANGE = "maxRange";
 
-	public ProximityFormatter(final Context context)
-	{
-		super(context, SensorUtils.SENSOR_TYPE_PROXIMITY);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
