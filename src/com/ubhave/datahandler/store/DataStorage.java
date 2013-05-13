@@ -31,13 +31,12 @@ public class DataStorage implements DataStorageInterface
 	private static final String ERROR_DIRECTORY_NAME = "Error_Log";
 
 	private final Context context;
-	private final DataHandlerConfig config;
+
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
 	public DataStorage(Context context, final Object fileTransferLock)
 	{
 		this.context = context;
-		this.config = DataHandlerConfig.getInstance();
 		this.fileTransferLock = fileTransferLock;
 	}
 
@@ -104,20 +103,12 @@ public class DataStorage implements DataStorageInterface
 				// move files
 				synchronized (fileTransferLock)
 				{
-					try
+					File directory = new File(DataHandlerConfig.SERVER_UPLOAD_DIR);
+					if (!directory.exists())
 					{
-						String uploadDir = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY);
-						File directory = new File(uploadDir);
-						if (!directory.exists())
-						{
-							directory.mkdirs();
-						}
-						file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
+						directory.mkdirs();
 					}
-					catch (DataHandlerException e)
-					{
-						e.printStackTrace();
-					}
+					file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
 				}
 			}
 		}.start();
@@ -156,32 +147,24 @@ public class DataStorage implements DataStorageInterface
 	@Override
 	public void moveArchivedFilesForUpload()
 	{
-		try
+		File[] rootDirectory = (new File(DataHandlerConfig.PHONE_STORAGE_DIR)).listFiles();
+		for (File directory : rootDirectory)
 		{
-			String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
-			File[] rootDirectory = (new File(rootPath)).listFiles();
-			for (File directory : rootDirectory)
+			String directoryName = directory.getName();
+			if (!directoryName.contains(DataHandlerConfig.UPLOAD_DIRECTORY))
 			{
-				String directoryName = directory.getName();
-				if (!directoryName.contains(DataHandlerConfig.UPLOAD_DIRECTORY))
+				synchronized (getLock(directoryName))
 				{
-					synchronized (getLock(directoryName))
+					try
 					{
-						try
-						{
-							moveDirectoryContentsForUpload(directory.getAbsolutePath());
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-						}
+						moveDirectoryContentsForUpload(directory.getAbsolutePath());
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
 					}
 				}
 			}
-		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
 		}
 	}
 
@@ -223,45 +206,41 @@ public class DataStorage implements DataStorageInterface
 	@Override
 	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
 	{
+		String sensorName = SensorUtils.getSensorName(sensorId);
 		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
-		try
+
+		JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
+
+		synchronized (getLock(sensorName))
 		{
-			String sensorName = SensorUtils.getSensorName(sensorId);
-			String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
-			JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
-			synchronized (getLock(sensorName))
+			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + sensorName;
+			File dir = new File(directoryFullPath);
+			File[] files = dir.listFiles();
+			if (files != null)
 			{
-				String directoryFullPath = rootPath + "/" + sensorName;
-				File dir = new File(directoryFullPath);
-				File[] files = dir.listFiles();
-				if (files != null)
+				for (File file : files)
 				{
-					for (File file : files)
+					String line;
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+					while ((line = br.readLine()) != null)
 					{
-						String line;
-						BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-						while ((line = br.readLine()) != null)
+						// TODO: add support for other formatters
+						// convert json string to sensor data object
+						long timestamp = jsonFormatter.getTimestamp(line);
+						if (timestamp >= startTimestamp)
 						{
-							// convert json string to sensor data object
-							long timestamp = jsonFormatter.getTimestamp(line);
-							if (timestamp >= startTimestamp)
+							SensorData sensorData = jsonFormatter.toSensorData(line);
+							if (sensorData.getTimestamp() >= startTimestamp)
 							{
-								SensorData sensorData = jsonFormatter.toSensorData(line);
-								if (sensorData.getTimestamp() >= startTimestamp)
-								{
-									outputList.add(sensorData);
-								}
+								outputList.add(sensorData);
 							}
 						}
-						br.close();
 					}
+					br.close();
 				}
 			}
 		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
-		}
+
 		return outputList;
 	}
 
@@ -285,12 +264,11 @@ public class DataStorage implements DataStorageInterface
 
 	private void writeData(String directoryName, String data) throws DataHandlerException
 	{
-		String rootPath = (String) config.get(DataHandlerConfig.LOCAL_STORAGE_ROOT_DIRECTORY);
 		synchronized (getLock(directoryName))
 		{
 			try
 			{
-				String directoryFullPath = rootPath + "/" + directoryName;
+				String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + directoryName;
 				File file = new File(directoryFullPath);
 				if (!file.exists())
 				{
