@@ -1,79 +1,106 @@
 package com.ubhave.datahandler.sync;
 
-import java.util.Random;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.HashMap;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import android.content.Context;
-import android.util.SparseArray;
 
 import com.ubhave.datahandler.DataHandlerException;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.FileSyncConfig;
+import com.ubhave.http.WebConnection;
 
 public class FileSynchronizer implements FileSyncInterface
 {
 	private final Context context;
-	private final Random random;
-	
-	private final SparseArray<SyncRequest> fileSyncRequests;
+	private final DataHandlerConfig config;
 	
 	public FileSynchronizer(Context context)
 	{
 		this.context = context;
-		random = new Random(System.currentTimeMillis());
-		fileSyncRequests = new SparseArray<SyncRequest>();
-	}
-	
-	private int getRandomKey() throws DataHandlerException
-	{
-		int key = random.nextInt();
-		int conflicts = 0;
-		while (fileSyncRequests.get(key) != null)
-		{
-			key = random.nextInt();
-			conflicts++;
-			if (conflicts == 1000)
-			{
-				throw new DataHandlerException(DataHandlerException.KEY_ALLOCATION_CONFLICT);
-			}
-		}
-		return key;
+		config = DataHandlerConfig.getInstance();
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException
+	public int addRemoteToSyncList(final String url, final HashMap<String, String> queryParameters, final String filePath) throws DataHandlerException
 	{
-		SyncRequest request = new SyncRequest(context, url);
-		return subscribeToRemoteFileUpdate(request, listener);
+		throw new DataHandlerException(DataHandlerException.UNIMPLEMENTED);
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException
+	public void removeFromSyncList(int id) throws DataHandlerException
 	{
-		int key = getRandomKey();
-		fileSyncRequests.put(key, request);
-		request.start();
-		return key;
-	}
-	
-	@Override
-	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException
-	{
-		SyncRequest request = fileSyncRequests.get(key);
-		if (request != null)
-		{
-			fileSyncRequests.remove(key);
-			request.stop();
-		}
-		else
-		{
-			throw new DataHandlerException(DataHandlerException.KEY_NOT_FOUND);
-		}
+		throw new DataHandlerException(DataHandlerException.UNIMPLEMENTED);
 	}
 	
 	@Override
 	public void syncUpdatedFiles()
 	{
-		for (int i=0; i<fileSyncRequests.size(); i++)
+		// TODO add support for more than 1 file
+		try
 		{
-			fileSyncRequests.valueAt(i).sync();
-		}	
+			String localFilePath = "null"; // TODO
+			String remoteURL = "null"; // TODO
+			String requestKey = (String) config.get(FileSyncConfig.REQUEST_TYPE_PARAM_NAME);
+			
+			HashMap<String, String> params = getRequestParams();
+			params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_DATE_MODIFIED_VALUE));
+			String response = WebConnection.postToServer(remoteURL, params);
+			
+			if (remoteFileLastUpdated(response) > localFileLastUpdated(localFilePath))
+			{
+				params.put(requestKey, (String) config.get(FileSyncConfig.REQUEST_GET_FILE_VALUE));
+				String fileContents = WebConnection.postToServer(remoteURL, params);
+				
+				FileOutputStream fos = context.openFileOutput(localFilePath, Context.MODE_PRIVATE);
+				fos.write(fileContents.getBytes());
+				fos.close();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private HashMap<String, String> getRequestParams()
+	{
+		// TODO add file-specific params
+		return new HashMap<String, String>();
+	}
+	
+	private long localFileLastUpdated(final String filePath)
+	{
+		try
+		{
+			File f = new File(filePath);
+			return f.lastModified();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	private long remoteFileLastUpdated(final String serverResponse)
+	{
+		try
+		{
+			String responseKey = (String) config.get(FileSyncConfig.RESPONSE_DATE_MODIFIED_KEY);
+			JSONParser parser = new JSONParser();
+			JSONObject response = (JSONObject) parser.parse(serverResponse);
+			long date = (Long) response.get(responseKey);
+			return date;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return 0;
+		}
 	}
 }

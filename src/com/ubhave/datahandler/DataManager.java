@@ -1,6 +1,7 @@
 package com.ubhave.datahandler;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
@@ -13,8 +14,6 @@ import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.store.DataStorageInterface;
 import com.ubhave.datahandler.sync.FileSyncInterface;
 import com.ubhave.datahandler.sync.FileSynchronizer;
-import com.ubhave.datahandler.sync.FileUpdatedListener;
-import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
@@ -158,25 +157,19 @@ public class DataManager implements DataManagerInterface
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException
+	public int addRemoteToSyncList(final String url, final HashMap<String, String> queryParameters, final String filePath) throws DataHandlerException
 	{
-		return fileSync.subscribeToRemoteFileUpdate(url, listener);
+		return fileSync.addRemoteToSyncList(url, queryParameters, filePath);
 	}
 	
 	@Override
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException
+	public void removeFromSyncList(int id) throws DataHandlerException
 	{
-		return fileSync.subscribeToRemoteFileUpdate(request, listener);
+		fileSync.removeFromSyncList(id);
 	}
 	
 	@Override
-	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException
-	{
-		fileSync.unsubscribeFromRemoteFileUpdate(key);
-	}
-	
-	@Override
-	public void attemptFileSync()
+	public void syncUpdatedFiles()
 	{
 		fileSync.syncUpdatedFiles();
 	}

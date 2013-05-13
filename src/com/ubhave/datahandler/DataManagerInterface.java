@@ -1,10 +1,9 @@
 package com.ubhave.datahandler;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
-import com.ubhave.datahandler.sync.FileUpdatedListener;
-import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -35,9 +34,7 @@ public interface DataManagerInterface
 	/*
 	 * Downloading a file
 	 */
-	public int subscribeToRemoteFileUpdate(final String url, FileUpdatedListener listener) throws DataHandlerException;
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException;
-	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException;
-	public void attemptFileSync();
-	
+	public int addRemoteToSyncList(final String url, final HashMap<String, String> queryParameters, final String filePath) throws DataHandlerException;
+	public void removeFromSyncList(int id) throws DataHandlerException;
+	public void syncUpdatedFiles();
 }

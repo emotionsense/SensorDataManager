@@ -10,8 +10,6 @@ public class DataHandlerException extends Exception
 	public final static int NO_URL_TARGET = 3;
 	public final static int IO_EXCEPTION = 4;
 	public final static int UNIMPLEMENTED = 5;
-	public final static int KEY_ALLOCATION_CONFLICT = 6;
-	public final static int KEY_NOT_FOUND = 7;
 	
 	private final int errorCode;
 	
