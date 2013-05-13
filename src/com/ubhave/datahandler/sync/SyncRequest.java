@@ -7,9 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.alarm.AlarmListener;
 import com.ubhave.datahandler.alarm.PolicyAlarm;
-import com.ubhave.datahandler.config.DataHandlerConstants;
 import com.ubhave.datahandler.config.FileSyncConfig;
 
 public class SyncRequest implements AlarmListener
@@ -49,10 +49,10 @@ public class SyncRequest implements AlarmListener
 	
 	private PolicyAlarm getAlarm()
 	{
-		Intent intent = new Intent(DataHandlerConstants.ACTION_NAME_SYNC_REQUEST_ALARM);
+		Intent intent = new Intent(ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
 		intent.putExtra(SYNC_URL_KEY, baseURL);
 		
-		PolicyAlarm alarm = new PolicyAlarm(targetFile, context, intent, DataHandlerConstants.REQUEST_CODE_SYNC_REQUEST, DataHandlerConstants.ACTION_NAME_SYNC_REQUEST_ALARM);
+		PolicyAlarm alarm = new PolicyAlarm(targetFile, context, intent, ESDataManager.REQUEST_CODE_SYNC_REQUEST, ESDataManager.ACTION_NAME_SYNC_REQUEST_ALARM);
 		alarm.setListener(this);
 		alarm.setSyncInterval(FileSyncConfig.DEFAULT_SYNC_FREQUENCY);
 		alarm.setWaitForWifiLimit(FileSyncConfig.DEFAULT_WIFI_SYNC_LIMIT);
