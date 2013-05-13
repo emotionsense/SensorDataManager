@@ -20,7 +20,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-package com.ubhave.datahandler.transfer.up;
+package com.ubhave.datahandler.transfer;
 
 
 // OLD CODE >> REFERENCE ONLY
