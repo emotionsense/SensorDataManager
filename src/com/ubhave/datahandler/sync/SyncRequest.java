@@ -19,16 +19,13 @@ public class SyncRequest
 	private final DataHandlerConfig config;
 	
 	private final String baseURL;
-	private final String targetFile;
 	private HashMap<String, String> params;
 	private long syncInterval;
 
-	public SyncRequest(Context context, String url, String file)
+	public SyncRequest(Context context, String url)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		
-		this.targetFile = file;
 		this.baseURL = url;
 		this.syncInterval = FileSyncConfig.DEFAULT_SYNC_FREQUENCY;
 		this.params = new HashMap<String, String>();
@@ -71,6 +68,7 @@ public class SyncRequest
 
 	public void sync()
 	{
+		// TODO add support for more than 1 file
 		try
 		{
 			String localFilePath = "null"; // TODO
