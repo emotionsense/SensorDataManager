@@ -12,14 +12,13 @@ public class DataStorageConfig
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME = "uploadDirName";
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH = "uploadDirPath"; // Note: not user defined
 	public final static String LOCAL_STORAGE_DATA_FORMAT = "dataFormat";
-	public final static String FILE_MAX_SIZE = "fileSize";
 	public final static String FILE_LIFE_MILLIS = "fileDuration";
 
 	/*
 	 * Default values
 	 */
 	public final static String DEFAULT_UPLOAD_DIRECTORY_NAME = "to_be_uploaded";
-	public final static long DEFAULT_FILE_SIZE_BYTES = 5 * 1024; // 5 MB
+//	public final static long DEFAULT_FILE_SIZE_BYTES = 5 * 1024; // 5 MB
 	public final static long DEFAULT_FILE_LIFE_MILLIS = 30 * 60 * 60 * 1000; // 30 hours
 	public final static String DEFAULT_ROOT_DIRECTORY = "esdm_root";
 
@@ -30,7 +29,6 @@ public class DataStorageConfig
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 		validKeys.add(FILE_LIFE_MILLIS);
-		validKeys.add(FILE_MAX_SIZE);
 		return validKeys;
 	}
 
@@ -44,7 +42,7 @@ public class DataStorageConfig
 		String uploadDir = absoluteDir +"/"+ defaults.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH, uploadDir);
 		
-		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE_BYTES);
+//		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE_BYTES);
 		defaults.put(FILE_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
 		
 		return defaults;

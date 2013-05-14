@@ -36,6 +36,11 @@ public class DataTransferAlarmListener implements AlarmListener
 		policyAlarm.start();
 	}
 	
+	public void configUpdated()
+	{
+		policyAlarm.alarmIntervalUpdated();
+	}
+	
 	public void stop()
 	{
 		if (policyAlarm.hasStarted())
@@ -65,6 +70,7 @@ public class DataTransferAlarmListener implements AlarmListener
 	@Override
 	public void alarmTriggered()
 	{
+		System.err.println("Transfer alarm triggered");
 		new Thread()
 		{
 			public void run()

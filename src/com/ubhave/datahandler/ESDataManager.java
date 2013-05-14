@@ -87,6 +87,10 @@ public class ESDataManager implements ESDataManagerInterface
 				dataTransferAlarmListener.stop();
 			}
 		}
+		else if (key.equals(DataTransferConfig.DEFAULT_TRANSFER_ALARM_INTERVAL))
+		{
+			dataTransferAlarmListener.configUpdated();
+		}
 	}
 
 	@Override

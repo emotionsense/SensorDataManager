@@ -82,11 +82,11 @@ public class DataStorage implements DataStorageInterface
 	private boolean isFileLimitReached(File file)
 	{
 		long durationLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
+//		long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
 		try
 		{
 			durationLimit = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-			sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
+//			sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
 		}
 		catch (DataHandlerException e)
 		{
@@ -94,22 +94,24 @@ public class DataStorage implements DataStorageInterface
 		}
 
 		String fileName = file.getName();
-
-		String timeStr = fileName.substring(0, fileName.indexOf(".log"));
-		long fileTimestamp = Long.parseLong(timeStr);
-		long currTime = System.currentTimeMillis();
-
-		if ((currTime - fileTimestamp) > durationLimit)
+		if (fileName.contains(".log"))
 		{
-			return true;
+			String timeStr = fileName.substring(0, fileName.indexOf(".log"));
+			long fileTimestamp = Long.parseLong(timeStr);
+			long currTime = System.currentTimeMillis();
+			
+			System.err.println(fileName+", age = "+Math.abs(currTime-fileTimestamp));
+			if ((currTime - fileTimestamp) > durationLimit)
+			{
+				return true;
+			}
 		}
 
-		long fileSize = file.length();
-
-		if (fileSize > sizeLimit)
-		{
-			return true;
-		}
+//		long fileSize = file.length();
+//		if (fileSize > sizeLimit)
+//		{
+//			return true;
+//		}
 
 		return false;
 	}

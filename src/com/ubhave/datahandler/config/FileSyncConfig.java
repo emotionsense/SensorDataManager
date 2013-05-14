@@ -3,8 +3,6 @@ package com.ubhave.datahandler.config;
 import java.util.HashMap;
 import java.util.HashSet;
 
-
-
 public class FileSyncConfig
 {
 	/*
