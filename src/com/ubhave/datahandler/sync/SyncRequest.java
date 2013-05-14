@@ -52,11 +52,12 @@ public class SyncRequest implements AlarmListener
 		Intent intent = new Intent(DataHandlerConstants.ACTION_NAME_SYNC_REQUEST_ALARM);
 		intent.putExtra(SYNC_URL_KEY, baseURL);
 		
-		PolicyAlarm alarm = new PolicyAlarm(targetFile, context, intent, DataHandlerConstants.REQUEST_CODE_SYNC_REQUEST, DataHandlerConstants.ACTION_NAME_SYNC_REQUEST_ALARM);
+		PolicyAlarm alarm = new PolicyAlarm(targetFile, context, intent,
+				DataHandlerConstants.REQUEST_CODE_SYNC_REQUEST,
+				DataHandlerConstants.ACTION_NAME_SYNC_REQUEST_ALARM,
+				FileSyncConfig.TRANSFER_ALARM_INTERVAL,
+				FileSyncConfig.WAIT_FOR_WIFI_INTERVAL_MILLIS);
 		alarm.setListener(this);
-		alarm.setSyncInterval(FileSyncConfig.DEFAULT_SYNC_FREQUENCY);
-		alarm.setWaitForWifiLimit(FileSyncConfig.DEFAULT_WIFI_SYNC_LIMIT);
-		
 		return alarm;
 	}
 	

@@ -47,7 +47,12 @@ public class DataTransferAlarmListener implements AlarmListener
 	private PolicyAlarm getPolicyAlarm()
 	{
 		Intent intent = new Intent(DataHandlerConstants.ACTION_NAME_DATA_TRANSFER_ALARM);
-		PolicyAlarm policyAlarm = new PolicyAlarm(DataHandlerConstants.TRANSFER_ALARM_ID, context, intent, DataHandlerConstants.REQUEST_CODE_DATA_TRANSFER, DataHandlerConstants.ACTION_NAME_DATA_TRANSFER_ALARM);
+		PolicyAlarm policyAlarm = new PolicyAlarm(DataHandlerConstants.TRANSFER_ALARM_ID, context,
+				intent,
+				DataHandlerConstants.REQUEST_CODE_DATA_TRANSFER,
+				DataHandlerConstants.ACTION_NAME_DATA_TRANSFER_ALARM,
+				DataTransferConfig.TRANSFER_ALARM_INTERVAL,
+				DataTransferConfig.WAIT_FOR_WIFI_INTERVAL_MILLIS);
 		return policyAlarm;
 	}
 	

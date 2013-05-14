@@ -12,6 +12,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.http.WebConnection;
 
 public class DataTransfer implements DataTransferInterface
 {

@@ -11,6 +11,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
+
 public class PolicyAlarm extends BroadcastReceiver
 {
 	private final AlarmManager alarmManager;
@@ -19,9 +22,6 @@ public class PolicyAlarm extends BroadcastReceiver
 	private final String alarmId;
 	private final String actionName;
 	private final Context context;
-
-	private long alarmInterval;
-	private long waitForWifiInterval;
 	private boolean hasStarted;
 
 	public enum TRANSFER_POLICY {
@@ -31,17 +31,17 @@ public class PolicyAlarm extends BroadcastReceiver
 	private TRANSFER_POLICY transferPolicy;
 
 	private AlarmListener listener;
+	private final String configKeyAlarmInterval, configKeyWifiLimit;
 
 	public PolicyAlarm(final String id, final Context context, final Intent intent, final int requestCode,
-			final String actionName)
+			final String actionName, String configKeyAlarmInterval, String configKeyWifiLimit)
 	{
 		this.alarmId = id;
 		this.context = context;
 		this.actionName = actionName;
-
-		// TODO extract to appropriate config file
-		this.alarmInterval = 15 * 60 * 1000; // 15 mins
-		this.waitForWifiInterval = 24 * 60 * 60 * 1000; // 24 hrs
+		this.configKeyAlarmInterval = configKeyAlarmInterval;
+		this.configKeyWifiLimit = configKeyAlarmInterval;
+		
 		this.hasStarted = false;
 		this.transferPolicy = TRANSFER_POLICY.WIFI_ONLY;
 
@@ -60,24 +60,40 @@ public class PolicyAlarm extends BroadcastReceiver
 		this.transferPolicy = transferPolicy;
 	}
 
-	public void setWaitForWifiLimit(long limit)
-	{
-		/*
-		 * TODO if (waitForWifiInterval < alarmInterval) then if there is an
-		 * active connection, transfers will always be allowed -- should this
-		 * throw an exception?
-		 */
-		this.waitForWifiInterval = limit;
-	}
+	// UNUSED
+//	public void setWaitForWifiLimit(long limit)
+//	{
+//		/*
+//		 * TODO if (waitForWifiInterval < alarmInterval) then if there is an
+//		 * active connection, transfers will always be allowed -- should this
+//		 * throw an exception?
+//		 */
+//		this.waitForWifiInterval = limit;
+//	}
 
-	public void setSyncInterval(long syncInterval)
+	public void alarmIntervalUpdated()
 	{
-		this.alarmInterval = syncInterval;
 		if (hasStarted)
 		{
 			stop();
 			start();
 		}
+	}
+	
+	private long getValue(String key)
+	{
+		DataHandlerConfig config = DataHandlerConfig.getInstance();
+		long value;
+		try
+		{
+			value = (Long) config.get(key);
+		}
+		catch (DataHandlerException e)
+		{
+			value = 0;
+			e.printStackTrace();
+		}
+		return value;
 	}
 
 	public void start()
@@ -86,6 +102,7 @@ public class PolicyAlarm extends BroadcastReceiver
 		{
 			hasStarted = true;
 			IntentFilter intentFilter = new IntentFilter(actionName);
+			long alarmInterval = getValue(configKeyAlarmInterval);
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmInterval, pendingIntent);
 			context.registerReceiver(this, intentFilter);
 		}
@@ -190,6 +207,7 @@ public class PolicyAlarm extends BroadcastReceiver
 	private boolean isLastUploadTimeoutReached()
 	{
 		long lastTransferAllowed = getLastTransferAllowedTime();
+		long waitForWifiInterval = getValue(configKeyWifiLimit);
 		if ((System.currentTimeMillis() - lastTransferAllowed) > waitForWifiInterval)
 		{
 			return true;

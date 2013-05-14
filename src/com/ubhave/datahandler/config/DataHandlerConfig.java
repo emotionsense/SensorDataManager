@@ -28,10 +28,12 @@ public class DataHandlerConfig
 		config = new HashMap<String, Object>();
 		config.putAll(DataStorageConfig.defaultValues());
 		config.putAll(DataTransferConfig.defaultValues());
+		config.putAll(FileSyncConfig.defaultValues());
 
 		validKeys = new HashSet<String>();
 		validKeys.addAll(DataStorageConfig.validKeys());
 		validKeys.addAll(DataTransferConfig.validKeys());
+		validKeys.addAll(FileSyncConfig.validKeys());
 	}
 	
 	private void updateLocalUploadDirectoryPath()
