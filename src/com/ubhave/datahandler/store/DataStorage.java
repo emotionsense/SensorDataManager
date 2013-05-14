@@ -100,7 +100,6 @@ public class DataStorage implements DataStorageInterface
 			long fileTimestamp = Long.parseLong(timeStr);
 			long currTime = System.currentTimeMillis();
 			
-			System.err.println(fileName+", age = "+Math.abs(currTime-fileTimestamp));
 			if ((currTime - fileTimestamp) > durationLimit)
 			{
 				return true;

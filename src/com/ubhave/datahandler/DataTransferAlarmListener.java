@@ -70,7 +70,6 @@ public class DataTransferAlarmListener implements AlarmListener
 	@Override
 	public void alarmTriggered()
 	{
-		System.err.println("Transfer alarm triggered");
 		new Thread()
 		{
 			public void run()

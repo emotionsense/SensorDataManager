@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -73,6 +74,7 @@ public class PolicyAlarm extends BroadcastReceiver
 
 	public void alarmIntervalUpdated()
 	{
+		Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");
 		if (hasStarted)
 		{
 			stop();
@@ -212,6 +214,9 @@ public class PolicyAlarm extends BroadcastReceiver
 		{
 			return true;
 		}
-		return false;
+		else
+		{
+			return false;
+		}
 	}
 }
