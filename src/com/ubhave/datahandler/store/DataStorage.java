@@ -320,6 +320,7 @@ public class DataStorage implements DataStorageInterface
 				File file = new File(directoryFullPath);
 				if (!file.exists())
 				{
+					System.err.println("Creating: "+directoryFullPath);
 					file.mkdirs();
 				}
 
@@ -327,7 +328,21 @@ public class DataStorage implements DataStorageInterface
 				file = new File(fileFullPath);
 				if (!file.exists())
 				{
-					file.createNewFile();
+					System.err.println("Creating: "+fileFullPath);
+					try
+					{
+						boolean fileCreated = file.createNewFile();
+						if (!fileCreated)
+						{
+							System.err.println("Creating file returned false");
+						}
+					}
+					catch (Exception e)
+					{
+						System.err.println("Error creating file");
+						e.printStackTrace();
+					}
+					
 				}
 
 				// append mode
