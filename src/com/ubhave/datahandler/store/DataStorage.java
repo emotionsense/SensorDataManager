@@ -79,12 +79,20 @@ public class DataStorage
 	{
 		if (fileName != null && fileName.contains(".log"))
 		{
-			String timeStr = fileName.substring(0, fileName.indexOf(".log"));
-			long fileTimestamp = Long.parseLong(timeStr);
-			long currTime = System.currentTimeMillis();
-			if ((currTime - fileTimestamp) > duration)
+			try
 			{
-				return true;
+				String timeStr = fileName.substring(0, fileName.indexOf(".log"));
+				long fileTimestamp = Long.parseLong(timeStr);
+				long currTime = System.currentTimeMillis();
+				if ((currTime - fileTimestamp) > duration)
+				{
+					return true;
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return false;
 			}
 		}
 		return false;
