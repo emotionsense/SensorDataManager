@@ -185,11 +185,9 @@ public class DataStorage
 	{
 		String sensorName = SensorUtils.getSensorName(sensorId);
 		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
-
-		JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(sensorId);
-
 		synchronized (getLock(sensorName))
 		{
+			JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(sensorId);
 			String directoryFullPath = DataHandlerConfig.PHONE_STORAGE_DIR + "/" + sensorName;
 			File dir = new File(directoryFullPath);
 			File[] files = dir.listFiles();

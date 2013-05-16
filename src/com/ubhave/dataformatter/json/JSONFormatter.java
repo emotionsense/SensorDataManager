@@ -123,7 +123,7 @@ public abstract class JSONFormatter extends DataFormatter
 			calendar.setTime(formatter.parse(dateString));
 			return calendar.getTimeInMillis();
 		}
-		catch (java.text.ParseException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			return -1;
