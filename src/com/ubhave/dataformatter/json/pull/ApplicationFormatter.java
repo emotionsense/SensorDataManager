@@ -88,8 +88,7 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 			appList.add(application);
 		}
 		
-		ApplicationData applicationData = new ApplicationData(senseStartTimestamp, sensorConfig);
-		applicationData.setApplications(appList);
+		ApplicationData applicationData = new ApplicationData(senseStartTimestamp, appList, sensorConfig);
 
 		return applicationData;
 	}

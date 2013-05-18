@@ -93,8 +93,7 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 				btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
 			}
 
-			BluetoothData bData = new BluetoothData(senseStartTimestamp, sensorConfig);
-			bData.setBluetoothDevices(btDevices);
+			BluetoothData bData = new BluetoothData(senseStartTimestamp, btDevices, sensorConfig);
 
 			return bData;
 		}

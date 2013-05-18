@@ -103,8 +103,7 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		}
 		
 		
-		WifiData wifiData = new WifiData(senseStartTimestamp, sensorConfig);
-		wifiData.setWifiScanData(wifiList);
+		WifiData wifiData = new WifiData(senseStartTimestamp, wifiList, sensorConfig);
 
 		return wifiData;
 	}

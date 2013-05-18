@@ -87,9 +87,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 			tsValues[i] = (Long)tsArray.get(i);
 		}
 		
-		MicrophoneData micData = new MicrophoneData(senseStartTimestamp, sensorConfig);
-		micData.setMaxAmplitudeArray(ampValues);
-		micData.setTimestampArray(tsValues);
+		MicrophoneData micData = new MicrophoneData(senseStartTimestamp, ampValues, tsValues, sensorConfig);
 
 		return micData;
 	}
