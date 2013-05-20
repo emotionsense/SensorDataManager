@@ -21,21 +21,33 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.pull;
 
+import java.util.ArrayList;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.MicrophoneData;
+import com.ubhave.sensormanager.process.AbstractProcessor;
+import com.ubhave.sensormanager.process.pull.AudioProcessor;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class MicrophoneFormatter extends PullSensorJSONFormatter
 {	
-	
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
 	private final static String AMPLITUDE = "amplitude";
 	private final static String TIMESTAMP = "timestamp";
 	
+	public MicrophoneFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_MICROPHONE);
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -65,7 +77,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(SAMPLE_LENGTH, config.getParameter(SensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
+		json.put(SAMPLE_LENGTH, config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
 	}
 	
 	@Override
@@ -75,21 +87,41 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 		
-		JSONArray ampArray = (JSONArray)jsonData.get(AMPLITUDE);
-		JSONArray tsArray = (JSONArray)jsonData.get(TIMESTAMP);
+		boolean setRawData = true;
+		boolean setProcessedData = false;
 		
-		int[] ampValues = new int[ampArray.size()];
-		long[] tsValues = new long[tsArray.size()];
+		int[] ampValues = null;
+		long[] tsValues = null;
 		
-		for (int i = 0; i < ampArray.size(); i++)
+		try
 		{
-			ampValues[i] = ((Long)ampArray.get(i)).intValue();
-			tsValues[i] = (Long)tsArray.get(i);
+			ArrayList<Long> amplitudes = getJSONArray(jsonData, AMPLITUDE, Long.class);
+			ArrayList<Long> timestamps = getJSONArray(jsonData, TIMESTAMP, Long.class);
+			
+			ampValues = new int[amplitudes.size()];
+			tsValues = new long[timestamps.size()];
+			
+			for (int i=0; i<amplitudes.size(); i++)
+			{
+				ampValues[i] = Long.valueOf(amplitudes.get(i)).intValue();
+				tsValues[i] = timestamps.get(i);
+			}
+		}
+		catch (Exception e)
+		{
+			setRawData = false;
 		}
 		
-		MicrophoneData micData = new MicrophoneData(senseStartTimestamp, ampValues, tsValues, sensorConfig);
-
-		return micData;
+		try
+		{
+			AudioProcessor processor = (AudioProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+			return processor.process(senseStartTimestamp, ampValues, tsValues, sensorConfig);
+		}
+		catch (ESException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

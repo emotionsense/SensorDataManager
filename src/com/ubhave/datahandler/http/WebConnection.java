@@ -20,7 +20,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ************************************************** */
 
-package com.ubhave.datahandler.transfer;
+package com.ubhave.datahandler.http;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +42,10 @@ import org.apache.http.params.CoreProtocolPNames;
 
 public class WebConnection
 {
+	public static String postToServer(final String serverUrl, final HashMap<String, String> params)
+	{
+		return postDataToServer(serverUrl, null, params);
+	}
 
 	public static String postDataToServer(String serverUrl, File file, HashMap<String, String> paramsMap)
 	{
@@ -53,13 +57,15 @@ public class WebConnection
 			httpclient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60 * 1000);
 
 			HttpPost httppost = new HttpPost(serverUrl);
-
 			MultipartEntity multipartEntity = new MultipartEntity();
 
-			FileBody fileBody = new FileBody(file);
-			if (fileBody != null)
+			if (file != null)
 			{
-				multipartEntity.addPart("uploadedfile", fileBody);
+				FileBody fileBody = new FileBody(file);
+				if (fileBody != null)
+				{
+					multipartEntity.addPart("uploadedfile", fileBody);
+				}
 			}
 
 			if (paramsMap != null)

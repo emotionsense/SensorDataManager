@@ -21,16 +21,16 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
+import android.content.Context;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.sensormanager.ESException;
@@ -38,15 +38,20 @@ import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-@SuppressLint("SimpleDateFormat")
 public abstract class JSONFormatter extends DataFormatter
 {
-	
-	private static final String TAG = "JSONFormatter";
-
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	
+	protected final Context applicationContext;
+	protected final int sensorType;
+	
+	public JSONFormatter(Context c, int sensorType)
+	{
+		applicationContext = c;
+		this.sensorType = sensorType;
+	}
 
 	public JSONObject toJSON(final SensorData data)
 	{
@@ -89,10 +94,29 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 		catch (ParseException e)
 		{
-			Log.e(TAG, "error in parsing: " + jsonString);
-			Log.e(TAG, Log.getStackTraceString(e));
+			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	protected<T> ArrayList<T> getJSONArray(JSONObject data, String key, Class<T> c) throws NullPointerException
+	{
+		ArrayList<T> list = new ArrayList<T>();
+		JSONArray jsonArray = (JSONArray) data.get(key);
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			try
+			{
+				T member = c.cast(jsonArray.get(i));
+				list.add(member);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+		}
+		return list;
 	}
 
 	@SuppressWarnings("unchecked")

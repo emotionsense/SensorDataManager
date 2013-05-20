@@ -26,15 +26,21 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.BluetoothData;
 import com.ubhave.sensormanager.data.pullsensor.ESBluetoothDevice;
+import com.ubhave.sensormanager.process.AbstractProcessor;
+import com.ubhave.sensormanager.process.pull.BluetoothProcessor;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class BluetoothFormatter extends PullSensorJSONFormatter
-{
-
+{	
 	private final static String DEVICES = "devices";
 	private final static String TIME_STAMP = "timeStamp";
 	private final static String ADDRESS = "address";
@@ -43,6 +49,11 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 
 	private final static String SENSE_CYCLES = "senseCycles";
 
+	public BluetoothFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_BLUETOOTH);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
@@ -50,24 +61,27 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 		BluetoothData bluetoothData = (BluetoothData) data;
 		ArrayList<ESBluetoothDevice> devices = bluetoothData.getBluetoothDevices();
 
-		JSONArray neighbours = new JSONArray();
-		for (ESBluetoothDevice device : devices)
+		if (devices != null)
 		{
-			JSONObject neighbour = new JSONObject();
-			neighbour.put(ADDRESS, device.getBluetoothDeviceAddress());
-			neighbour.put(NAME, device.getBluetoothDeviceName());
-			neighbour.put(RSSI, device.getRssi());
-			neighbour.put(TIME_STAMP, device.getTimestamp());
-			neighbours.add(neighbour);
+			JSONArray neighbours = new JSONArray();
+			for (ESBluetoothDevice device : devices)
+			{
+				JSONObject neighbour = new JSONObject();
+				neighbour.put(ADDRESS, device.getBluetoothDeviceAddress());
+				neighbour.put(NAME, device.getBluetoothDeviceName());
+				neighbour.put(RSSI, device.getRssi());
+				neighbour.put(TIME_STAMP, device.getTimestamp());
+				neighbours.add(neighbour);
+			}
+			json.put(DEVICES, neighbours);
 		}
-		json.put(DEVICES, neighbours);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(SENSE_CYCLES, config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
+		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
 	@Override
@@ -78,29 +92,45 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 		{
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-
-			JSONArray neighbours = (JSONArray) jsonData.get(DEVICES);
-			ArrayList<ESBluetoothDevice> btDevices = new ArrayList<ESBluetoothDevice>();
-
-			for (int i = 0; i < neighbours.size(); i++)
+			
+			boolean setRawData = true;
+			boolean setProcessedData = false;
+			ArrayList<ESBluetoothDevice> btDevices = null;
+			
+			try
 			{
-				JSONObject neighbour = (JSONObject) neighbours.get(i);
-				long ts = (Long) neighbour.get(TIME_STAMP);
-				String btAddr = (String) neighbour.get(ADDRESS);
-				String btName = (String) neighbour.get(NAME);
-				float btRssi = ((Double) neighbour.get(RSSI)).floatValue();
-
-				btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
+				btDevices = new ArrayList<ESBluetoothDevice>();
+				JSONArray neighbours = (JSONArray) jsonData.get(DEVICES);
+				for (int i=0; i<neighbours.size(); i++)
+				{
+					JSONObject neighbour = (JSONObject) neighbours.get(i);
+					long ts = (Long) neighbour.get(TIME_STAMP);
+					String btAddr = (String) neighbour.get(ADDRESS);
+					String btName = (String) neighbour.get(NAME);
+					float btRssi = ((Double) neighbour.get(RSSI)).floatValue();
+					
+					btDevices.add(new ESBluetoothDevice(ts, btAddr, btName, btRssi));
+				}
 			}
-
-			BluetoothData bData = new BluetoothData(senseStartTimestamp, btDevices, sensorConfig);
-
-			return bData;
+			catch (Exception e)
+			{
+				setRawData = false;
+			}
+			
+			try
+			{
+				BluetoothProcessor processor = (BluetoothProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+				return processor.process(senseStartTimestamp, btDevices, sensorConfig);
+			}
+			catch (ESException e)
+			{
+				e.printStackTrace();
+				return null;
+			}
 		}
 		else
 		{
 			return null;
 		}
 	}
-
 }

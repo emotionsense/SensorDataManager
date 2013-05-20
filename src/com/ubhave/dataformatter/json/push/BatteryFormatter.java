@@ -23,11 +23,13 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
+import android.content.Context;
 import android.os.BatteryManager;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.BatteryData;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class BatteryFormatter extends PushSensorJSONFormatter
 {
@@ -38,6 +40,11 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 	private final static String PLUGGED = "plugged";
 	private final static String STATUS = "status";
 	private final static String HEALTH = "health";
+	
+	public BatteryFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_BATTERY);
+	}
 
 	private static String getHealthString(int healthValue)
 	{

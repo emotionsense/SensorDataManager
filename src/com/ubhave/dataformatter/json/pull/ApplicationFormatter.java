@@ -26,33 +26,42 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
+import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.ApplicationData;
+import com.ubhave.sensormanager.process.AbstractProcessor;
+import com.ubhave.sensormanager.process.pull.ApplicationProcessor;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class ApplicationFormatter extends PullSensorJSONFormatter
 {
-	private final static String APPLICATION = "application";
 	private final static String APPLICATION_RESULT = "applicationResult";
 
 	private final static String UNAVAILABLE = "unavailable";
 	private final static String SENSE_CYCLES = "senseCycles";
+	
+	public ApplicationFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_APPLICATION);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data)
 	{
 		ApplicationData appData = (ApplicationData) data;
-		ArrayList<String> results =appData.getApplications();
+		ArrayList<String> results = appData.getApplications();
 		JSONArray resultJSON = new JSONArray();
 		if (results != null)
 		{
 			for (String result : results)
 			{
-				JSONObject appJSON = new JSONObject();
-				appJSON.put(APPLICATION, result);
-				resultJSON.add(appJSON);
+				resultJSON.add(result);
 			}
 		}
 		else
@@ -66,7 +75,7 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{
-		json.put(SENSE_CYCLES, config.getParameter(SensorConfig.NUMBER_OF_SENSE_CYCLES));
+		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
 	@Override
@@ -76,21 +85,27 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 		
-		JSONArray jsonArray = (JSONArray)jsonData.get(APPLICATION_RESULT);
+		ArrayList<String> appList = null; 
 		
-		ArrayList<String> appList = new ArrayList<String>(); 
-		
-		for (int i = 0; i < jsonArray.size(); i++)
+		boolean setRawData = true;
+		boolean setProcessedData = false;
+		try
 		{
-			JSONObject jsonObject = (JSONObject)jsonArray.get(i);
-			String application = (String)jsonObject.get(APPLICATION);
-
-			appList.add(application);
+			appList = getJSONArray(jsonData, APPLICATION_RESULT, String.class);
 		}
-		
-		ApplicationData applicationData = new ApplicationData(senseStartTimestamp, appList, sensorConfig);
-
-		return applicationData;
+		catch (Exception e)
+		{
+			setRawData = false;
+		}
+		try
+		{
+			ApplicationProcessor processor = (ApplicationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+			return processor.process(senseStartTimestamp, appList, sensorConfig);
+		}
+		catch (ESException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
-
 }

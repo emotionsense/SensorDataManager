@@ -23,10 +23,17 @@ package com.ubhave.dataformatter.json;
 
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.sensormanager.config.SensorConfig;
 
 public abstract class PushSensorJSONFormatter extends JSONFormatter
 {
+	public PushSensorJSONFormatter(final Context context, final int sensorType)
+	{
+		super(context, sensorType);
+	}
+	
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
 	{

@@ -23,15 +23,23 @@ package com.ubhave.dataformatter.json.push;
 
 import org.json.simple.JSONObject;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.PhoneStateData;
+import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class PhoneStateFormatter extends PushSensorJSONFormatter
 {
-
 	private final static String EVENT_TYPE = "eventType";
 	private final static String DATA = "data";
+	private final static String NUMBER = "number";
+	
+	public PhoneStateFormatter(final Context context)
+	{
+		super(context, SensorUtils.SENSOR_TYPE_PHONE_STATE);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -40,6 +48,7 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		PhoneStateData phoneStateData = (PhoneStateData) data;
 		json.put(EVENT_TYPE, phoneStateData.getEventType());
 		json.put(DATA, phoneStateData.getData());
+		json.put(NUMBER, phoneStateData.getNumber());
 	}
 	
 	@Override
@@ -49,9 +58,19 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			int eventType = ((Long) jsonData.get(EVENT_TYPE)).intValue();
-			String data = (String) jsonData.get(DATA);
-			return new PhoneStateData(dataReceivedTimestamp, eventType, data, null);
+			PhoneStateData data = new PhoneStateData(dataReceivedTimestamp, null);
+			try
+			{
+				data.setEventType(((Long) jsonData.get(EVENT_TYPE)).intValue());
+				data.setData((String) jsonData.get(DATA));
+				data.setNumber((String) jsonData.get(NUMBER));
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+			return data;
 		}
 		else return null;
 	}
