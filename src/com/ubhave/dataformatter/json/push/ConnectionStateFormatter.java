@@ -144,13 +144,20 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			boolean isConnectedOrConnecting = (Boolean) jsonData.get(CONNECTING);
-			boolean isAvailable = (Boolean) jsonData.get(AVAILABLE);
-			boolean isConnected = (Boolean) jsonData.get(CONNECTED);
-			int networkType = getConnectionTypeId((String) jsonData.get(NETWORK_TYPE));
-			int roamingType = getRoamingId((String) jsonData.get(ROAMING));
-
-			return new ConnectionStateData(dataReceivedTimestamp, isConnectedOrConnecting, isAvailable, isConnected, networkType, roamingType, null);
+			ConnectionStateData data = new ConnectionStateData(dataReceivedTimestamp, null);
+			try
+			{
+				data.setConnectedOrConnecting((Boolean) jsonData.get(CONNECTING));
+				data.setAvailable((Boolean) jsonData.get(AVAILABLE));
+				data.setConnected((Boolean) jsonData.get(CONNECTED));
+				data.setNetworkType(getConnectionTypeId((String) jsonData.get(NETWORK_TYPE)));
+				data.setRoamingStatus(getRoamingId((String) jsonData.get(ROAMING)));
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return data;
 		}
 		return null;
 	}

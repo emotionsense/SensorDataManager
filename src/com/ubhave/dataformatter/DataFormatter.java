@@ -13,24 +13,14 @@ public abstract class DataFormatter
 	{
 		switch(sensorType)
 		{
-<<<<<<< HEAD
-		case SensorUtils.SENSOR_TYPE_ACCELEROMETER: return new com.ubhave.dataformatter.json.pull.AccelerometerFormatter();
-		case SensorUtils.SENSOR_TYPE_BLUETOOTH: return new com.ubhave.dataformatter.json.pull.BluetoothFormatter();
-		case SensorUtils.SENSOR_TYPE_LOCATION: return new com.ubhave.dataformatter.json.pull.LocationFormatter();
-		case SensorUtils.SENSOR_TYPE_MICROPHONE: return new com.ubhave.dataformatter.json.pull.MicrophoneFormatter();
-		case SensorUtils.SENSOR_TYPE_WIFI: return new com.ubhave.dataformatter.json.pull.WifiFormatter();
-		case SensorUtils.SENSOR_TYPE_APPLICATION: return new com.ubhave.dataformatter.json.pull.ApplicationFormatter();
-		case SensorUtils.SENSOR_TYPE_SMS_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.ContentReaderFormatter();
-		case SensorUtils.SENSOR_TYPE_CALL_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.ContentReaderFormatter();
-=======
 		case SensorUtils.SENSOR_TYPE_ACCELEROMETER: return new com.ubhave.dataformatter.json.pull.AccelerometerFormatter(c);
 		case SensorUtils.SENSOR_TYPE_BLUETOOTH: return new com.ubhave.dataformatter.json.pull.BluetoothFormatter(c);
 		case SensorUtils.SENSOR_TYPE_LOCATION: return new com.ubhave.dataformatter.json.pull.LocationFormatter(c);
 		case SensorUtils.SENSOR_TYPE_MICROPHONE: return new com.ubhave.dataformatter.json.pull.MicrophoneFormatter(c);
 		case SensorUtils.SENSOR_TYPE_WIFI: return new com.ubhave.dataformatter.json.pull.WifiFormatter(c);
 		case SensorUtils.SENSOR_TYPE_APPLICATION: return new com.ubhave.dataformatter.json.pull.ApplicationFormatter(c);
->>>>>>> dev
-		
+		case SensorUtils.SENSOR_TYPE_SMS_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.CallContentReaderFormatter(c);
+		case SensorUtils.SENSOR_TYPE_CALL_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.SmsContentReaderFormatter(c);		
 		case SensorUtils.SENSOR_TYPE_BATTERY: return new com.ubhave.dataformatter.json.push.BatteryFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SCREEN: return new com.ubhave.dataformatter.json.push.ScreenFormatter(c);
 		case SensorUtils.SENSOR_TYPE_CONNECTION_STATE: return new com.ubhave.dataformatter.json.push.ConnectionStateFormatter(c);
