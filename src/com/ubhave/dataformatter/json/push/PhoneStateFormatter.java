@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.PhoneStateData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -58,7 +59,8 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			PhoneStateData data = new PhoneStateData(dataReceivedTimestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			PhoneStateData data = new PhoneStateData(dataReceivedTimestamp, sensorConfig);
 			try
 			{
 				data.setEventType(((Long) jsonData.get(EVENT_TYPE)).intValue());

@@ -45,4 +45,10 @@ public abstract class PushSensorJSONFormatter extends JSONFormatter
 	{
 		// Nothing to do
 	}
+	
+	@Override
+	protected SensorConfig getGenericConfig(JSONObject json)
+	{
+		return new SensorConfig();
+	}
 }

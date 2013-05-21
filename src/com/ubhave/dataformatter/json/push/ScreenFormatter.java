@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ScreenData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -86,7 +87,8 @@ public class ScreenFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long timestamp = super.parseTimeStamp(jsonData);
-			ScreenData data = new ScreenData(timestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			ScreenData data = new ScreenData(timestamp, sensorConfig);
 			try
 			{
 				data.setStatus(getScreenStatusId((String) jsonData.get(STATUS)));

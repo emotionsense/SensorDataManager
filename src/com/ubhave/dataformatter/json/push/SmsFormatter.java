@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.SmsData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -61,7 +62,8 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long recvTimestamp = super.parseTimeStamp(jsonData);
-			SmsData data = new SmsData(recvTimestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			SmsData data = new SmsData(recvTimestamp, sensorConfig);
 			try
 			{
 				// Construct Raw Data

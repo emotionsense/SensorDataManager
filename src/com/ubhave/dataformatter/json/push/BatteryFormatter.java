@@ -27,6 +27,7 @@ import android.content.Context;
 import android.os.BatteryManager;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.BatteryData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -167,7 +168,8 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long timestamp = parseTimeStamp(jsonData);
-			BatteryData data = new BatteryData(timestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			BatteryData data = new BatteryData(timestamp, sensorConfig);
 			try
 			{
 				data.setBatteryLevel(((Long) jsonData.get(LEVEL)).intValue());

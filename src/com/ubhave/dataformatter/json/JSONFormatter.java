@@ -162,6 +162,8 @@ public abstract class JSONFormatter extends DataFormatter
 
 	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config);
 	
+	protected abstract SensorConfig getGenericConfig(JSONObject json);
+	
 	protected Integer getInteger(String key, JSONObject data)
 	{
 		try

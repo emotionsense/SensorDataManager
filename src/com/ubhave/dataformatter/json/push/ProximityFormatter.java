@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ProximityData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -56,7 +57,8 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long recvTimestamp = super.parseTimeStamp(jsonData);
-			ProximityData data = new ProximityData(recvTimestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			ProximityData data = new ProximityData(recvTimestamp, sensorConfig);
 			try
 			{
 				data.setDistance(((Double) jsonData.get(DISTANCE)).floatValue());

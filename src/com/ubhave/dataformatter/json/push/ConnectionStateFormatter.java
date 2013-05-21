@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
+import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pushsensor.ConnectionStateData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -144,7 +145,8 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 		if (jsonData != null)
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
-			ConnectionStateData data = new ConnectionStateData(dataReceivedTimestamp, null);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			ConnectionStateData data = new ConnectionStateData(dataReceivedTimestamp, sensorConfig);
 			try
 			{
 				data.setConnectedOrConnecting((Boolean) jsonData.get(CONNECTING));
