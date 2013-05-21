@@ -291,7 +291,7 @@ public class DataStorage implements DataStorageInterface
 				}
 			}
 		}
-		catch (DataHandlerException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
