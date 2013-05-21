@@ -82,17 +82,17 @@ public class DataStorage implements DataStorageInterface
 	private boolean isFileLimitReached(File file)
 	{
 		long durationLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-//		long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
-//		long fileSize = file.length();
-//		if (fileSize > sizeLimit)
-//		{
-//			return true;
-//		}
-		
+		// long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
+		// long fileSize = file.length();
+		// if (fileSize > sizeLimit)
+		// {
+		// return true;
+		// }
+
 		try
 		{
 			durationLimit = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-//			sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
+			// sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
 		}
 		catch (Exception e)
 		{
@@ -275,15 +275,22 @@ public class DataStorage implements DataStorageInterface
 						BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 						while ((line = br.readLine()) != null)
 						{
-							// convert json string to sensor data object
-							long timestamp = jsonFormatter.getTimestamp(line);
-							if (timestamp >= startTimestamp)
+							try
 							{
-								SensorData sensorData = jsonFormatter.toSensorData(line);
-								if (sensorData.getTimestamp() >= startTimestamp)
+								// convert json string to sensor data object
+								long timestamp = jsonFormatter.getTimestamp(line);
+								if (timestamp >= startTimestamp)
 								{
-									outputList.add(sensorData);
+									SensorData sensorData = jsonFormatter.toSensorData(line);
+									if (sensorData.getTimestamp() >= startTimestamp)
+									{
+										outputList.add(sensorData);
+									}
 								}
+							}
+							catch (Exception e)
+							{
+								e.printStackTrace();
 							}
 						}
 						br.close();
@@ -323,7 +330,7 @@ public class DataStorage implements DataStorageInterface
 		{
 			throw new DataHandlerException(DataHandlerException.WRITING_TO_DEFAULT_DIRECTORY);
 		}
-		
+
 		synchronized (getLock(directoryName))
 		{
 			try
@@ -332,7 +339,7 @@ public class DataStorage implements DataStorageInterface
 				File file = new File(directoryFullPath);
 				if (!file.exists())
 				{
-					System.err.println("Creating: "+directoryFullPath);
+					System.err.println("Creating: " + directoryFullPath);
 					file.mkdirs();
 				}
 
@@ -340,7 +347,7 @@ public class DataStorage implements DataStorageInterface
 				file = new File(fileFullPath);
 				if (!file.exists())
 				{
-					System.err.println("Creating: "+fileFullPath);
+					System.err.println("Creating: " + fileFullPath);
 					try
 					{
 						boolean fileCreated = file.createNewFile();
@@ -354,7 +361,7 @@ public class DataStorage implements DataStorageInterface
 						System.err.println("Error creating file");
 						e.printStackTrace();
 					}
-					
+
 				}
 
 				// append mode
