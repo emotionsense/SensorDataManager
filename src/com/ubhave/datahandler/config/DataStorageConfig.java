@@ -46,7 +46,6 @@ public class DataStorageConfig
 		
 //		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE_BYTES);
 		defaults.put(FILE_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
-		
 		return defaults;
 	}
 }

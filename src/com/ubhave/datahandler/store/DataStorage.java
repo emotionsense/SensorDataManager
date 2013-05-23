@@ -122,7 +122,7 @@ public class DataStorage implements DataStorageInterface
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			return true;
+			return false;
 		}
 	}
 
