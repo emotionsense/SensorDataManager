@@ -13,6 +13,7 @@ public class DataStorageConfig
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH = "uploadDirPath"; // Note: not user defined
 	public final static String LOCAL_STORAGE_DATA_FORMAT = "dataFormat";
 	public final static String FILE_LIFE_MILLIS = "fileDuration";
+	public final static String APPLICATION_UID = "appUserId";
 
 	/*
 	 * Default values
@@ -29,6 +30,7 @@ public class DataStorageConfig
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 		validKeys.add(FILE_LIFE_MILLIS);
+		validKeys.add(APPLICATION_UID);
 		return validKeys;
 	}
 
@@ -44,7 +46,6 @@ public class DataStorageConfig
 		
 //		defaults.put(FILE_MAX_SIZE, DEFAULT_FILE_SIZE_BYTES);
 		defaults.put(FILE_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
-		
 		return defaults;
 	}
 }

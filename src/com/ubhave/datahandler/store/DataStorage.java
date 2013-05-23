@@ -249,8 +249,19 @@ public class DataStorage implements DataStorageInterface
 
 	private String getUniqueUserIdentifier()
 	{
-		String imeiPhone = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-		return imeiPhone;
+		String userIdentifier = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+		if (userIdentifier == null)
+		{
+			try
+			{
+				userIdentifier = (String) config.get(DataStorageConfig.APPLICATION_UID);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return userIdentifier;
 	}
 
 	@Override
