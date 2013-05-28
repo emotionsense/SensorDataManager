@@ -62,7 +62,7 @@ public class DataTransfer implements DataTransferInterface
 			}
 
 		}
-		catch (DataHandlerException e)
+		catch (Exception e)
 		{
 			Log.e(TAG, Log.getStackTraceString(e));
 		}
