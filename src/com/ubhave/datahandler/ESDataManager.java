@@ -12,10 +12,6 @@ import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.store.DataStorage;
 import com.ubhave.datahandler.store.DataStorageInterface;
-import com.ubhave.datahandler.sync.FileSyncInterface;
-import com.ubhave.datahandler.sync.FileSynchronizer;
-import com.ubhave.datahandler.sync.FileUpdatedListener;
-import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.sensormanager.ESException;
@@ -33,7 +29,6 @@ public class ESDataManager implements ESDataManagerInterface
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
 	private final DataTransferAlarmListener dataTransferAlarmListener;
-	private final FileSyncInterface fileSync;
 
 	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
 	{
@@ -56,7 +51,6 @@ public class ESDataManager implements ESDataManagerInterface
 		config = DataHandlerConfig.getInstance();
 		storage = new DataStorage(context, fileTransferLock);
 		transfer = new DataTransfer(context);
-		fileSync = new FileSynchronizer(context);
 		
 		dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 		setupAlarmForTransfer();
@@ -174,31 +168,5 @@ public class ESDataManager implements ESDataManagerInterface
 		{
 			transfer.attemptDataUpload();
 		}
-	}
-
-	@Override
-	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener)
-			throws DataHandlerException
-	{
-		return fileSync.subscribeToRemoteFileUpdate(url, targetFile, listener);
-	}
-
-	@Override
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener)
-			throws DataHandlerException
-	{
-		return fileSync.subscribeToRemoteFileUpdate(request, listener);
-	}
-
-	@Override
-	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException
-	{
-		fileSync.unsubscribeFromRemoteFileUpdate(key);
-	}
-
-	@Override
-	public void attemptFileSync()
-	{
-		fileSync.syncUpdatedFiles();
 	}
 }

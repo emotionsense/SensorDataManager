@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datahandler.sync.FileUpdatedListener;
-import com.ubhave.datahandler.sync.SyncRequest;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -32,13 +30,5 @@ public interface ESDataManagerInterface
 	 * Uploading stored data
 	 */
 	public void transferStoredData();
-	
-	/*
-	 * Downloading a file
-	 */
-	public int subscribeToRemoteFileUpdate(final String url, final String targetFile, FileUpdatedListener listener) throws DataHandlerException;
-	public int subscribeToRemoteFileUpdate(final SyncRequest request, FileUpdatedListener listener) throws DataHandlerException;
-	public void unsubscribeFromRemoteFileUpdate(final int key) throws DataHandlerException;
-	public void attemptFileSync();
 	
 }
