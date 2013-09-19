@@ -42,7 +42,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 {	
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
 	private final static String AMPLITUDE = "amplitude";
-	private final static String TIMESTAMP = "timestamp";
+	private final static String READING_TIMESTAMPS = "sensorTimeStamps";
 	
 	public MicrophoneFormatter(final Context context)
 	{
@@ -70,7 +70,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 			tsArray.add(tsValues[i]);
 		}
 		
-		json.put(TIMESTAMP, tsArray);		
+		json.put(READING_TIMESTAMPS, tsArray);		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -96,7 +96,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		try
 		{
 			ArrayList<Long> amplitudes = getJSONArray(jsonData, AMPLITUDE, Long.class);
-			ArrayList<Long> timestamps = getJSONArray(jsonData, TIMESTAMP, Long.class);
+			ArrayList<Long> timestamps = getJSONArray(jsonData, READING_TIMESTAMPS, Long.class);
 			
 			ampValues = new int[amplitudes.size()];
 			tsValues = new long[timestamps.size()];
