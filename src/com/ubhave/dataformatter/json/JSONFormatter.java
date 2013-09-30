@@ -42,6 +42,7 @@ public abstract class JSONFormatter extends DataFormatter
 {
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
+	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
 	
 	protected final Context applicationContext;
@@ -127,6 +128,7 @@ public abstract class JSONFormatter extends DataFormatter
 
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
 		json.put(SENSE_TIME, formatter.format(calendar.getTime()));
+		json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 		try
 		{
 			json.put(SENSOR_TYPE, SensorUtils.getSensorName(data.getSensorType()));
