@@ -35,6 +35,7 @@ public class SmsFormatter extends PushSensorJSONFormatter
 {
 	private final static String CONTENT_LENGTH = "contentLength";
 	private final static String WORD_COUNT = "wordCount";
+	private final static String MESSAGE_TYPE = "messageType";
 	private final static String EVENT_TYPE = "eventType";
 	private final static String ADDRESS = "address";
 	
@@ -50,6 +51,7 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		SmsData smsData = (SmsData) data;
 		json.put(CONTENT_LENGTH, smsData.getContentLength());
 		json.put(WORD_COUNT, smsData.getNoOfWords());
+		json.put(MESSAGE_TYPE, smsData.getMessageType());
 		json.put(EVENT_TYPE, smsData.getEventType());
 		json.put(ADDRESS, smsData.getAddress());
 		// TODO set features
@@ -70,10 +72,12 @@ public class SmsFormatter extends PushSensorJSONFormatter
 				int smsLength = ((Long) jsonData.get(CONTENT_LENGTH)).intValue();
 				int noOfWords = ((Long) jsonData.get(WORD_COUNT)).intValue();
 				String addr = (String) jsonData.get(ADDRESS);
+				String messageType = (String) jsonData.get(MESSAGE_TYPE);
 				String eventType = (String) jsonData.get(EVENT_TYPE);
 				
 				data.setContentLength(smsLength);
 				data.setAddress(addr);
+				data.setMessageType(messageType);
 				data.setEventType(eventType);
 				data.setNumberOfWords(noOfWords);
 			}
