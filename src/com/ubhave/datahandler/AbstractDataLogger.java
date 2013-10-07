@@ -12,10 +12,12 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
 {	
-	private ESDataManager dataManager;
+	protected ESDataManager dataManager;
+	protected final Context context;
 	
 	protected AbstractDataLogger(Context context)
 	{
+		this.context = context;
 		try
 		{
 			dataManager = ESDataManager.getInstance(context);

@@ -78,6 +78,7 @@ public class ESDataManager implements ESDataManagerInterface
 			}
 			else
 			{
+				Log.d("PolicyAlarm", "===== Stopping Policy Alarm ====");
 				dataTransferAlarmListener.stop();
 			}
 		}
