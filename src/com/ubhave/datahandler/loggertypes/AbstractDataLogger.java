@@ -1,32 +1,43 @@
-package com.ubhave.datahandler;
+package com.ubhave.datahandler.loggertypes;
 
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
-{	
+{
+	protected final static String TAG_SURVEY_RESPONSE = "Survey";
+	protected final static String TAG_INTERACTION = "Interaction";
+	protected final static String TAG_TIMESTAMP = "timestamp";
+
 	protected ESDataManager dataManager;
 	protected final Context context;
-	
+
 	protected AbstractDataLogger(Context context)
 	{
 		this.context = context;
 		try
 		{
 			dataManager = ESDataManager.getInstance(context);
+			configureDataStorage();
+		}
+		catch (Exception e)
+		{
+			dataManager = null;
+		}
+	}
+
+	protected void configureDataStorage()
+	{
+		try
+		{
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUserId());
-			dataManager.setConfig(DataTransferConfig.POST_DATA_URL, getDataPostURL());
-			dataManager.setConfig(DataTransferConfig.POST_DATA_URL_PASSWD, getPostPassword());
-			dataManager.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, getFileLifeMillis());
-			dataManager.setConfig(DataTransferConfig.TRANSFER_ALARM_INTERVAL, getTransferAlarmLengthMillis());
 		}
 		catch (Exception e)
 		{
@@ -34,18 +45,10 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected abstract String getLocalStorageDirectoryName();
-	
+
 	protected abstract String getUserId();
-	
-	protected abstract String getDataPostURL();
-	
-	protected abstract String getPostPassword();
-	
-	protected abstract long getFileLifeMillis();
-	
-	protected abstract long getTransferAlarmLengthMillis();
 
 	private void log(final String tag, final String data)
 	{
@@ -57,17 +60,16 @@ public abstract class AbstractDataLogger
 				super.run();
 				try
 				{
-					Log.d(tag, data);
 					dataManager.logExtra(tag, data);
 				}
 				catch (DataHandlerException e)
 				{
 					e.printStackTrace();
 				}
-			}	
+			}
 		}.start();
 	}
-	
+
 	public void logSensorData(final SensorData data)
 	{
 		try
@@ -79,18 +81,14 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void logSurveyResponse(final String jsonResponse)
 	{
-		log(getSurveyResponseTag(), jsonResponse);
+		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
-	
-	protected abstract String getSurveyResponseTag();
-	
-	protected abstract String getUserInteractionTag();
-	
+
 	public void logError(int appVersion, String tag, String error)
-	{	
+	{
 		try
 		{
 			if (tag != null && error != null)
@@ -109,7 +107,7 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void logInteraction(final String tag, final String action)
 	{
 		try
@@ -118,9 +116,9 @@ public abstract class AbstractDataLogger
 			{
 				JSONObject json = new JSONObject();
 				json.put("tag", tag);
-				json.put("timestamp", System.currentTimeMillis());
+				json.put(TAG_TIMESTAMP, System.currentTimeMillis());
 				json.put("action", action);
-				dataManager.logExtra(getUserInteractionTag(), json.toString());
+				dataManager.logExtra(TAG_INTERACTION, json.toString());
 			}
 		}
 		catch (Exception e)
