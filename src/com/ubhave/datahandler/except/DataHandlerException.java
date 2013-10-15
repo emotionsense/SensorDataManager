@@ -10,6 +10,7 @@ public class DataHandlerException extends Exception
 	public final static int UNIMPLEMENTED = 13;
 	public final static int WRITING_TO_DEFAULT_DIRECTORY = 14;
 	public final static int CONFIG_CONFLICT = 15;
+	public final static int POST_FAILED = 16;
 	
 	private final int errorCode;
 	

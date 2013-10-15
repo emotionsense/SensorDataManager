@@ -3,6 +3,9 @@ package com.ubhave.datahandler.transfer;
 import java.io.File;
 import java.util.HashMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -41,17 +44,15 @@ public class DataTransfer implements DataTransferInterface
 
 			for (File file : files)
 			{
-				HashMap<String, String> paramsMap = new HashMap<String, String>();
-				paramsMap.put("password", (String) config.get(DataTransferConfig.POST_DATA_URL_PASSWD));
+				HashMap<String, String> paramsMap = getPostParams();
 				String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 				String response = WebConnection.postDataToServer(url, file, paramsMap);
 
-				if (response.equals("success"))
+				if (response.equals("success")) // TODO generalise
 				{
 					Log.d(TAG, "file " + file + " successfully uploaded to the server");
 					Log.d(TAG, "file " + file + " deleting local copy");
 					file.delete();
-
 					// update last logs upload time
 					setLogsUploadTime(System.currentTimeMillis());
 				}
@@ -81,6 +82,49 @@ public class DataTransfer implements DataTransferInterface
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return preferences.getLong(LAST_LOGS_UPLOAD_TIME, 0);
 	}
+	
+	private HashMap<String, String> getPostParams()
+	{
+		HashMap<String, String> paramsMap = new HashMap<String, String>();
+		if (config.containsConfig(DataTransferConfig.POST_DATA_URL_PASSWD))
+		{
+			try
+			{
+				String pw = (String) config.get(DataTransferConfig.POST_DATA_URL_PASSWD);
+				paramsMap.put("password", pw);
+			}
+			catch (DataHandlerException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return paramsMap;
+	}
+	
+	private void post(final String url, final String data) throws DataHandlerException
+	{
+		try
+		{
+			String dataKey = "ESDataManagerData";
+			JSONObject dataParam = new JSONObject();
+			dataParam.put(dataKey, data);
+			
+			HashMap<String, String> paramsMap = getPostParams();
+			paramsMap.put(dataKey, data);
+			
+			String response = WebConnection.postToServer(url, paramsMap);
+			System.err.println("Result: "+response);
+			if (!response.equals("success")) // TODO generalise
+			{
+				throw new DataHandlerException(DataHandlerException.POST_FAILED);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			throw new DataHandlerException(DataHandlerException.POST_FAILED);
+		}
+	}
 
 	@Override
 	public void postData(final String data) throws DataHandlerException
@@ -92,38 +136,35 @@ public class DataTransfer implements DataTransferInterface
 		}
 		else
 		{
-			// TODO
-			throw new DataHandlerException(DataHandlerException.UNIMPLEMENTED);
+			post(url, data);
 		}
 	}
 
 	@Override
 	public void postError(final String error) throws DataHandlerException
 	{
-		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL); // TODO change
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
 		}
 		else
 		{
-			// TODO
-			throw new DataHandlerException(DataHandlerException.UNIMPLEMENTED);
+			post(url, error);
 		}
 	}
 
 	@Override
 	public void postExtra(final String tag, final String data) throws DataHandlerException
 	{
-		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL); // TODO change
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
 		}
 		else
 		{
-			// TODO
-			throw new DataHandlerException(DataHandlerException.UNIMPLEMENTED);
+			post(url, data);
 		}
 	}
 }
