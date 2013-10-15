@@ -4,7 +4,7 @@ import com.ubhave.datahandler.config.DataTransferConfig;
 
 import android.content.Context;
 
-public abstract class AbstractImmediateTransferLogger extends AbstractDataLogger
+public abstract class AbstractImmediateTransferLogger extends AbstractTransferLogger
 {
 
 	protected AbstractImmediateTransferLogger(Context context)
