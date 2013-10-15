@@ -21,7 +21,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import android.content.Context;
 

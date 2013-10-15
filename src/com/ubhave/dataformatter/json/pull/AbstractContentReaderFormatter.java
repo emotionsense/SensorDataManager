@@ -2,9 +2,11 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -24,9 +26,8 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 		super(context, type);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		ContentReaderData crData = (ContentReaderData) data;
 		ArrayList<ContentReaderResult> contentList = crData.getContentList();
@@ -39,7 +40,7 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			{
 				jsonMapObject.put(key, contentMap.get(key));
 			}
-			jsonArray.add(jsonMapObject);
+			jsonArray.put(jsonMapObject);
 		}
 		json.put(CONTENT_LIST, jsonArray);
 		json.put(SENSOR_TYPE, crData.getSensorType());
@@ -51,6 +52,7 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 		// nothing to add
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
@@ -65,13 +67,14 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			{
 				data.setSensorType(((Long)jsonData.get(SENSOR_TYPE)).intValue());
 				JSONArray jsonArray = (JSONArray) jsonData.get(CONTENT_LIST);
-				for (int i = 0; i < jsonArray.size(); i++)
+				for (int i = 0; i < jsonArray.length(); i++)
 				{
 					HashMap<String, String> contentMap = new HashMap<String, String>();
 					JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-					for (Object keyObject : jsonObject.keySet())
+					Iterator<String> keyIterator = jsonObject.keys();
+					while (keyIterator.hasNext())
 					{
-						String key = (String) keyObject;
+						String key = keyIterator.next();
 						contentMap.put(key, (String) jsonObject.get(key));
 					}
 					

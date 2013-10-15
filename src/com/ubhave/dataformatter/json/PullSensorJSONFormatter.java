@@ -21,7 +21,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -40,8 +41,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	protected void addGenericConfig(JSONObject json, SensorConfig config)
+	protected void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		Long sleepLength = (Long) config.getParameter(SLEEP_LENGTH);
 		if (sleepLength != null)
@@ -62,7 +62,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 			Boolean isAdaptivelySensed = (Boolean) json.get(IS_ADAPTIVELY_SENSED);
 			config.setParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
 		}
-		catch (NullPointerException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

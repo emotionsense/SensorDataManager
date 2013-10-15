@@ -23,8 +23,9 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -50,9 +51,8 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_APPLICATION);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		ApplicationData appData = (ApplicationData) data;
 		ArrayList<String> results = appData.getApplications();
@@ -61,19 +61,18 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 		{
 			for (String result : results)
 			{
-				resultJSON.add(result);
+				resultJSON.put(result);
 			}
 		}
 		else
 		{
-			resultJSON.add(UNAVAILABLE);
+			resultJSON.put(UNAVAILABLE);
 		}
 		json.put(APPLICATION_RESULT, resultJSON);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}

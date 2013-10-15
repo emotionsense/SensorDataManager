@@ -25,10 +25,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -65,12 +64,19 @@ public abstract class JSONFormatter extends DataFormatter
 		JSONObject json = new JSONObject();
 		if (data != null)
 		{
-			addGenericData(json, data);
-			addSensorSpecificData(json, data);
+			try
+			{
+				addGenericData(json, data);
+				addSensorSpecificData(json, data);
 
-			SensorConfig config = data.getSensorConfig();
-			addGenericConfig(json, config);
-			addSensorSpecificConfig(json, config);
+				SensorConfig config = data.getSensorConfig();
+				addGenericConfig(json, config);
+				addSensorSpecificConfig(json, config);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		return json;
 	}
@@ -78,7 +84,15 @@ public abstract class JSONFormatter extends DataFormatter
 	@Override
 	public String toString(final SensorData data)
 	{
-		return toJSON(data).toJSONString();
+		JSONObject jsonData = toJSON(data);
+		if (jsonData != null)
+		{
+			return jsonData.toString();
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	public long getTimestamp(String sensorDataJsonString)
@@ -96,10 +110,9 @@ public abstract class JSONFormatter extends DataFormatter
 	{
 		try
 		{
-			JSONParser parser = new JSONParser();
-			return (JSONObject) parser.parse(jsonString);
+			return new JSONObject(jsonString);
 		}
-		catch (ParseException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			return null;
@@ -108,26 +121,32 @@ public abstract class JSONFormatter extends DataFormatter
 	
 	protected<T> ArrayList<T> getJSONArray(JSONObject data, String key, Class<T> c) throws NullPointerException
 	{
-		ArrayList<T> list = new ArrayList<T>();
-		JSONArray jsonArray = (JSONArray) data.get(key);
-		for (int i = 0; i < jsonArray.size(); i++)
+		try
 		{
-			try
+			ArrayList<T> list = new ArrayList<T>();
+			JSONArray jsonArray = (JSONArray) data.get(key);
+			for (int i=0; i<jsonArray.length(); i++)
 			{
-				T member = c.cast(jsonArray.get(i));
-				list.add(member);
+				try
+				{
+					T member = c.cast(jsonArray.get(i));
+					list.add(member);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			
+			return list;
 		}
-		return list;
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	@SuppressWarnings("unchecked")
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
 		try
@@ -147,15 +166,22 @@ public abstract class JSONFormatter extends DataFormatter
 		calendar.setTimeInMillis(data.getTimestamp());
 
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
-		json.put(SENSE_TIME, formatter.format(calendar.getTime()));
-		json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 		try
 		{
-			json.put(SENSOR_TYPE, SensorUtils.getSensorName(data.getSensorType()));
+			json.put(SENSE_TIME, formatter.format(calendar.getTime()));
+			json.put(SENSE_TIME_MILLIS, data.getTimestamp());
+			try
+			{
+				json.put(SENSOR_TYPE, SensorUtils.getSensorName(data.getSensorType()));
+			}
+			catch (ESException e)
+			{
+				json.put(SENSOR_TYPE, UNKNOWN_SENSOR);
+			}
 		}
-		catch (ESException e)
+		catch (JSONException e)
 		{
-			json.put(SENSOR_TYPE, UNKNOWN_SENSOR);
+			e.printStackTrace();
 		}
 	}
 
@@ -179,11 +205,11 @@ public abstract class JSONFormatter extends DataFormatter
 
 	public abstract SensorData toSensorData(String jsonString);
 
-	protected abstract void addGenericConfig(JSONObject json, SensorConfig config);
+	protected abstract void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException;
 
-	protected abstract void addSensorSpecificData(JSONObject json, SensorData data);
+	protected abstract void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException;
 
-	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config);
+	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException;
 	
 	protected abstract SensorConfig getGenericConfig(JSONObject json);
 	

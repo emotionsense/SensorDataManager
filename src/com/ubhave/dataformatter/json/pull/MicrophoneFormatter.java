@@ -23,8 +23,9 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -49,16 +50,15 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_MICROPHONE);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		MicrophoneData micData = (MicrophoneData) data;
 		int[] values = micData.getAmplitudeArray();
 		JSONArray valueArray = new JSONArray();
 		for (int i=0; i<values.length; i++)
 		{
-			valueArray.add(values[i]);
+			valueArray.put(values[i]);
 		}
 		
 		json.put(AMPLITUDE, valueArray);
@@ -67,15 +67,14 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		JSONArray tsArray = new JSONArray();
 		for (int i=0; i<values.length; i++)
 		{
-			tsArray.add(tsValues[i]);
+			tsArray.put(tsValues[i]);
 		}
 		
 		json.put(READING_TIMESTAMPS, tsArray);		
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		json.put(SAMPLE_LENGTH, config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
 	}

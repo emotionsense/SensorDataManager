@@ -21,7 +21,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.push;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -41,9 +42,8 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_PROXIMITY);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		ProximityData proximityData = (ProximityData) data;
 		json.put(DISTANCE, proximityData.getDistance());

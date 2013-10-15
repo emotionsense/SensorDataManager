@@ -23,8 +23,9 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -56,9 +57,8 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_WIFI);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		WifiData wifiData = (WifiData) data;
 		ArrayList<WifiScanResult> results = wifiData.getWifiScanData();
@@ -73,19 +73,18 @@ public class WifiFormatter extends PullSensorJSONFormatter
 				scanJSON.put(CAPABILITIES, result.getCapabilities());
 				scanJSON.put(LEVEL, result.getLevel());
 				scanJSON.put(FREQUENCY, result.getFrequency());
-				resultJSON.add(scanJSON);
+				resultJSON.put(scanJSON);
 			}
 		}
 		else
 		{
-			resultJSON.add(UNAVAILABLE);
+			resultJSON.put(UNAVAILABLE);
 		}
 		json.put(SCAN_RESULT, resultJSON);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
@@ -106,7 +105,7 @@ public class WifiFormatter extends PullSensorJSONFormatter
 			JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
 			wifiList = new ArrayList<WifiScanResult>(); 
 			
-			for (int i = 0; i < jsonArray.size(); i++)
+			for (int i = 0; i < jsonArray.length(); i++)
 			{
 				JSONObject jsonObject = (JSONObject)jsonArray.get(i);
 				String ssid = (String)jsonObject.get(SSID);

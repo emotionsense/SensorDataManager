@@ -21,7 +21,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.push;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -42,9 +43,8 @@ public class PhoneStateFormatter extends PushSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_PHONE_STATE);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		PhoneStateData phoneStateData = (PhoneStateData) data;
 		json.put(EVENT_TYPE, phoneStateData.getEventType());

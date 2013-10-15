@@ -23,8 +23,9 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -52,9 +53,8 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_ACCELEROMETER);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		AccelerometerData accelerometerData = (AccelerometerData) data;
 		ArrayList<float[]> readings = accelerometerData.getSensorReadings();
@@ -69,15 +69,15 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 			for (int i=0; i<readings.size(); i++)
 			{
 				float[] sample = readings.get(i);
-				xs.add(sample[0]);
-				ys.add(sample[1]);
-				zs.add(sample[2]);
+				xs.put(sample[0]);
+				ys.put(sample[1]);
+				zs.put(sample[2]);
 			}
 			
 			JSONArray ts = new JSONArray();
 			for (int i=0; i<timestamps.size(); i++)
 			{
-				ts.add(timestamps.get(i));
+				ts.put(timestamps.get(i));
 			}
 
 			json.put(X_AXIS, xs);
@@ -87,9 +87,8 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		json.put(SAMPLE_LENGTH, config.getParameter(PullSensorConfig.SENSE_WINDOW_LENGTH_MILLIS));
 	}

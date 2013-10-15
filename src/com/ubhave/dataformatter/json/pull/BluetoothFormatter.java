@@ -23,8 +23,9 @@ package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -54,9 +55,8 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_BLUETOOTH);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		BluetoothData bluetoothData = (BluetoothData) data;
 		ArrayList<ESBluetoothDevice> devices = bluetoothData.getBluetoothDevices();
@@ -71,15 +71,14 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 				neighbour.put(NAME, device.getBluetoothDeviceName());
 				neighbour.put(RSSI, device.getRssi());
 				neighbour.put(TIME_STAMP, device.getTimestamp());
-				neighbours.add(neighbour);
+				neighbours.put(neighbour);
 			}
 			json.put(DEVICES, neighbours);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
@@ -101,7 +100,7 @@ public class BluetoothFormatter extends PullSensorJSONFormatter
 			{
 				btDevices = new ArrayList<ESBluetoothDevice>();
 				JSONArray neighbours = (JSONArray) jsonData.get(DEVICES);
-				for (int i=0; i<neighbours.size(); i++)
+				for (int i=0; i<neighbours.length(); i++)
 				{
 					JSONObject neighbour = (JSONObject) neighbours.get(i);
 					long ts = (Long) neighbour.get(TIME_STAMP);

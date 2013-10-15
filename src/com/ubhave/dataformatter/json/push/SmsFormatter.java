@@ -21,7 +21,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.push;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 
@@ -44,9 +45,8 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		super(context, SensorUtils.SENSOR_TYPE_SMS);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		SmsData smsData = (SmsData) data;
 		json.put(CONTENT_LENGTH, smsData.getContentLength());

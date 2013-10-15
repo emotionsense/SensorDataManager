@@ -21,7 +21,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.push;
 
-import org.json.simple.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.BatteryManager;
@@ -147,9 +148,8 @@ public class BatteryFormatter extends PushSensorJSONFormatter
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		BatteryData batteryData = (BatteryData) data;
 		json.put(LEVEL, batteryData.getBatteryLevel());
