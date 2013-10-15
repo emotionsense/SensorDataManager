@@ -30,9 +30,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.ubhave.dataformatter.DataFormatter;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
@@ -44,14 +47,17 @@ public abstract class JSONFormatter extends DataFormatter
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	private final static String USER_ID = "userid";
 	
 	protected final Context applicationContext;
 	protected final int sensorType;
+	protected final DataHandlerConfig config;
 	
 	public JSONFormatter(Context c, int sensorType)
 	{
 		applicationContext = c;
 		this.sensorType = sensorType;
+		this.config = DataHandlerConfig.getInstance();
 	}
 
 	public JSONObject toJSON(final SensorData data)
@@ -120,9 +126,23 @@ public abstract class JSONFormatter extends DataFormatter
 		return list;
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	@SuppressWarnings("unchecked")
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
+		try
+		{
+			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+			if (userId != null)
+			{
+				json.put(USER_ID, userId);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(data.getTimestamp());
 
@@ -139,6 +159,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	protected long parseTimeStamp(JSONObject json)
 	{
 		try
