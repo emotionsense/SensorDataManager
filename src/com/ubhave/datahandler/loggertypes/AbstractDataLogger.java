@@ -37,7 +37,7 @@ public abstract class AbstractDataLogger
 		try
 		{
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
-			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUserId());
+			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 		}
 		catch (Exception e)
 		{
@@ -48,7 +48,7 @@ public abstract class AbstractDataLogger
 
 	protected abstract String getLocalStorageDirectoryName();
 
-	protected abstract String getUserId();
+	protected abstract String getUniqueUserId();
 
 	private void log(final String tag, final String data)
 	{
@@ -98,7 +98,7 @@ public abstract class AbstractDataLogger
 				json.put("activityTag", tag);
 				json.put("timestamp", System.currentTimeMillis());
 				json.put("message", error);
-				json.put("user", getUserId());
+				json.put("user", getUniqueUserId());
 				dataManager.logError(json.toString());
 			}
 		}

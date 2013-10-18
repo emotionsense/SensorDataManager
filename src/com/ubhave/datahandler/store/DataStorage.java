@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import android.content.Context;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
@@ -218,7 +217,7 @@ public class DataStorage implements DataStorageInterface
 		}
 	}
 
-	private File gzipFile(File inputFile) throws IOException
+	private File gzipFile(File inputFile) throws IOException, DataHandlerException
 	{
 		byte[] buffer = new byte[1024];
 
@@ -247,32 +246,17 @@ public class DataStorage implements DataStorageInterface
 		return outputFile;
 	}
 
-	private String getUniqueUserIdentifier()
+	private String getUniqueUserIdentifier() throws DataHandlerException
 	{
-		String uniqueUserId = null;
 		try
 		{
-			uniqueUserId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+			return (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
 		}
 		catch (DataHandlerException e)
 		{
+			e.printStackTrace();
+			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 		}
-
-		String imeiPhone = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-
-		String uniqueID = "";
-
-		if (imeiPhone != null)
-		{
-			uniqueID = imeiPhone;
-		}
-
-		if (uniqueUserId != null)
-		{
-			uniqueID = uniqueID + "_" + uniqueUserId;
-		}
-
-		return uniqueID;
 	}
 
 	@Override

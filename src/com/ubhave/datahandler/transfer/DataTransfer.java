@@ -41,27 +41,28 @@ public class DataTransfer implements DataTransferInterface
 			String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 			File directory = new File(uploadDirectory);
 			File[] files = directory.listFiles();
-
-			for (File file : files)
+			if (files != null)
 			{
-				HashMap<String, String> paramsMap = getPostParams();
-				String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-				String response = WebConnection.postDataToServer(url, file, paramsMap);
+				for (File file : files)
+				{
+					HashMap<String, String> paramsMap = getPostParams();
+					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+					String response = WebConnection.postDataToServer(url, file, paramsMap);
 
-				if (response.equals("success")) // TODO generalise
-				{
-					Log.d(TAG, "file " + file + " successfully uploaded to the server");
-					Log.d(TAG, "file " + file + " deleting local copy");
-					file.delete();
-					// update last logs upload time
-					setLogsUploadTime(System.currentTimeMillis());
-				}
-				else
-				{
-					Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					if (response.equals("success")) // TODO generalise
+					{
+						Log.d(TAG, "file " + file + " successfully uploaded to the server");
+						Log.d(TAG, "file " + file + " deleting local copy");
+						file.delete();
+						// update last logs upload time
+						setLogsUploadTime(System.currentTimeMillis());
+					}
+					else
+					{
+						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					}
 				}
 			}
-
 		}
 		catch (Exception e)
 		{
