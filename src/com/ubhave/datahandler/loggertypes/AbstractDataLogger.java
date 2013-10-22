@@ -57,7 +57,6 @@ public abstract class AbstractDataLogger
 			@Override
 			public void run()
 			{
-				super.run();
 				try
 				{
 					dataManager.logExtra(tag, data);
@@ -72,14 +71,21 @@ public abstract class AbstractDataLogger
 
 	public void logSensorData(final SensorData data)
 	{
-		try
+		new Thread()
 		{
-			dataManager.logSensorData(data);
-		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
-		}
+			@Override
+			public void run()
+			{
+				try
+				{
+					dataManager.logSensorData(data);
+				}
+				catch (DataHandlerException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 	public void logSurveyResponse(final String jsonResponse)
@@ -87,25 +93,32 @@ public abstract class AbstractDataLogger
 		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
 
-	public void logError(int appVersion, String tag, String error)
+	public void logError(final int appVersion, final String tag, final String error)
 	{
-		try
+		new Thread()
 		{
-			if (tag != null && error != null)
+			@Override
+			public void run()
 			{
-				JSONObject json = new JSONObject();
-				json.put("applicationVersion", appVersion);
-				json.put("activityTag", tag);
-				json.put("timestamp", System.currentTimeMillis());
-				json.put("message", error);
-				json.put("user", getUniqueUserId());
-				dataManager.logError(json.toString());
+				try
+				{
+					if (tag != null && error != null)
+					{
+						JSONObject json = new JSONObject();
+						json.put("applicationVersion", appVersion);
+						json.put("activityTag", tag);
+						json.put(TAG_TIMESTAMP, System.currentTimeMillis());
+						json.put("message", error);
+						json.put("user", getUniqueUserId());
+						dataManager.logError(json.toString());
+					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		}.start();
 	}
 
 	public void logInteraction(final String tag, final String action)
