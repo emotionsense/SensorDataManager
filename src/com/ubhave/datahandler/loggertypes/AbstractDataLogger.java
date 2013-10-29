@@ -50,7 +50,7 @@ public abstract class AbstractDataLogger
 
 	protected abstract String getUniqueUserId();
 
-	private void log(final String tag, final String data)
+	public void log(final String tag, final String data)
 	{
 		new Thread()
 		{

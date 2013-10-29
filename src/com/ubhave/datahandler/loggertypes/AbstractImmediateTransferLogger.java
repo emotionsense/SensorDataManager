@@ -1,8 +1,8 @@
 package com.ubhave.datahandler.loggertypes;
 
-import com.ubhave.datahandler.config.DataTransferConfig;
-
 import android.content.Context;
+
+import com.ubhave.datahandler.config.DataTransferConfig;
 
 public abstract class AbstractImmediateTransferLogger extends AbstractTransferLogger
 {
