@@ -19,7 +19,6 @@ import com.ubhave.sensormanager.data.pullsensor.ContentReaderResult;
 public abstract class AbstractContentReaderFormatter extends PullSensorJSONFormatter
 {
 	private static final String CONTENT_LIST = "contentList";
-	private static final String SENSOR_TYPE = "sensorType";
 	
 	public AbstractContentReaderFormatter(final Context context, int type)
 	{
@@ -43,7 +42,6 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			jsonArray.put(jsonMapObject);
 		}
 		json.put(CONTENT_LIST, jsonArray);
-		json.put(SENSOR_TYPE, crData.getSensorType());
 	}
 
 	@Override
@@ -51,6 +49,8 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 	{
 		// nothing to add
 	}
+	
+	protected abstract ContentReaderData getData(long senseStartTime, SensorConfig config);
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -62,10 +62,9 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 			
-			ContentReaderData data = new ContentReaderData(senseStartTimestamp, sensorConfig);
+			ContentReaderData data = getData(senseStartTimestamp, sensorConfig);
 			try
 			{
-				data.setSensorType(((Long)jsonData.get(SENSOR_TYPE)).intValue());
 				JSONArray jsonArray = (JSONArray) jsonData.get(CONTENT_LIST);
 				for (int i = 0; i < jsonArray.length(); i++)
 				{

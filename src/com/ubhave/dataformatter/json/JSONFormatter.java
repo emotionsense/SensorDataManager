@@ -172,10 +172,13 @@ public abstract class JSONFormatter extends DataFormatter
 			json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 			try
 			{
-				json.put(SENSOR_TYPE, SensorUtils.getSensorName(data.getSensorType()));
+				String sensorName = SensorUtils.getSensorName(data.getSensorType());
+				System.err.println("Sensor: "+sensorName);
+				json.put(SENSOR_TYPE, sensorName);
 			}
 			catch (ESException e)
 			{
+				e.printStackTrace();
 				json.put(SENSOR_TYPE, UNKNOWN_SENSOR);
 			}
 		}
