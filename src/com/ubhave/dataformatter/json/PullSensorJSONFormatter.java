@@ -63,9 +63,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 			config.setParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
 		}
 		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		{}
 		return config;
 	}
 }
