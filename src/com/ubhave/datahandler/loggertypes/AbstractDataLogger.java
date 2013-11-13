@@ -3,6 +3,7 @@ package com.ubhave.datahandler.loggertypes;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
 
 import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataStorageConfig;
@@ -38,6 +39,7 @@ public abstract class AbstractDataLogger
 		{
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
+			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
 		}
 		catch (Exception e)
 		{
@@ -49,6 +51,19 @@ public abstract class AbstractDataLogger
 	protected abstract String getLocalStorageDirectoryName();
 
 	protected abstract String getUniqueUserId();
+	
+	protected String getDeviceId()
+	{
+		TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		try
+		{
+			return telephonyManager.getDeviceId();
+		}
+		catch (Exception e)
+		{
+			return "Error";
+		}
+	}
 
 	public void log(final String tag, final String data)
 	{

@@ -225,7 +225,7 @@ public class DataStorage implements DataStorageInterface
 		File tempFile = new File(parentFullPath);
 		String parentDirName = tempFile.getName();
 
-		String gzipFileName = parentFullPath + "/" + getUniqueUserIdentifier() + "_" + parentDirName + "_"
+		String gzipFileName = parentFullPath + "/" + getDeviceIdentifier() + "_" + parentDirName + "_"
 				+ inputFile.getName() + ".gz";
 
 		File outputFile = new File(gzipFileName);
@@ -246,11 +246,11 @@ public class DataStorage implements DataStorageInterface
 		return outputFile;
 	}
 
-	private String getUniqueUserIdentifier() throws DataHandlerException
+	private String getDeviceIdentifier() throws DataHandlerException
 	{
 		try
 		{
-			return (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+			return (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
 		}
 		catch (DataHandlerException e)
 		{

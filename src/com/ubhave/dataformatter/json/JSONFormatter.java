@@ -47,6 +47,7 @@ public abstract class JSONFormatter extends DataFormatter
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
 	private final static String USER_ID = "userid";
+	private final static String DEVICE_ID = "deviceid";
 	
 	protected final Context applicationContext;
 	protected final int sensorType;
@@ -152,9 +153,15 @@ public abstract class JSONFormatter extends DataFormatter
 		try
 		{
 			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
-			if (userId != null)
+			if (userId != null && userId.length() > 0)
 			{
 				json.put(USER_ID, userId);
+			}
+			
+			String deviceId = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
+			if (deviceId != null && deviceId.length() > 0)
+			{
+				json.put(DEVICE_ID, deviceId);
 			}
 		}
 		catch (Exception e)
