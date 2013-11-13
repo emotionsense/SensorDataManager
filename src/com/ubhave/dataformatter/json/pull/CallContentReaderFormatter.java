@@ -3,8 +3,10 @@ package com.ubhave.dataformatter.json.pull;
 import android.content.Context;
 
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.data.pullsensor.CallContentData;
-import com.ubhave.sensormanager.data.pullsensor.ContentReaderData;
+import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderEntry;
+import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderListData;
+import com.ubhave.sensormanager.data.pullsensor.CallContentListData;
+import com.ubhave.sensormanager.data.pullsensor.CallContentReaderEntry;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class CallContentReaderFormatter extends AbstractContentReaderFormatter
@@ -15,8 +17,14 @@ public class CallContentReaderFormatter extends AbstractContentReaderFormatter
 	}
 	
 	@Override
-	protected ContentReaderData getData(long senseStartTime, SensorConfig config)
+	protected AbstractContentReaderListData getData(long senseStartTime, SensorConfig config)
 	{
-		return new CallContentData(senseStartTime, config);
+		return new CallContentListData(senseStartTime, config);
+	}
+	
+	@Override
+	protected AbstractContentReaderEntry getNewEntry()
+	{
+		return new CallContentReaderEntry();
 	}
 }

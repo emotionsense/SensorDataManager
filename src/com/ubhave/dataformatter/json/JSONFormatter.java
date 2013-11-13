@@ -173,7 +173,6 @@ public abstract class JSONFormatter extends DataFormatter
 			try
 			{
 				String sensorName = SensorUtils.getSensorName(data.getSensorType());
-				System.err.println("Sensor: "+sensorName);
 				json.put(SENSOR_TYPE, sensorName);
 			}
 			catch (ESException e)

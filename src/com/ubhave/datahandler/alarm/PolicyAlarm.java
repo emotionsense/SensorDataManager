@@ -61,17 +61,6 @@ public class PolicyAlarm extends BroadcastReceiver
 		this.transferPolicy = transferPolicy;
 	}
 
-	// UNUSED
-//	public void setWaitForWifiLimit(long limit)
-//	{
-//		/*
-//		 * TODO if (waitForWifiInterval < alarmInterval) then if there is an
-//		 * active connection, transfers will always be allowed -- should this
-//		 * throw an exception?
-//		 */
-//		this.waitForWifiInterval = limit;
-//	}
-
 	public void alarmIntervalUpdated()
 	{
 		Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");

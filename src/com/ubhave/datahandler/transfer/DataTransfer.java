@@ -144,7 +144,7 @@ public class DataTransfer implements DataTransferInterface
 	@Override
 	public void postError(final String error) throws DataHandlerException
 	{
-		String url = (String) config.get(DataTransferConfig.POST_DATA_URL); // TODO change
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
@@ -158,7 +158,7 @@ public class DataTransfer implements DataTransferInterface
 	@Override
 	public void postExtra(final String tag, final String data) throws DataHandlerException
 	{
-		String url = (String) config.get(DataTransferConfig.POST_DATA_URL); // TODO change
+		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 		if (url == null)
 		{
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);

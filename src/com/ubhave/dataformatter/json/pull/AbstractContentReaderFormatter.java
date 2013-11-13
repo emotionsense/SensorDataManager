@@ -13,8 +13,8 @@ import android.content.Context;
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pullsensor.ContentReaderData;
-import com.ubhave.sensormanager.data.pullsensor.ContentReaderResult;
+import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderEntry;
+import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderListData;
 
 public abstract class AbstractContentReaderFormatter extends PullSensorJSONFormatter
 {
@@ -28,11 +28,11 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
-		ContentReaderData crData = (ContentReaderData) data;
-		ArrayList<ContentReaderResult> contentList = crData.getContentList();
+		AbstractContentReaderListData crData = (AbstractContentReaderListData) data;
+		ArrayList<AbstractContentReaderEntry> contentList = crData.getContentList();
 
 		JSONArray jsonArray = new JSONArray();
-		for (ContentReaderResult contentMap : contentList)
+		for (AbstractContentReaderEntry contentMap : contentList)
 		{
 			JSONObject jsonMapObject = new JSONObject();
 			for (String key : contentMap.getKeys())
@@ -50,7 +50,9 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 		// nothing to add
 	}
 	
-	protected abstract ContentReaderData getData(long senseStartTime, SensorConfig config);
+	protected abstract AbstractContentReaderListData getData(long senseStartTime, SensorConfig config);
+	
+	protected abstract AbstractContentReaderEntry getNewEntry();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -62,7 +64,7 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 			
-			ContentReaderData data = getData(senseStartTimestamp, sensorConfig);
+			AbstractContentReaderListData data = getData(senseStartTimestamp, sensorConfig);
 			try
 			{
 				JSONArray jsonArray = (JSONArray) jsonData.get(CONTENT_LIST);
@@ -77,7 +79,7 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 						contentMap.put(key, (String) jsonObject.get(key));
 					}
 					
-					ContentReaderResult entry = new ContentReaderResult();
+					AbstractContentReaderEntry entry = getNewEntry();
 					entry.setContentMap(contentMap);
 					data.addContent(entry);
 				}
