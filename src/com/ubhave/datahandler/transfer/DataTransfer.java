@@ -49,7 +49,7 @@ public class DataTransfer implements DataTransferInterface
 					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
 					String response = WebConnection.postDataToServer(url, file, paramsMap);
 
-					if (response.equals("success")) // TODO generalise
+					if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
 					{
 						Log.d(TAG, "file " + file + " successfully uploaded to the server");
 						Log.d(TAG, "file " + file + " deleting local copy");
@@ -114,8 +114,7 @@ public class DataTransfer implements DataTransferInterface
 			paramsMap.put(dataKey, data);
 			
 			String response = WebConnection.postToServer(url, paramsMap);
-			System.err.println("Result: "+response);
-			if (!response.equals("success")) // TODO generalise
+			if (!response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
 			{
 				throw new DataHandlerException(DataHandlerException.POST_FAILED);
 			}

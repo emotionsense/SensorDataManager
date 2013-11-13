@@ -11,6 +11,7 @@ public class DataTransferConfig
 	public final static String POST_DATA_URL = "dataTargetURL";
 	public final static String POST_DATA_URL_PASSWD = "dataTargetURLPasswd";
 	public final static String DATA_TRANSER_POLICY = "transferPolicy";
+	public final static String POST_RESPONSE_ON_SUCCESS = "expectedPostResponse";
 	public final static String CONNECTION_TYPE_FOR_TRANSFER = "connectionTypeForTransfer";
 	
 	public final static String WAIT_FOR_WIFI_INTERVAL_MILLIS = "DataWaitForWifiInterval";
@@ -34,6 +35,7 @@ public class DataTransferConfig
 	public final static int DEFAULT_CONNECTION_TYPE_FOR_TRANSFER = CONNECTION_TYPE_WIFI;
 	public final static long DEFAULT_WAIT_FOR_WIFI_INTERVAL = 24 * 60 * 60 * 1000;
 	public final static long DEFAULT_TRANSFER_ALARM_INTERVAL = 15 * 60 * 1000;
+	public final static String DEFAULT_SUCCESSFUL_POST_RESPONSE = "success";
 
 	public static HashSet<String> validKeys()
 	{
@@ -44,6 +46,7 @@ public class DataTransferConfig
 		validKeys.add(CONNECTION_TYPE_FOR_TRANSFER);
 		validKeys.add(WAIT_FOR_WIFI_INTERVAL_MILLIS);
 		validKeys.add(TRANSFER_ALARM_INTERVAL);
+		validKeys.add(POST_RESPONSE_ON_SUCCESS);
 		return validKeys;
 	}
 
@@ -54,6 +57,7 @@ public class DataTransferConfig
 		defaults.put(CONNECTION_TYPE_FOR_TRANSFER, DEFAULT_CONNECTION_TYPE_FOR_TRANSFER);
 		defaults.put(WAIT_FOR_WIFI_INTERVAL_MILLIS, DEFAULT_WAIT_FOR_WIFI_INTERVAL);
 		defaults.put(TRANSFER_ALARM_INTERVAL, DEFAULT_TRANSFER_ALARM_INTERVAL);
+		defaults.put(POST_RESPONSE_ON_SUCCESS, DEFAULT_SUCCESSFUL_POST_RESPONSE);
 		return defaults;
 	}
 }

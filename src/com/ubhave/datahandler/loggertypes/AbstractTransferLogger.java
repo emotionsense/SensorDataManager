@@ -20,6 +20,7 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 		{
 			dataManager.setConfig(DataTransferConfig.POST_DATA_URL, getDataPostURL());
 			dataManager.setConfig(DataTransferConfig.POST_DATA_URL_PASSWD, getPostPassword());
+			dataManager.setConfig(DataTransferConfig.POST_RESPONSE_ON_SUCCESS, getSuccessfulPostResponse());
 		}
 		catch (Exception e)
 		{
@@ -31,5 +32,7 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 	protected abstract String getDataPostURL();
 
 	protected abstract String getPostPassword();
+	
+	protected abstract String getSuccessfulPostResponse();
 
 }
