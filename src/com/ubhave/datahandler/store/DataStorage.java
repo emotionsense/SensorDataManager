@@ -194,18 +194,21 @@ public class DataStorage implements DataStorageInterface
 			File[] rootDirectory = (new File(rootPath)).listFiles();
 			for (File directory : rootDirectory)
 			{
-				String directoryName = directory.getName();
-				if (!directoryName.contains((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME)))
+				if (directory != null)
 				{
-					synchronized (getLock(directoryName))
+					String directoryName = directory.getName();
+					if (directoryName != null && !directoryName.contains((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME)))
 					{
-						try
+						synchronized (getLock(directoryName))
 						{
-							moveDirectoryContentsForUpload(directory.getAbsolutePath());
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
+							try
+							{
+								moveDirectoryContentsForUpload(directory.getAbsolutePath());
+							}
+							catch (Exception e)
+							{
+								e.printStackTrace();
+							}
 						}
 					}
 				}
