@@ -154,4 +154,19 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
+	
+	public void logExtra(final String tag, final JSONObject action)
+	{
+		try
+		{
+			if (tag != null && action != null)
+			{
+				dataManager.logExtra(tag, action.toString());
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

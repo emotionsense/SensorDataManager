@@ -46,8 +46,8 @@ public abstract class JSONFormatter extends DataFormatter
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
-	private final static String USER_ID = "userid";
-	private final static String DEVICE_ID = "deviceid";
+	private final static String USER_ID = "account";
+	private final static String DEVICE_ID = "userid";
 	
 	protected final Context applicationContext;
 	protected final int sensorType;
