@@ -6,6 +6,7 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 
 import com.ubhave.datahandler.ESDataManager;
+import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
@@ -37,6 +38,7 @@ public abstract class AbstractDataLogger
 	{
 		try
 		{
+			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
@@ -51,6 +53,8 @@ public abstract class AbstractDataLogger
 	protected abstract String getLocalStorageDirectoryName();
 
 	protected abstract String getUniqueUserId();
+	
+	protected abstract boolean shouldPrintLogMessages();
 	
 	protected String getDeviceId()
 	{

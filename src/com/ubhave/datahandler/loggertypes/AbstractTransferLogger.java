@@ -1,5 +1,7 @@
 package com.ubhave.datahandler.loggertypes;
 
+import java.util.HashMap;
+
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataTransferConfig;
@@ -34,5 +36,7 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 	protected abstract String getPostPassword();
 	
 	protected abstract String getSuccessfulPostResponse();
+	
+	protected abstract HashMap<String, String> getPostParameters();
 
 }

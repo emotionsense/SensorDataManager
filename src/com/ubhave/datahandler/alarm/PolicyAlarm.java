@@ -63,7 +63,11 @@ public class PolicyAlarm extends BroadcastReceiver
 
 	public void alarmIntervalUpdated()
 	{
-		Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");
+		}
+		
 		if (hasStarted)
 		{
 			stop();

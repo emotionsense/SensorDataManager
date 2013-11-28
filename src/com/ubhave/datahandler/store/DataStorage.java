@@ -157,7 +157,11 @@ public class DataStorage implements DataStorageInterface
 
 	private void moveDirectoryContentsForUpload(String directoryFullPath) throws DataHandlerException, IOException
 	{
-		Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
+		}
+		
 		File directory = new File(directoryFullPath);
 		File[] files = directory.listFiles();
 		for (File file : files)
@@ -174,11 +178,19 @@ public class DataStorage implements DataStorageInterface
 				}
 				else
 				{
-					Log.d(TAG, "gzip file " + file);
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "gzip file " + file);
+					}
+					
 					File gzippedFile = gzipFile(file);
 					moveFileToUploadDir(gzippedFile);
-					Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
-					Log.d(TAG, "deleting file: " + file.getAbsolutePath());
+					
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
+						Log.d(TAG, "deleting file: " + file.getAbsolutePath());
+					}
 					file.delete();
 				}
 			}
@@ -348,7 +360,10 @@ public class DataStorage implements DataStorageInterface
 				File file = new File(directoryFullPath);
 				if (!file.exists())
 				{
-					System.err.println("Creating: " + directoryFullPath);
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "Creating: " + directoryFullPath);
+					}
 					file.mkdirs();
 				}
 
@@ -356,21 +371,23 @@ public class DataStorage implements DataStorageInterface
 				file = new File(fileFullPath);
 				if (!file.exists())
 				{
-					System.err.println("Creating: " + fileFullPath);
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "Creating: " + fileFullPath);
+					}
+					
 					try
 					{
 						boolean fileCreated = file.createNewFile();
-						if (!fileCreated)
+						if (!fileCreated && DataHandlerConfig.shouldLog())
 						{
-							System.err.println("Creating file returned false");
+							Log.d(TAG, "Creating file returned false");
 						}
 					}
 					catch (Exception e)
 					{
-						System.err.println("Error creating file");
 						e.printStackTrace();
 					}
-
 				}
 
 				// append mode

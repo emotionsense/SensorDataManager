@@ -28,8 +28,6 @@ public class DataTransfer implements DataTransferInterface
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-
-		// reset the shared preferences to app start time
 		setLogsUploadTime(System.currentTimeMillis());
 	}
 
@@ -51,13 +49,15 @@ public class DataTransfer implements DataTransferInterface
 
 					if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
 					{
-						Log.d(TAG, "file " + file + " successfully uploaded to the server");
-						Log.d(TAG, "file " + file + " deleting local copy");
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(TAG, "file " + file + " successfully uploaded to the server");
+							Log.d(TAG, "file " + file + " deleting local copy");
+						}
 						file.delete();
-						// update last logs upload time
 						setLogsUploadTime(System.currentTimeMillis());
 					}
-					else
+					else if (DataHandlerConfig.shouldLog())
 					{
 						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
 					}
@@ -106,7 +106,7 @@ public class DataTransfer implements DataTransferInterface
 	{
 		try
 		{
-			String dataKey = "ESDataManagerData";
+			String dataKey = "ESDataManagerData"; // TODO generalise
 			JSONObject dataParam = new JSONObject();
 			dataParam.put(dataKey, data);
 			

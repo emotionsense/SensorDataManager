@@ -10,6 +10,8 @@ import com.ubhave.datahandler.except.DataHandlerException;
 public class DataHandlerConfig
 {
 	private static DataHandlerConfig instance;
+	public final static String PRINT_LOG_D_MESSAGES = "PRINT_LOG_D_MESSAGES";
+	private final static boolean DEFAULT_PRINT_LOG_D_MESSAGES = true;
 
 	public static DataHandlerConfig getInstance()
 	{
@@ -29,11 +31,26 @@ public class DataHandlerConfig
 		config.putAll(DataStorageConfig.defaultValues());
 		config.putAll(DataTransferConfig.defaultValues());
 		config.putAll(FileSyncConfig.defaultValues());
+		config.put(PRINT_LOG_D_MESSAGES, DEFAULT_PRINT_LOG_D_MESSAGES);
 
 		validKeys = new HashSet<String>();
+		validKeys.add(PRINT_LOG_D_MESSAGES);
 		validKeys.addAll(DataStorageConfig.validKeys());
 		validKeys.addAll(DataTransferConfig.validKeys());
 		validKeys.addAll(FileSyncConfig.validKeys());
+	}
+	
+	public static boolean shouldLog()
+	{
+		try
+		{
+			return (Boolean) getInstance().get(PRINT_LOG_D_MESSAGES);
+		}
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+			return true;
+		}
 	}
 	
 	private void updateLocalUploadDirectoryPath()

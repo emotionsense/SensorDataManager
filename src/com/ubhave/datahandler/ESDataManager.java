@@ -78,7 +78,10 @@ public class ESDataManager implements ESDataManagerInterface
 			}
 			else
 			{
-				Log.d("PolicyAlarm", "===== Stopping Policy Alarm ====");
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d("PolicyAlarm", "===== Stopping Policy Alarm ====");
+				}
 				dataTransferAlarmListener.stop();
 			}
 		}
@@ -95,7 +98,10 @@ public class ESDataManager implements ESDataManagerInterface
 		List<SensorData> recentData = storage.getRecentSensorData(sensorId, startTimestamp);
 		long duration = System.currentTimeMillis() - startTime;
 
-		Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
+		}
 		return recentData;
 	}
 
