@@ -37,6 +37,6 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 	
 	protected abstract String getSuccessfulPostResponse();
 	
-	protected abstract HashMap<String, String> getPostParameters();
+	protected abstract HashMap<String, String> getPostParameters(); // TODO implement
 
 }

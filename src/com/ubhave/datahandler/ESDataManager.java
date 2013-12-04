@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.store.DataStorage;
@@ -174,6 +175,22 @@ public class ESDataManager implements ESDataManagerInterface
 		synchronized (fileTransferLock)
 		{
 			transfer.attemptDataUpload();
+		}
+	}
+	
+	@Override
+	public void postAllStoredData() throws DataHandlerException
+	{
+		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
+		{
+			long currentFileLife = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
+			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, -1);
+			storage.moveArchivedFilesForUpload();
+			synchronized (fileTransferLock)
+			{
+				transfer.uploadData();
+			}
+			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, currentFileLife);
 		}
 	}
 }

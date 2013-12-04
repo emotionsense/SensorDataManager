@@ -19,10 +19,13 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 		try
 		{
 			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_IMMEDIATE);
+			dataManager.setConfig(DataTransferConfig.POST_RAW_DATA_KEY, getPostDataParamKey());
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
+	
+	protected abstract String getPostDataParamKey();
 }

@@ -18,6 +18,7 @@ import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
@@ -26,10 +27,8 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public class DataStorage implements DataStorageInterface
 {
 	private static final String TAG = "DataStorage";
+	
 	private final Object fileTransferLock;
-	private static final String UNKNOWN_SENSOR = "Unknown_Sensor";
-	private static final String ERROR_DIRECTORY_NAME = "Error_Log";
-
 	private final Context context;
 	private final DataHandlerConfig config;
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
@@ -414,7 +413,7 @@ public class DataStorage implements DataStorageInterface
 		}
 		catch (ESException e)
 		{
-			sensorName = UNKNOWN_SENSOR;
+			sensorName = DataStorageConstants.UNKNOWN_SENSOR;
 		}
 		String directoryName = sensorName;
 		writeData(directoryName, formatter.toString(data));
@@ -423,7 +422,7 @@ public class DataStorage implements DataStorageInterface
 	@Override
 	public void logError(final String error) throws DataHandlerException
 	{
-		writeData(ERROR_DIRECTORY_NAME, error);
+		writeData(DataStorageConstants.ERROR_DIRECTORY_NAME, error);
 	}
 
 	@Override

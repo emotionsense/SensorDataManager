@@ -8,6 +8,7 @@ public interface DataTransferInterface
 	 * Transferring stored data
 	 */
 	public void attemptDataUpload();
+	public void uploadData() throws DataHandlerException;
 	
 	/*
 	 * Immediately posting data

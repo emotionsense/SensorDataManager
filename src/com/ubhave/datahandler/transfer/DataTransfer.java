@@ -21,6 +21,7 @@ public class DataTransfer implements DataTransferInterface
 {
 	private final static String TAG = "DataTransfer";
 	private static final String LAST_LOGS_UPLOAD_TIME = "com.ubhave.datahandler.LAST_LOGS_UPLOAD_TIME";
+	
 	private final Context context;
 	private final DataHandlerConfig config;
 
@@ -30,39 +31,45 @@ public class DataTransfer implements DataTransferInterface
 		this.config = DataHandlerConfig.getInstance();
 		setLogsUploadTime(System.currentTimeMillis());
 	}
+	
+	@Override
+	public void uploadData() throws DataHandlerException
+	{
+		String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
+		File directory = new File(uploadDirectory);
+		File[] files = directory.listFiles();
+		if (files != null)
+		{
+			for (File file : files)
+			{
+				HashMap<String, String> paramsMap = getPostParams();
+				String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+				String response = WebConnection.postDataToServer(url, file, paramsMap);
+
+				if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
+				{
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "file " + file + " successfully uploaded to the server");
+						Log.d(TAG, "file " + file + " deleting local copy");
+					}
+					file.delete();
+					setLogsUploadTime(System.currentTimeMillis());
+				}
+				else if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+				}
+			}
+		}
+	}
 
 	@Override
 	public void attemptDataUpload()
 	{
 		try
 		{
-			String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
-			File directory = new File(uploadDirectory);
-			File[] files = directory.listFiles();
-			if (files != null)
-			{
-				for (File file : files)
-				{
-					HashMap<String, String> paramsMap = getPostParams();
-					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-					String response = WebConnection.postDataToServer(url, file, paramsMap);
-
-					if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "file " + file + " successfully uploaded to the server");
-							Log.d(TAG, "file " + file + " deleting local copy");
-						}
-						file.delete();
-						setLogsUploadTime(System.currentTimeMillis());
-					}
-					else if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
-					}
-				}
-			}
+			uploadData();
 		}
 		catch (Exception e)
 		{
@@ -106,7 +113,7 @@ public class DataTransfer implements DataTransferInterface
 	{
 		try
 		{
-			String dataKey = "ESDataManagerData"; // TODO generalise
+			String dataKey = (String) config.get(DataTransferConfig.POST_RAW_DATA_KEY);
 			JSONObject dataParam = new JSONObject();
 			dataParam.put(dataKey, data);
 			
@@ -114,7 +121,8 @@ public class DataTransfer implements DataTransferInterface
 			paramsMap.put(dataKey, data);
 			
 			String response = WebConnection.postToServer(url, paramsMap);
-			if (!response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
+			String expectedResponse = (String) config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS); 
+			if (!response.equals(expectedResponse))
 			{
 				throw new DataHandlerException(DataHandlerException.POST_FAILED);
 			}

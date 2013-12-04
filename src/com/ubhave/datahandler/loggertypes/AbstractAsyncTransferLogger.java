@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
 
 public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 {
@@ -32,4 +33,9 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 	protected abstract long getFileLifeMillis();
 
 	protected abstract long getTransferAlarmLengthMillis();
+	
+	public void flush() throws DataHandlerException
+	{
+		dataManager.postAllStoredData();
+	}
 }
