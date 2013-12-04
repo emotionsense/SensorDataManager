@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.store;
+package com.ubhave.datahandler.config;
 
 public class DataStorageConstants
 {
