@@ -2,6 +2,7 @@ package com.ubhave.datahandler.transfer;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,12 +95,25 @@ public class DataTransfer implements DataTransferInterface
 	private HashMap<String, String> getPostParams()
 	{
 		HashMap<String, String> paramsMap = new HashMap<String, String>();
-		if (config.containsConfig(DataTransferConfig.POST_DATA_URL_PASSWD))
+		if (config.containsConfig(DataTransferConfig.POST_PARAMETERS))
 		{
 			try
 			{
-				String pw = (String) config.get(DataTransferConfig.POST_DATA_URL_PASSWD);
-				paramsMap.put("password", pw);
+				JSONObject json = (JSONObject) config.get(DataTransferConfig.POST_PARAMETERS);
+				Iterator<?> keyIterator = json.keys();
+				while (keyIterator.hasNext())
+				{
+					try
+					{
+						String key = (String) keyIterator.next();
+						String value = json.getString(key);
+						paramsMap.put(key, value);
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+				}
 			}
 			catch (DataHandlerException e)
 			{

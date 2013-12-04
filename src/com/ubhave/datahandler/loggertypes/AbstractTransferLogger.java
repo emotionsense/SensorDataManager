@@ -2,13 +2,15 @@ package com.ubhave.datahandler.loggertypes;
 
 import java.util.HashMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataTransferConfig;
 
 public abstract class AbstractTransferLogger extends AbstractDataLogger
 {
-
 	protected AbstractTransferLogger(Context context)
 	{
 		super(context);
@@ -21,8 +23,12 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 		try
 		{
 			dataManager.setConfig(DataTransferConfig.POST_DATA_URL, getDataPostURL());
-			dataManager.setConfig(DataTransferConfig.POST_DATA_URL_PASSWD, getPostPassword());
 			dataManager.setConfig(DataTransferConfig.POST_RESPONSE_ON_SUCCESS, getSuccessfulPostResponse());
+			HashMap<String, String> params = getPostParameters();
+			if (params != null)
+			{
+				dataManager.setConfig(DataTransferConfig.POST_PARAMETERS, toJSON(params));
+			}
 		}
 		catch (Exception e)
 		{
@@ -30,13 +36,25 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
+	
+	private JSONObject toJSON(HashMap<String, String> map) throws JSONException
+	{
+		JSONObject json = new JSONObject();
+		for (String key : map.keySet())
+		{
+			String value = map.get(key);
+			if (value != null)
+			{
+				json.put(key, value);
+			}
+		}
+		return json;
+	}
 
 	protected abstract String getDataPostURL();
-
-	protected abstract String getPostPassword();
 	
 	protected abstract String getSuccessfulPostResponse();
 	
-	protected abstract HashMap<String, String> getPostParameters(); // TODO implement
+	protected abstract HashMap<String, String> getPostParameters();
 
 }

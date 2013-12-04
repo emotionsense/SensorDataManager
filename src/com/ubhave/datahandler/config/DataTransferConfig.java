@@ -9,11 +9,13 @@ public class DataTransferConfig
 	 * Config Keys
 	 */
 	public final static String POST_DATA_URL 					= "dataTargetURL";
-	public final static String POST_DATA_URL_PASSWD 			= "dataTargetURLPasswd";
-	public final static String DATA_TRANSER_POLICY 				= "transferPolicy";
-	public final static String POST_RESPONSE_ON_SUCCESS 		= "expectedPostResponse";
-	public final static String CONNECTION_TYPE_FOR_TRANSFER 	= "connectionTypeForTransfer";
 	public final static String POST_RAW_DATA_KEY				= "rawDataKey";
+	public final static String POST_RESPONSE_ON_SUCCESS 		= "expectedPostResponse";
+	public final static String POST_PARAMETERS					= "postParameters";
+	
+	public final static String DATA_TRANSER_POLICY 				= "transferPolicy";
+	public final static String CONNECTION_TYPE_FOR_TRANSFER 	= "connectionTypeForTransfer";
+	
 	
 	public final static String WAIT_FOR_WIFI_INTERVAL_MILLIS 	= "DataWaitForWifiInterval";
 	public final static String TRANSFER_ALARM_INTERVAL 			= "DataTransferAlarmInterval";
@@ -43,13 +45,14 @@ public class DataTransferConfig
 	{
 		HashSet<String> validKeys = new HashSet<String>();
 		validKeys.add(POST_DATA_URL);
-		validKeys.add(POST_DATA_URL_PASSWD);
+		validKeys.add(POST_PARAMETERS);
+		validKeys.add(POST_RESPONSE_ON_SUCCESS);
+		validKeys.add(POST_RAW_DATA_KEY);
+		
 		validKeys.add(DATA_TRANSER_POLICY);
 		validKeys.add(CONNECTION_TYPE_FOR_TRANSFER);
 		validKeys.add(WAIT_FOR_WIFI_INTERVAL_MILLIS);
 		validKeys.add(TRANSFER_ALARM_INTERVAL);
-		validKeys.add(POST_RESPONSE_ON_SUCCESS);
-		validKeys.add(POST_RAW_DATA_KEY);
 		return validKeys;
 	}
 
