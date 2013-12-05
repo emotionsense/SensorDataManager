@@ -184,7 +184,7 @@ public class ESDataManager implements ESDataManagerInterface
 		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
 		{
 			long currentFileLife = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, -1);
+			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, -1L);
 			storage.moveArchivedFilesForUpload();
 			synchronized (fileTransferLock)
 			{
