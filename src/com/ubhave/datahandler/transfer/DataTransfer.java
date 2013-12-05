@@ -57,9 +57,13 @@ public class DataTransfer implements DataTransferInterface
 					file.delete();
 					setLogsUploadTime(System.currentTimeMillis());
 				}
-				else if (DataHandlerConfig.shouldLog())
+				else 
 				{
-					Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					}
+					throw new DataHandlerException(DataHandlerException.POST_FAILED);
 				}
 			}
 		}
