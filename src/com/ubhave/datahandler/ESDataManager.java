@@ -118,19 +118,12 @@ public class ESDataManager implements ESDataManagerInterface
 			return false;
 		}
 	}
-
-	private DataFormatter getDataFormatter(int sensorType)
-	{
-		DataFormatter formatter = DataFormatter.getJSONFormatter(context, sensorType);
-		return formatter;
-	}
-
+	
 	@Override
-	public void logSensorData(final SensorData data) throws DataHandlerException
+	public void logSensorData(final SensorData data, DataFormatter formatter) throws DataHandlerException
 	{
 		if (data != null)
 		{
-			DataFormatter formatter = getDataFormatter(data.getSensorType());
 			if (shouldTransferImmediately())
 			{
 				transfer.postData(formatter.toString(data));
@@ -139,6 +132,16 @@ public class ESDataManager implements ESDataManagerInterface
 			{
 				storage.logSensorData(data, formatter);
 			}
+		}
+	}
+
+	@Override
+	public void logSensorData(final SensorData data) throws DataHandlerException
+	{
+		if (data != null)
+		{
+			DataFormatter formatter = DataFormatter.getJSONFormatter(context, data.getSensorType());
+			logSensorData(data, formatter);
 		}
 	}
 

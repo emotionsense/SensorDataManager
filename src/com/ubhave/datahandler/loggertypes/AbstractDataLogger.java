@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 
+import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
@@ -98,6 +99,25 @@ public abstract class AbstractDataLogger
 				try
 				{
 					dataManager.logSensorData(data);
+				}
+				catch (DataHandlerException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+	
+	public void logSensorData(final SensorData data, final DataFormatter formatter)
+	{
+		new Thread()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					dataManager.logSensorData(data, formatter);
 				}
 				catch (DataHandlerException e)
 				{
