@@ -66,7 +66,7 @@ public abstract class AbstractDataLogger
 		}
 		catch (Exception e)
 		{
-			return "Error";
+			return "DeviceIdMissing";
 		}
 	}
 
@@ -160,24 +160,28 @@ public abstract class AbstractDataLogger
 		}.start();
 	}
 
-	public void logInteraction(final String tag, final String action)
-	{
-		try
-		{
-			if (tag != null && action != null)
-			{
-				JSONObject json = new JSONObject();
-				json.put("tag", tag);
-				json.put(TAG_TIMESTAMP, System.currentTimeMillis());
-				json.put("action", action);
-				dataManager.logExtra(TAG_INTERACTION, json.toString());
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
+	/*
+	 * Should use: logExtra() below instead of logInteraction()
+	 * Log Interaction is missing user-id/device-id, and any other relevant app info
+	 */
+//	public void logInteraction(final String tag, final String action)
+//	{
+//		try
+//		{
+//			if (tag != null && action != null)
+//			{
+//				JSONObject json = new JSONObject();
+//				json.put("tag", tag);
+//				json.put(TAG_TIMESTAMP, System.currentTimeMillis());
+//				json.put("action", action);
+//				dataManager.logExtra(TAG_INTERACTION, json.toString());
+//			}
+//		}
+//		catch (Exception e)
+//		{
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public void logExtra(final String tag, final JSONObject action)
 	{
