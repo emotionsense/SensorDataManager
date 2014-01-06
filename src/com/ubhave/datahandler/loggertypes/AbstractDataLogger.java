@@ -14,9 +14,18 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
 {
-	protected final static String TAG_SURVEY_RESPONSE = "Survey";
-	protected final static String TAG_INTERACTION = "Interaction";
-	protected final static String TAG_TIMESTAMP = "timestamp";
+	private final static String TAG_SURVEY_RESPONSE = "Survey";
+	private final static String TAG_INTERACTION = "Interaction";
+	private final static String TAG_ERROR = "Error";
+	
+	private final static String TAG_USER_ID = "userId";
+	private final static String TAG_TIMESTAMP = "timestamp";
+	private final static String TAG_DATA_TYPE = "dataType";
+	private final static String TAG_DATA_TITLE = "dataTitle";
+	private final static String TAG_DATA_MESSAGE = "dataMessage";
+	
+	private final static String TAG_APP_VERSION = "applicationVersion";
+	
 
 	protected ESDataManager dataManager;
 	protected final Context context;
@@ -131,6 +140,25 @@ public abstract class AbstractDataLogger
 	{
 		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
+	
+	private JSONObject format(final String dataType, final String dataTitle, final String dataMessage)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(TAG_DATA_TYPE, dataType);
+			json.put(TAG_DATA_TITLE, dataTitle);
+			json.put(TAG_DATA_MESSAGE, dataMessage);
+			json.put(TAG_TIMESTAMP, System.currentTimeMillis());
+			json.put(TAG_USER_ID, getUniqueUserId());
+			return json;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	public void logError(final int appVersion, final String tag, final String error)
 	{
@@ -143,12 +171,8 @@ public abstract class AbstractDataLogger
 				{
 					if (tag != null && error != null)
 					{
-						JSONObject json = new JSONObject();
-						json.put("applicationVersion", appVersion);
-						json.put("activityTag", tag);
-						json.put(TAG_TIMESTAMP, System.currentTimeMillis());
-						json.put("message", error);
-						json.put("user", getUniqueUserId());
+						JSONObject json = format(TAG_ERROR, tag, error);
+						json.put(TAG_APP_VERSION, appVersion);
 						dataManager.logError(json.toString());
 					}
 				}
@@ -160,28 +184,21 @@ public abstract class AbstractDataLogger
 		}.start();
 	}
 
-	/*
-	 * Should use: logExtra() below instead of logInteraction()
-	 * Log Interaction is missing user-id/device-id, and any other relevant app info
-	 */
-//	public void logInteraction(final String tag, final String action)
-//	{
-//		try
-//		{
-//			if (tag != null && action != null)
-//			{
-//				JSONObject json = new JSONObject();
-//				json.put("tag", tag);
-//				json.put(TAG_TIMESTAMP, System.currentTimeMillis());
-//				json.put("action", action);
-//				dataManager.logExtra(TAG_INTERACTION, json.toString());
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//		}
-//	}
+	public void logInteraction(final String tag, final String action)
+	{
+		try
+		{
+			if (tag != null && action != null)
+			{
+				JSONObject json = format(TAG_INTERACTION, tag, action);
+				dataManager.logExtra(TAG_INTERACTION, json.toString());
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	public void logExtra(final String tag, final JSONObject action)
 	{
