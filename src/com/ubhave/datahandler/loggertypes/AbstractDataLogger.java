@@ -1,7 +1,11 @@
 package com.ubhave.datahandler.loggertypes;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 
@@ -20,12 +24,11 @@ public abstract class AbstractDataLogger
 	
 	private final static String TAG_USER_ID = "userId";
 	private final static String TAG_TIMESTAMP = "timestamp";
+	private final static String TAG_LOCAL_TIME = "localTime";
 	private final static String TAG_DATA_TYPE = "dataType";
 	private final static String TAG_DATA_TITLE = "dataTitle";
 	private final static String TAG_DATA_MESSAGE = "dataMessage";
-	
 	private final static String TAG_APP_VERSION = "applicationVersion";
-	
 
 	protected ESDataManager dataManager;
 	protected final Context context;
@@ -141,6 +144,14 @@ public abstract class AbstractDataLogger
 		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
 	
+	@SuppressLint("SimpleDateFormat")
+	private String localTime()
+	{
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zZ");
+		return dateFormat.format(calendar.getTime());
+	}
+	
 	private JSONObject format(final String dataType, final String dataTitle, final String dataMessage)
 	{
 		try
@@ -150,6 +161,7 @@ public abstract class AbstractDataLogger
 			json.put(TAG_DATA_TITLE, dataTitle);
 			json.put(TAG_DATA_MESSAGE, dataMessage);
 			json.put(TAG_TIMESTAMP, System.currentTimeMillis());
+			json.put(TAG_LOCAL_TIME, localTime());
 			json.put(TAG_USER_ID, getUniqueUserId());
 			return json;
 		}
