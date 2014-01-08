@@ -15,6 +15,7 @@ public abstract class DataFormatter
 		{
 		case SensorUtils.SENSOR_TYPE_ACCELEROMETER: return new com.ubhave.dataformatter.json.pull.AccelerometerFormatter(c);
 		case SensorUtils.SENSOR_TYPE_BLUETOOTH: return new com.ubhave.dataformatter.json.pull.BluetoothFormatter(c);
+		case SensorUtils.SENSOR_TYPE_CAMERA: return new com.ubhave.dataformatter.json.pull.CameraFormatter(c);
 		case SensorUtils.SENSOR_TYPE_LOCATION: return new com.ubhave.dataformatter.json.pull.LocationFormatter(c);
 		case SensorUtils.SENSOR_TYPE_MICROPHONE: return new com.ubhave.dataformatter.json.pull.MicrophoneFormatter(c);
 		case SensorUtils.SENSOR_TYPE_WIFI: return new com.ubhave.dataformatter.json.pull.WifiFormatter(c);
