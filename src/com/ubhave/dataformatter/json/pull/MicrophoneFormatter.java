@@ -36,13 +36,14 @@ import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.MicrophoneData;
 import com.ubhave.sensormanager.process.AbstractProcessor;
-import com.ubhave.sensormanager.process.pull.AudioProcessor;
+import com.ubhave.sensormanager.process.pull.MicrophoneProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class MicrophoneFormatter extends PullSensorJSONFormatter
 {	
 	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
 	private final static String AMPLITUDE = "amplitude";
+	private final static String MEDIA_FILE_PATH = "media_file";
 	private final static String READING_TIMESTAMPS = "sensorTimeStamps";
 	
 	public MicrophoneFormatter(final Context context)
@@ -60,7 +61,6 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		{
 			valueArray.put(values[i]);
 		}
-		
 		json.put(AMPLITUDE, valueArray);
 		
 		long[] tsValues = micData.getTimestampArray();
@@ -69,8 +69,13 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		{
 			tsArray.put(tsValues[i]);
 		}
+		json.put(READING_TIMESTAMPS, tsArray);
 		
-		json.put(READING_TIMESTAMPS, tsArray);		
+		String mediaFile = micData.getMediaFilePath();
+		if (mediaFile != null)
+		{
+			json.put(MEDIA_FILE_PATH, mediaFile);
+		}
 	}
 
 	@Override
@@ -91,6 +96,7 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		
 		int[] ampValues = null;
 		long[] tsValues = null;
+		String mediaFilePath = null;
 		
 		try
 		{
@@ -105,6 +111,11 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 				ampValues[i] = Long.valueOf(amplitudes.get(i)).intValue();
 				tsValues[i] = timestamps.get(i);
 			}
+			
+			if (jsonData.has(MEDIA_FILE_PATH))
+			{
+				mediaFilePath = jsonData.getString(MEDIA_FILE_PATH);
+			}
 		}
 		catch (Exception e)
 		{
@@ -113,8 +124,8 @@ public class MicrophoneFormatter extends PullSensorJSONFormatter
 		
 		try
 		{
-			AudioProcessor processor = (AudioProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-			return processor.process(senseStartTimestamp, ampValues, tsValues, sensorConfig);
+			MicrophoneProcessor processor = (MicrophoneProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+			return processor.process(senseStartTimestamp, ampValues, tsValues, mediaFilePath, sensorConfig);
 		}
 		catch (ESException e)
 		{
