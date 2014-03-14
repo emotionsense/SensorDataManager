@@ -2,7 +2,9 @@ package com.ubhave.datahandler.loggertypes;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -13,6 +15,8 @@ import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.config.DataStorageConstants;
+import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -29,7 +33,7 @@ public abstract class AbstractDataLogger
 	private final static String TAG_DATA_TITLE = "dataTitle";
 	private final static String TAG_DATA_MESSAGE = "dataMessage";
 	private final static String TAG_APP_VERSION = "applicationVersion";
-
+	
 	protected ESDataManager dataManager;
 	protected final Context context;
 
@@ -55,12 +59,30 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
+			dataManager.setConfig(DataTransferConfig.POST_FILE_TYPES, toJSON(getAllowedFileTypes()));
 		}
 		catch (Exception e)
 		{
 			dataManager = null;
 			e.printStackTrace();
 		}
+	}
+	
+	private String toJSON(HashSet<String> fileTypes)
+	{
+		JSONArray array = new JSONArray();
+		for (String fileType : fileTypes)
+		{
+			array.put(fileType);
+		}
+		return array.toString();
+	}
+	
+	protected HashSet<String> getAllowedFileTypes()
+	{
+		HashSet<String> fileTypes = new HashSet<String>();
+		fileTypes.add(DataStorageConstants.LOG_FILE_SUFFIX);
+		return fileTypes;
 	}
 
 	protected abstract String getLocalStorageDirectoryName();

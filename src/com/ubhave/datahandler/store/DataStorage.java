@@ -50,7 +50,7 @@ public class DataStorage implements DataStorageInterface
 		{
 			for (File file : files)
 			{
-				if (file.isFile() && file.getName().endsWith(".log"))
+				if (file.isFile() && file.getName().endsWith(DataStorageConstants.LOG_FILE_SUFFIX))
 				{
 					long update = file.lastModified();
 					if (update > latestUpdate)
@@ -67,12 +67,12 @@ public class DataStorage implements DataStorageInterface
 			if (isFileLimitReached(latestFile))
 			{
 				moveDirectoryContentsForUpload(directoryFullPath);
-				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
+				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
 			}
 		}
 		else
 		{
-			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + ".log");
+			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
 		}
 		return latestFile.getAbsolutePath();
 	}
@@ -103,9 +103,9 @@ public class DataStorage implements DataStorageInterface
 				String fileName = file.getName();
 				if (fileName != null)
 				{
-					if (fileName.contains(".log"))
+					if (fileName.contains(DataStorageConstants.LOG_FILE_SUFFIX))
 					{
-						String timeStr = fileName.substring(0, fileName.indexOf(".log"));
+						String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.LOG_FILE_SUFFIX));
 						long fileTimestamp = Long.parseLong(timeStr);
 						long currTime = System.currentTimeMillis();
 						if ((currTime - fileTimestamp) > durationLimit)

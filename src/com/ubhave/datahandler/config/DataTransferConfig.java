@@ -12,6 +12,7 @@ public class DataTransferConfig
 	public final static String POST_RAW_DATA_KEY				= "rawDataKey";
 	public final static String POST_RESPONSE_ON_SUCCESS 		= "expectedPostResponse";
 	public final static String POST_PARAMETERS					= "postParameters";
+	public final static String POST_FILE_TYPES					= "postFileTypes";
 	
 	public final static String DATA_TRANSER_POLICY 				= "transferPolicy";
 	public final static String CONNECTION_TYPE_FOR_TRANSFER 	= "connectionTypeForTransfer";
@@ -48,6 +49,7 @@ public class DataTransferConfig
 		validKeys.add(POST_PARAMETERS);
 		validKeys.add(POST_RESPONSE_ON_SUCCESS);
 		validKeys.add(POST_RAW_DATA_KEY);
+		validKeys.add(POST_FILE_TYPES);
 		
 		validKeys.add(DATA_TRANSER_POLICY);
 		validKeys.add(CONNECTION_TYPE_FOR_TRANSFER);
