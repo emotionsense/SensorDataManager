@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -16,7 +15,6 @@ import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
-import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -59,23 +57,12 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-			dataManager.setConfig(DataTransferConfig.POST_FILE_TYPES, toJSON(getAllowedFileTypes()));
 		}
 		catch (Exception e)
 		{
 			dataManager = null;
 			e.printStackTrace();
 		}
-	}
-	
-	private String toJSON(HashSet<String> fileTypes)
-	{
-		JSONArray array = new JSONArray();
-		for (String fileType : fileTypes)
-		{
-			array.put(fileType);
-		}
-		return array.toString();
 	}
 	
 	protected HashSet<String> getAllowedFileTypes()

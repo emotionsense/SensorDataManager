@@ -1,5 +1,6 @@
 package com.ubhave.datahandler.config;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -83,6 +84,20 @@ public class DataHandlerConfig
 		else
 		{
 			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
+		}
+	}
+	
+	public boolean shouldUpload(final File file)
+	{
+		if (file.isFile())
+		{
+			String fileName = file.getName();
+			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX)
+					|| ((Boolean) config.get(DataTransferConfig.POST_MEDIA_FILES) && fileName.endsWith(DataStorageConstants.AUDIO_FILE_SUFFIX));
+		}
+		else
+		{
+			return false;
 		}
 	}
 

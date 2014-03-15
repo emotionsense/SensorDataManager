@@ -3,16 +3,13 @@ package com.ubhave.datahandler.store;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
@@ -26,174 +23,20 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class DataStorage implements DataStorageInterface
 {
-	private static final String TAG = "DataStorage";
+//	private static final String TAG = "DataStorage";
 	
-	private final Object fileTransferLock;
 	private final Context context;
 	private final DataHandlerConfig config;
+	private final LogFileStoreWriter logFileStore;
+	private final FileStoreCleaner fileStoreCleaner;
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
 	public DataStorage(Context context, final Object fileTransferLock)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		this.fileTransferLock = fileTransferLock;
-	}
-
-	private String checkLastEditedFile(String directoryFullPath) throws DataHandlerException, IOException
-	{
-		File directory = new File(directoryFullPath);
-		File[] files = directory.listFiles();
-		long latestUpdate = Long.MIN_VALUE;
-		File latestFile = null;
-		if (files != null)
-		{
-			for (File file : files)
-			{
-				if (file.isFile() && file.getName().endsWith(DataStorageConstants.LOG_FILE_SUFFIX))
-				{
-					long update = file.lastModified();
-					if (update > latestUpdate)
-					{
-						latestUpdate = update;
-						latestFile = file;
-					}
-				}
-			}
-		}
-
-		if (latestFile != null)
-		{
-			if (isFileLimitReached(latestFile))
-			{
-				moveDirectoryContentsForUpload(directoryFullPath);
-				latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
-			}
-		}
-		else
-		{
-			latestFile = new File(directoryFullPath + "/" + System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
-		}
-		return latestFile.getAbsolutePath();
-	}
-
-	private boolean isFileLimitReached(File file)
-	{
-		long durationLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		// long sizeLimit = DataStorageConfig.DEFAULT_FILE_SIZE_BYTES;
-		// long fileSize = file.length();
-		// if (fileSize > sizeLimit)
-		// {
-		// return true;
-		// }
-
-		try
-		{
-			durationLimit = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-			// sizeLimit = (Long) config.get(DataStorageConfig.FILE_MAX_SIZE);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		try
-		{
-			if (file != null)
-			{
-				String fileName = file.getName();
-				if (fileName != null)
-				{
-					if (fileName.contains(DataStorageConstants.LOG_FILE_SUFFIX))
-					{
-						String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.LOG_FILE_SUFFIX));
-						long fileTimestamp = Long.parseLong(timeStr);
-						long currTime = System.currentTimeMillis();
-						if ((currTime - fileTimestamp) > durationLimit)
-						{
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	private void moveFileToUploadDir(final File file)
-	{
-		// start a background thread to move files + transfer log files to the
-		// server
-		new Thread()
-		{
-			public void run()
-			{
-				// move files
-				synchronized (fileTransferLock)
-				{
-					try
-					{
-						String uploadDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
-						File directory = new File(uploadDir);
-						if (!directory.exists())
-						{
-							directory.mkdirs();
-						}
-						file.renameTo(new File(directory.getAbsolutePath() + "/" + file.getName()));
-					}
-					catch (DataHandlerException e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-
-	private void moveDirectoryContentsForUpload(String directoryFullPath) throws DataHandlerException, IOException
-	{
-		if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(TAG, "moveFilesForUploadingToServer() " + directoryFullPath);
-		}
-		
-		File directory = new File(directoryFullPath);
-		File[] files = directory.listFiles();
-		for (File file : files)
-		{
-			if (file.getName().endsWith(".gz"))
-			{
-				moveFileToUploadDir(file);
-			}
-			else if (isFileLimitReached(file))
-			{
-				if (file.length() <= 0)
-				{
-					file.delete();
-				}
-				else
-				{
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "gzip file " + file);
-					}
-					
-					File gzippedFile = gzipFile(file);
-					moveFileToUploadDir(gzippedFile);
-					
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
-						Log.d(TAG, "deleting file: " + file.getAbsolutePath());
-					}
-					file.delete();
-				}
-			}
-		}
+		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock);
+		this.logFileStore = new LogFileStoreWriter(fileStoreCleaner, lockMap);
 	}
 
 	@Override
@@ -205,7 +48,7 @@ public class DataStorage implements DataStorageInterface
 			File[] rootDirectory = (new File(rootPath)).listFiles();
 			for (File directory : rootDirectory)
 			{
-				if (directory != null)
+				if (directory != null && directory.isDirectory())
 				{
 					String directoryName = directory.getName();
 					if (directoryName != null && !directoryName.contains((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME)))
@@ -214,7 +57,7 @@ public class DataStorage implements DataStorageInterface
 						{
 							try
 							{
-								moveDirectoryContentsForUpload(directory.getAbsolutePath());
+								fileStoreCleaner.moveDirectoryContentsForUpload(directory.getAbsolutePath());
 							}
 							catch (Exception e)
 							{
@@ -228,48 +71,6 @@ public class DataStorage implements DataStorageInterface
 		catch (DataHandlerException e)
 		{
 			e.printStackTrace();
-		}
-	}
-
-	private File gzipFile(File inputFile) throws IOException, DataHandlerException
-	{
-		byte[] buffer = new byte[1024];
-
-		String parentFullPath = inputFile.getParent();
-		File tempFile = new File(parentFullPath);
-		String parentDirName = tempFile.getName();
-
-		String gzipFileName = parentFullPath + "/" + getDeviceIdentifier() + "_" + parentDirName + "_"
-				+ inputFile.getName() + ".gz";
-
-		File outputFile = new File(gzipFileName);
-		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
-		FileInputStream in = new FileInputStream(inputFile);
-
-		int len;
-		while ((len = in.read(buffer)) > 0)
-		{
-			gzipOS.write(buffer, 0, len);
-		}
-
-		in.close();
-
-		gzipOS.finish();
-		gzipOS.close();
-
-		return outputFile;
-	}
-
-	private String getDeviceIdentifier() throws DataHandlerException
-	{
-		try
-		{
-			return (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
-		}
-		catch (DataHandlerException e)
-		{
-			e.printStackTrace();
-			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 		}
 	}
 
@@ -343,66 +144,6 @@ public class DataStorage implements DataStorageInterface
 		return lock;
 	}
 
-	private void writeData(String directoryName, String data) throws DataHandlerException
-	{
-		String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
-		if (rootPath.contains(DataStorageConfig.DEFAULT_ROOT_DIRECTORY))
-		{
-			throw new DataHandlerException(DataHandlerException.WRITING_TO_DEFAULT_DIRECTORY);
-		}
-
-		synchronized (getLock(directoryName))
-		{
-			try
-			{
-				String directoryFullPath = rootPath + "/" + directoryName;
-				File file = new File(directoryFullPath);
-				if (!file.exists())
-				{
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "Creating: " + directoryFullPath);
-					}
-					file.mkdirs();
-				}
-
-				String fileFullPath = checkLastEditedFile(directoryFullPath);
-				file = new File(fileFullPath);
-				if (!file.exists())
-				{
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "Creating: " + fileFullPath);
-					}
-					
-					try
-					{
-						boolean fileCreated = file.createNewFile();
-						if (!fileCreated && DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "Creating file returned false");
-						}
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
-
-				// append mode
-				FileOutputStream fos = new FileOutputStream(file, true);
-				fos.write(data.getBytes());
-				fos.write("\n".getBytes());
-				fos.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-				throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
-			}
-		}
-	}
-
 	@Override
 	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException
 	{
@@ -416,18 +157,18 @@ public class DataStorage implements DataStorageInterface
 			sensorName = DataStorageConstants.UNKNOWN_SENSOR;
 		}
 		String directoryName = sensorName;
-		writeData(directoryName, formatter.toString(data));
+		logFileStore.writeData(directoryName, formatter.toString(data));
 	}
 
 	@Override
 	public void logError(final String error) throws DataHandlerException
 	{
-		writeData(DataStorageConstants.ERROR_DIRECTORY_NAME, error);
+		logFileStore.writeData(DataStorageConstants.ERROR_DIRECTORY_NAME, error);
 	}
 
 	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
-		writeData(tag, data);
+		logFileStore.writeData(tag, data);
 	}
 }
