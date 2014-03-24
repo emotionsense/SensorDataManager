@@ -36,19 +36,37 @@ public class FileStoreCleaner
 		File directory = new File(directoryFullPath);
 		if (directory != null && directory.exists())
 		{
-			for (File file : directory.listFiles())
+			File[] fileList = directory.listFiles();
+			if (fileList != null)
 			{
-				if (isMediaFile(file.getName()) || isLogFileDueForUpload(file))
+				for (File file : fileList)
 				{
-					if (file.length() <= 0)
+					if (isMediaFile(file.getName()) || isLogFileDueForUpload(file))
 					{
-						file.delete();
+						if (file.length() <= 0)
+						{
+							file.delete();
+						}
+						else
+						{
+							moveFileToUploadDir(file);
+						}	
 					}
-					else
-					{
-						moveFileToUploadDir(file);
-					}	
 				}
+				removeDirectoryIfEmpty(directory);
+			}
+		}
+	}
+	
+	private void removeDirectoryIfEmpty(final File directory)
+	{
+		File[] fileList = directory.listFiles();
+		if (fileList != null && fileList.length == 0)
+		{
+			boolean deleted = directory.delete();
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "removeDirectoryIfEmpty() " + directory.getAbsolutePath()+" = "+deleted);
 			}
 		}
 	}
