@@ -53,20 +53,6 @@ public class FileStoreCleaner
 						}	
 					}
 				}
-				removeDirectoryIfEmpty(directory);
-			}
-		}
-	}
-	
-	private void removeDirectoryIfEmpty(final File directory)
-	{
-		File[] fileList = directory.listFiles();
-		if (fileList != null && fileList.length == 0)
-		{
-			boolean deleted = directory.delete();
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, "removeDirectoryIfEmpty() " + directory.getAbsolutePath()+" = "+deleted);
 			}
 		}
 	}
@@ -86,6 +72,22 @@ public class FileStoreCleaner
 	{
 		new Thread()
 		{
+			private void removeDirectoryIfEmpty(final File directory)
+			{
+				if (directory != null)
+				{
+					File[] fileList = directory.listFiles();
+					if (fileList != null && fileList.length == 0)
+					{
+						boolean deleted = directory.delete();
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(TAG, "removeDirectoryIfEmpty() " + directory.getAbsolutePath()+" = "+deleted);
+						}
+					}
+				}
+			}
+			
 			public void run()
 			{
 				try
@@ -104,9 +106,10 @@ public class FileStoreCleaner
 							Log.d(TAG, "moved file " + abs + " to server upload dir");
 							Log.d(TAG, "deleting file: " + abs);
 						}
+						File parentDirectory = file.getParentFile();
 						file.delete();
+						removeDirectoryIfEmpty(parentDirectory);
 					}
-					
 				}
 				catch (Exception e)
 				{
