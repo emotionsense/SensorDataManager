@@ -94,18 +94,19 @@ public class FileStoreCleaner
 					{
 						Log.d(TAG, "gzip file " + file);
 					}
-					File gzippedFile = gzipFile(file);
+					final File uploadDirectory = getUploadDirectory();
 					synchronized (fileTransferLock)
 					{
-						File directory = getUploadDirectory();
-						gzippedFile.renameTo(new File(directory.getAbsolutePath() + "/" + gzippedFile.getName()));	
+						gzipFile(file, uploadDirectory);
+						if (DataHandlerConfig.shouldLog())
+						{
+							String abs = file.getAbsolutePath();
+							Log.d(TAG, "moved file " + abs + " to server upload dir");
+							Log.d(TAG, "deleting file: " + abs);
+						}
+						file.delete();
 					}
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "moved file " + gzippedFile.getAbsolutePath() + " to server upload dir");
-						Log.d(TAG, "deleting file: " + file.getAbsolutePath());
-					}
-					file.delete();
+					
 				}
 				catch (Exception e)
 				{
@@ -162,18 +163,17 @@ public class FileStoreCleaner
 		}
 	}
 
-	private File gzipFile(final File inputFile) throws IOException, DataHandlerException
+	private void gzipFile(final File inputFile, final File uploadDirectory) throws IOException, DataHandlerException
 	{
 		byte[] buffer = new byte[1024];
-
-		String parentFullPath = inputFile.getParent();
-		File parentFile = new File(parentFullPath);
-		String parentDirName = parentFile.getName();
-
-		String gzipFileName = parentFullPath + "/" + getDeviceIdentifier() + "_" + parentDirName + "_"
-				+ inputFile.getName() + DataStorageConstants.ZIP_FILE_SUFFIX;
-
-		File outputFile = new File(gzipFileName);
+		File sourceDirectory = new File(inputFile.getParent());
+		String gzipFileName = 
+						getDeviceIdentifier() + "_"
+						+ sourceDirectory.getName() + "_"
+						+ inputFile.getName()
+						+ DataStorageConstants.ZIP_FILE_SUFFIX;
+		
+		File outputFile = new File(uploadDirectory, gzipFileName);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		FileInputStream in = new FileInputStream(inputFile);
 		int len;
@@ -184,7 +184,6 @@ public class FileStoreCleaner
 		in.close();
 		gzipOS.finish();
 		gzipOS.close();
-		return outputFile;
 	}
 
 	private String getDeviceIdentifier() throws DataHandlerException
