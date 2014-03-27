@@ -54,7 +54,7 @@ public class SmsFormatter extends PushSensorJSONFormatter
 		json.put(MESSAGE_TYPE, smsData.getMessageType());
 		json.put(EVENT_TYPE, smsData.getEventType());
 		json.put(ADDRESS, smsData.getAddress());
-		// TODO set features
+		// Future: set features
 	}
 	
 	@Override
@@ -86,8 +86,7 @@ public class SmsFormatter extends PushSensorJSONFormatter
 				e.printStackTrace();
 			}
 			
-			// TODO construct feature data
-			
+			// Future: construct feature data
 			return data;
 		}
 		else return null;

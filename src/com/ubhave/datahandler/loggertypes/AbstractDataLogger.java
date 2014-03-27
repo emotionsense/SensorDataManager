@@ -48,6 +48,11 @@ public abstract class AbstractDataLogger
 			dataManager = null;
 		}
 	}
+	
+	public ESDataManager getDataManager()
+	{
+		return dataManager;
+	}
 
 	protected void configureDataStorage()
 	{

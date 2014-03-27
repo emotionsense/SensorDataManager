@@ -14,6 +14,7 @@ public interface ESDataManagerInterface
 	 * Updating Data Manager config
 	 */
 	public void setConfig(final String key, final Object value) throws DataHandlerException;
+	public Object getConfig(final String key)  throws DataHandlerException;
 	
 	/*
 	 * Logging/storing data

@@ -9,6 +9,6 @@ public class DataStorageConstants
 	public final static String LOG_FILE_SUFFIX = ".log";
 	public final static String ZIP_FILE_SUFFIX = ".gz";
 	public final static String AUDIO_FILE_SUFFIX = ".3gpp";
-	// TODO image file
+	public final static String IMAGE_FILE_SUFFIX = ".jpg";
 
 }

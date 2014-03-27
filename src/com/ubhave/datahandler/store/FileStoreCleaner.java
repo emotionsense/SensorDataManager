@@ -117,8 +117,8 @@ public class FileStoreCleaner
 	
 	private boolean isMediaFile(final String fileName)
 	{
-		return fileName.contains(DataStorageConstants.ZIP_FILE_SUFFIX) || fileName.contains(DataStorageConstants.AUDIO_FILE_SUFFIX);
-		// TODO add photos/camera sensor
+		return fileName.contains(DataStorageConstants.ZIP_FILE_SUFFIX) || fileName.contains(DataStorageConstants.AUDIO_FILE_SUFFIX)
+				|| fileName.contains(DataStorageConstants.IMAGE_FILE_SUFFIX);
 	}
 	
 	private long getDurationLimit()

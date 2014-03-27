@@ -91,6 +91,12 @@ public class ESDataManager implements ESDataManagerInterface
 			dataTransferAlarmListener.configUpdated();
 		}
 	}
+	
+	@Override
+	public Object getConfig(final String key) throws DataHandlerException
+	{
+		return config.get(key);
+	}
 
 	@Override
 	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
