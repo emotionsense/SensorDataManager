@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.telephony.TelephonyManager;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.ESDataManager;
@@ -83,18 +82,7 @@ public abstract class AbstractDataLogger
 	
 	protected abstract boolean shouldPrintLogMessages();
 	
-	protected String getDeviceId()
-	{
-		TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-		try
-		{
-			return telephonyManager.getDeviceId();
-		}
-		catch (Exception e)
-		{
-			return "DeviceIdMissing";
-		}
-	}
+	protected abstract String getDeviceId();
 
 	public void log(final String tag, final String data)
 	{
