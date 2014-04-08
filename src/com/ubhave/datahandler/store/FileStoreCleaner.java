@@ -171,7 +171,7 @@ public class FileStoreCleaner
 		byte[] buffer = new byte[1024];
 		File sourceDirectory = new File(inputFile.getParent());
 		String gzipFileName = 
-						getDeviceIdentifier() + "_"
+						getIdentifier() + "_"
 						+ sourceDirectory.getName() + "_"
 						+ inputFile.getName()
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
@@ -189,16 +189,17 @@ public class FileStoreCleaner
 		gzipOS.close();
 	}
 
-	private String getDeviceIdentifier() throws DataHandlerException
+	private String getIdentifier() throws DataHandlerException
 	{
-		try
+		String identifier = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+		if (identifier == null)
 		{
-			return (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
+			identifier = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
 		}
-		catch (DataHandlerException e)
+		if (identifier == null)
 		{
-			e.printStackTrace();
-			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
+			throw new DataHandlerException(DataHandlerException.CONFIG_CONFLICT);
 		}
+		return identifier;
 	}
 }
