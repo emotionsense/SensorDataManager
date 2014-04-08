@@ -64,9 +64,9 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
 			
-			AbstractContentReaderListData data = getData(senseStartTimestamp, sensorConfig);
 			try
 			{
+				AbstractContentReaderListData data = getData(senseStartTimestamp, sensorConfig);
 				JSONArray jsonArray = (JSONArray) jsonData.get(CONTENT_LIST);
 				for (int i = 0; i < jsonArray.length(); i++)
 				{
@@ -83,17 +83,15 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 					entry.setContentMap(contentMap);
 					data.addContent(entry);
 				}
+				return data;
 			}
-			catch (Exception e)
+			catch (JSONException e)
 			{
 				e.printStackTrace();
 			}
-			return data;
+			
 		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 }

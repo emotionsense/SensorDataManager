@@ -22,6 +22,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,11 +31,11 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
-import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.ApplicationData;
+import com.ubhave.sensormanager.data.pullsensor.ApplicationDataList;
 import com.ubhave.sensormanager.process.AbstractProcessor;
 import com.ubhave.sensormanager.process.pull.ApplicationProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -54,14 +55,19 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
-		ApplicationData appData = (ApplicationData) data;
-		ArrayList<String> results = appData.getApplications();
+		ApplicationDataList appData = (ApplicationDataList) data;
+		ArrayList<ApplicationData> results = appData.getApplications();
 		JSONArray resultJSON = new JSONArray();
 		if (results != null)
 		{
-			for (String result : results)
+			for (ApplicationData result : results)
 			{
-				resultJSON.put(result);
+				JSONObject map = new JSONObject();
+				for (String key : result.keySet())
+				{
+					map.put(key, result.get(key));
+				}
+				resultJSON.put(map);
 			}
 		}
 		else
@@ -77,34 +83,44 @@ public class ApplicationFormatter extends PullSensorJSONFormatter
 		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{
 		JSONObject jsonData = super.parseData(jsonString);
-		long senseStartTimestamp = super.parseTimeStamp(jsonData);
-		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-		
-		ArrayList<String> appList = null; 
-		
-		boolean setRawData = true;
-		boolean setProcessedData = false;
-		try
+		if (jsonData != null)
 		{
-			appList = getJSONArray(jsonData, APPLICATION_RESULT, String.class);
+			long senseStartTimestamp = super.parseTimeStamp(jsonData);
+			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
+			
+			boolean setRawData = true;
+			boolean setProcessedData = false;
+			
+			try
+			{
+				ArrayList<ApplicationData> appList = new ArrayList<ApplicationData>();
+				JSONArray jsonArray = (JSONArray) jsonData.get(APPLICATION_RESULT);
+				for (int i=0; i<jsonArray.length(); i++)
+				{
+					JSONObject entry = (JSONObject) jsonArray.get(i);
+					ApplicationData data = new ApplicationData();
+					Iterator<String> keyIterator = entry.keys();
+					while (keyIterator.hasNext())
+					{
+						String key = keyIterator.next();
+						entry.put(key, (String) entry.get(key));
+					}
+					appList.add(data);
+				}
+				
+				ApplicationProcessor processor = (ApplicationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+				return processor.process(senseStartTimestamp, appList, sensorConfig);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch (Exception e)
-		{
-			setRawData = false;
-		}
-		try
-		{
-			ApplicationProcessor processor = (ApplicationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-			return processor.process(senseStartTimestamp, appList, sensorConfig);
-		}
-		catch (ESException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
+		return null;
 	}
 }
