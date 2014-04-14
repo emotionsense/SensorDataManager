@@ -19,9 +19,9 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
 {
-	private final static String TAG_SURVEY_RESPONSE = "Survey";
-	private final static String TAG_INTERACTION = "Interaction";
-	private final static String TAG_ERROR = "Error";
+	protected final static String TAG_SURVEY_RESPONSE = "Survey";
+	protected final static String TAG_INTERACTION = "Interaction";
+	protected final static String TAG_ERROR = "Error";
 	
 	private final static String TAG_USER_ID = "userId";
 	private final static String TAG_TIMESTAMP = "timestamp";
@@ -154,7 +154,7 @@ public abstract class AbstractDataLogger
 		return dateFormat.format(calendar.getTime());
 	}
 	
-	private JSONObject format(final String dataType, final String dataTitle, final String dataMessage)
+	protected JSONObject format(final String dataType, final String dataTitle, final String dataMessage)
 	{
 		try
 		{
