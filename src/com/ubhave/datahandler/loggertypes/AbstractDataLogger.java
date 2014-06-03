@@ -52,6 +52,7 @@ public abstract class AbstractDataLogger
 			}
 			catch (Exception e)
 			{
+				e.printStackTrace();
 				dataManager = null;
 			}
 		}
