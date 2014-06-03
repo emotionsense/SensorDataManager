@@ -22,6 +22,7 @@ public abstract class DataFormatter
 		case SensorUtils.SENSOR_TYPE_APPLICATION: return new com.ubhave.dataformatter.json.pull.ApplicationFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SMS_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.CallContentReaderFormatter(c);
 		case SensorUtils.SENSOR_TYPE_CALL_CONTENT_READER: return new com.ubhave.dataformatter.json.pull.SmsContentReaderFormatter(c);		
+		case SensorUtils.SENSOR_TYPE_PHONE_RADIO: return new com.ubhave.dataformatter.json.pull.PhoneRadioFormatter(c);
 		case SensorUtils.SENSOR_TYPE_BATTERY: return new com.ubhave.dataformatter.json.push.BatteryFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SCREEN: return new com.ubhave.dataformatter.json.push.ScreenFormatter(c);
 		case SensorUtils.SENSOR_TYPE_CONNECTION_STATE: return new com.ubhave.dataformatter.json.push.ConnectionStateFormatter(c);
