@@ -1,10 +1,12 @@
 package com.ubhave.datahandler.loggertypes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.Manifest;
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataTransferConfig;
@@ -14,6 +16,14 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 	protected AbstractTransferLogger(Context context)
 	{
 		super(context);
+	}
+	
+	@Override
+	protected ArrayList<String> getPermissions()
+	{
+		ArrayList<String> permissions = super.getPermissions();
+		permissions.add(Manifest.permission.INTERNET);
+		return permissions;
 	}
 
 	@Override

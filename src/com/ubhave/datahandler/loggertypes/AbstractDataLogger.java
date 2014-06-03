@@ -1,13 +1,17 @@
 package com.ubhave.datahandler.loggertypes;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 
 import org.json.JSONObject;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.ESDataManager;
@@ -15,10 +19,12 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
 {
+	private final static String LOG_TAG = "AbstractDataLogger";
 	protected final static String TAG_SURVEY_RESPONSE = "Survey";
 	protected final static String TAG_INTERACTION = "Interaction";
 	protected final static String TAG_ERROR = "Error";
@@ -34,18 +40,44 @@ public abstract class AbstractDataLogger
 	protected ESDataManager dataManager;
 	protected final Context context;
 
-	protected AbstractDataLogger(Context context)
+	protected AbstractDataLogger(final Context context)
 	{
 		this.context = context;
-		try
+		if (permissionGranted())
 		{
-			dataManager = ESDataManager.getInstance(context);
-			configureDataStorage();
+			try
+			{
+				dataManager = ESDataManager.getInstance(context);
+				configureDataStorage();
+			}
+			catch (Exception e)
+			{
+				dataManager = null;
+			}
 		}
-		catch (Exception e)
+	}
+	
+	protected ArrayList<String> getPermissions()
+	{
+		ArrayList<String> permissions = new ArrayList<String>();
+		permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		return permissions;
+	}
+	
+	protected boolean permissionGranted()
+	{
+		for (String permission : getPermissions())
 		{
-			dataManager = null;
+			if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+			{
+				if (GlobalConfig.shouldLog())
+				{
+					Log.d(LOG_TAG, "Missing permission (for data logging): "+permission);
+				}
+				throw new NullPointerException("Missing permission: "+permission);
+			}
 		}
+		return true;
 	}
 	
 	public ESDataManager getDataManager()

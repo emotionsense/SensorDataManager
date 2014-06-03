@@ -1,5 +1,8 @@
 package com.ubhave.datahandler.loggertypes;
 
+import java.util.ArrayList;
+
+import android.Manifest;
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataStorageConfig;
@@ -12,6 +15,14 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 	protected AbstractAsyncTransferLogger(Context context)
 	{
 		super(context);
+	}
+	
+	@Override
+	protected ArrayList<String> getPermissions()
+	{
+		ArrayList<String> permissions = super.getPermissions();
+		permissions.add(Manifest.permission.ACCESS_NETWORK_STATE);
+		return permissions;
 	}
 
 	@Override
