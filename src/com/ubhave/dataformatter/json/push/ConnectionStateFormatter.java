@@ -45,7 +45,7 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 	private final static String NETWORK_TYPE = "networkType";
 	private final static String ROAMING = "roaming";
 	private final static String SSID = "ssid";
-	
+
 	public ConnectionStateFormatter(final Context context)
 	{
 		super(context, SensorUtils.SENSOR_TYPE_CONNECTION_STATE);
@@ -122,13 +122,15 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
+	protected void addSensorSpecificData(JSONObject json, SensorData data)
+			throws JSONException
 	{
 		ConnectionStateData connectionData = (ConnectionStateData) data;
 		json.put(CONNECTED, connectionData.isConnected());
 		json.put(CONNECTING, connectionData.isConnectedOrConnecting());
 		json.put(AVAILABLE, connectionData.isAvailable());
-		json.put(NETWORK_TYPE, getConnectionTypeString(connectionData.getNetworkType()));
+		json.put(NETWORK_TYPE,
+				getConnectionTypeString(connectionData.getNetworkType()));
 		json.put(ROAMING, getRoamingString(connectionData.getRoamingStatus()));
 
 		String ssid = connectionData.getSSID();
@@ -146,16 +148,19 @@ public class ConnectionStateFormatter extends PushSensorJSONFormatter
 		{
 			long dataReceivedTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-			ConnectionStateData data = new ConnectionStateData(dataReceivedTimestamp, sensorConfig);
+			ConnectionStateData data = new ConnectionStateData(
+					dataReceivedTimestamp, sensorConfig);
 			try
 			{
-				data.setConnectedOrConnecting((Boolean) jsonData.get(CONNECTING));
+				data.setConnectedOrConnecting((Boolean) jsonData
+						.get(CONNECTING));
 				data.setAvailable((Boolean) jsonData.get(AVAILABLE));
 				data.setConnected((Boolean) jsonData.get(CONNECTED));
-				data.setNetworkType(getConnectionTypeId((String) jsonData.get(NETWORK_TYPE)));
-				data.setRoamingStatus(getRoamingId((String) jsonData.get(ROAMING)));
-			}
-			catch (Exception e)
+				data.setNetworkType(getConnectionTypeId((String) jsonData
+						.get(NETWORK_TYPE)));
+				data.setRoamingStatus(getRoamingId((String) jsonData
+						.get(ROAMING)));
+			} catch (Exception e)
 			{
 				e.printStackTrace();
 			}
