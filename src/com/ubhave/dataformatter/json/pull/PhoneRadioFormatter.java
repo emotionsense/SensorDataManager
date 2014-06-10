@@ -25,7 +25,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 package com.ubhave.dataformatter.json.pull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +34,6 @@ import android.content.Context;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.pullsensor.PhoneRadioData;
 import com.ubhave.sensormanager.data.pullsensor.PhoneRadioDataList;
@@ -49,17 +47,18 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 	private final static String MCC = "mcc";
 	private final static String MNC = "mnc";
 	private final static String LAC = "lac";
-	private final static String CID= "cid";
+	private final static String CID = "cid";
 
 	private final static String UNAVAILABLE = "unavailable";
-	
+
 	public PhoneRadioFormatter(final Context context)
 	{
 		super(context, SensorUtils.SENSOR_TYPE_APPLICATION);
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
+	protected void addSensorSpecificData(JSONObject json, SensorData data)
+			throws JSONException
 	{
 		PhoneRadioDataList phoneRadioDataList = (PhoneRadioDataList) data;
 		ArrayList<PhoneRadioData> results = phoneRadioDataList.getPhoneRadios();
@@ -84,7 +83,8 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
+			throws JSONException
 	{
 	}
 
@@ -96,28 +96,31 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 		{
 			long senseStartTimestamp = super.parseTimeStamp(jsonData);
 			SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-			
+
 			boolean setRawData = true;
 			boolean setProcessedData = false;
-			
+
 			try
 			{
 				ArrayList<PhoneRadioData> phoneRadioData = new ArrayList<PhoneRadioData>();
-				JSONArray jsonArray = (JSONArray) jsonData.get(PHONE_RADIO_RESULT);
-				for (int i=0; i<jsonArray.length(); i++)
+				JSONArray jsonArray = (JSONArray) jsonData
+						.get(PHONE_RADIO_RESULT);
+				for (int i = 0; i < jsonArray.length(); i++)
 				{
 					JSONObject entry = (JSONObject) jsonArray.get(i);
-					String mcc = (String)entry.get(MCC);
-					String mnc = (String)entry.get(MNC);
-					int lac = ((Long)entry.get(LAC)).intValue();
-					int cid = ((Long)entry.get(CID)).intValue();
+					String mcc = (String) entry.get(MCC);
+					String mnc = (String) entry.get(MNC);
+					int lac = ((Long) entry.get(LAC)).intValue();
+					int cid = ((Long) entry.get(CID)).intValue();
 					phoneRadioData.add(new PhoneRadioData(mcc, mnc, lac, cid));
 				}
-				
-				PhoneRadioProcessor processor = (PhoneRadioProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-				return processor.process(senseStartTimestamp, phoneRadioData, sensorConfig);
-			}
-			catch (Exception e)
+
+				PhoneRadioProcessor processor = (PhoneRadioProcessor) AbstractProcessor
+						.getProcessor(applicationContext, sensorType,
+								setRawData, setProcessedData);
+				return processor.process(senseStartTimestamp, phoneRadioData,
+						sensorConfig);
+			} catch (Exception e)
 			{
 				e.printStackTrace();
 			}
