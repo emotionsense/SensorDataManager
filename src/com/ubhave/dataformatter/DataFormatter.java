@@ -17,6 +17,7 @@ import com.ubhave.dataformatter.json.push.BatteryFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStateFormatter;
 import com.ubhave.dataformatter.json.push.LightFormatter;
 import com.ubhave.dataformatter.json.push.PhoneStateFormatter;
+import com.ubhave.dataformatter.json.push.ConnectionStrengthFormatter;
 import com.ubhave.dataformatter.json.push.ProximityFormatter;
 import com.ubhave.dataformatter.json.push.ScreenFormatter;
 import com.ubhave.dataformatter.json.push.SmsFormatter;
@@ -47,8 +48,8 @@ public abstract class DataFormatter
 		case SensorUtils.SENSOR_TYPE_SMS: return new SmsFormatter(c);
 		case SensorUtils.SENSOR_TYPE_GYROSCOPE: return new GyroscopeFormatter(c);
 		case SensorUtils.SENSOR_TYPE_LIGHT: return new LightFormatter(c);		
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE: return new com.ubhave.dataformatter.json.push.PhoneStateFormatter(c);
-		case SensorUtils.SENSOR_TYPE_CONNECTION_STRENGTH: return new com.ubhave.dataformatter.json.push.ConnectionStrengthFormatter(c);
+		case SensorUtils.SENSOR_TYPE_PHONE_STATE: return new PhoneStateFormatter(c);
+		case SensorUtils.SENSOR_TYPE_CONNECTION_STRENGTH: return new ConnectionStrengthFormatter(c);
 		default: return null;
 		}
 	}
