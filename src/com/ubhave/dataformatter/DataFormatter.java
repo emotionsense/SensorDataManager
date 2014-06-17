@@ -43,7 +43,6 @@ public abstract class DataFormatter
 		case SensorUtils.SENSOR_TYPE_BATTERY: return new BatteryFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SCREEN: return new ScreenFormatter(c);
 		case SensorUtils.SENSOR_TYPE_CONNECTION_STATE: return new ConnectionStateFormatter(c);
-		case SensorUtils.SENSOR_TYPE_PHONE_STATE: return new PhoneStateFormatter(c);
 		case SensorUtils.SENSOR_TYPE_PROXIMITY: return new ProximityFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SMS: return new SmsFormatter(c);
 		case SensorUtils.SENSOR_TYPE_GYROSCOPE: return new GyroscopeFormatter(c);
