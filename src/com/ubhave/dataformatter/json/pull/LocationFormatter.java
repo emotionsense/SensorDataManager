@@ -50,7 +50,7 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	private final static String BEARING = "bearing";
 	private final static String PROVIDER = "provider";
 	private final static String TIME = "time";
-	private final static String DATA = "data";
+	private final static String DATA = "locations";
 
 	private final static String LOCATION_ACCURACY = "configAccuracy";
 	private final static String UNKNOWN_STRING = "unknown";
