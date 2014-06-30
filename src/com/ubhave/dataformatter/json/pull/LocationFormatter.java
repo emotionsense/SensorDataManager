@@ -21,6 +21,10 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.pull;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,12 +50,13 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	private final static String BEARING = "bearing";
 	private final static String PROVIDER = "provider";
 	private final static String TIME = "time";
+	private final static String DATA = "locations";
 
 	private final static String LOCATION_ACCURACY = "configAccuracy";
 	private final static String UNKNOWN_STRING = "unknown";
 	private final static double UNKNOWN_DOUBLE = 0.0;
 	private final static long UNKNOWN_LONG = 0;
-	
+
 	public LocationFormatter(final Context context)
 	{
 		super(context, SensorUtils.SENSOR_TYPE_LOCATION);
@@ -61,27 +66,33 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		LocationData locationData = (LocationData) data;
-		Location location = locationData.getLocation();
-		if (location != null)
-		{
-			json.put(LATITUDE, location.getLatitude());
-			json.put(LONGITUDE, location.getLongitude());
-			json.put(ACCURACY, location.getAccuracy());
-			json.put(SPEED, location.getSpeed());
-			json.put(BEARING, location.getBearing());
-			json.put(PROVIDER, location.getProvider());
-			json.put(TIME, location.getTime());
+		List<Location> locations = locationData.getLocation();
+		JSONArray array = new JSONArray();
+		for (Location location : locations) {
+			JSONObject tempJSON = new JSONObject();
+			if (location != null)
+			{
+				tempJSON.put(LATITUDE, location.getLatitude());
+				tempJSON.put(LONGITUDE, location.getLongitude());
+				tempJSON.put(ACCURACY, location.getAccuracy());
+				tempJSON.put(SPEED, location.getSpeed());
+				tempJSON.put(BEARING, location.getBearing());
+				tempJSON.put(PROVIDER, location.getProvider());
+				tempJSON.put(TIME, location.getTime());
+			}
+			else
+			{
+				tempJSON.put(LATITUDE, UNKNOWN_DOUBLE);
+				tempJSON.put(LONGITUDE, UNKNOWN_DOUBLE);
+				tempJSON.put(ACCURACY, UNKNOWN_DOUBLE);
+				tempJSON.put(SPEED, UNKNOWN_DOUBLE);
+				tempJSON.put(BEARING, UNKNOWN_DOUBLE);
+				tempJSON.put(PROVIDER, UNKNOWN_STRING);
+				tempJSON.put(TIME, UNKNOWN_LONG);
+			}
+			array.put(tempJSON);
 		}
-		else
-		{
-			json.put(LATITUDE, UNKNOWN_DOUBLE);
-			json.put(LONGITUDE, UNKNOWN_DOUBLE);
-			json.put(ACCURACY, UNKNOWN_DOUBLE);
-			json.put(SPEED, UNKNOWN_DOUBLE);
-			json.put(BEARING, UNKNOWN_DOUBLE);
-			json.put(PROVIDER, UNKNOWN_STRING);
-			json.put(TIME, UNKNOWN_LONG);
-		}
+		json.put(DATA, array);
 	}
 
 	@Override
@@ -96,40 +107,48 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		JSONObject jsonData = super.parseData(jsonString);
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
-		
+
 		boolean setRawData = true;
 		boolean setProcessedData = false;
-		Location location = null;
-		
+		List<Location> locations = new ArrayList<Location>();
+		try {
+			JSONArray jsonArray = (JSONArray) jsonData.get(DATA);
+			try
+			{
+				int arrayLength = jsonArray.length();
+				for (int i = 0; i < arrayLength; i++) {
+					JSONObject json = jsonArray.getJSONObject(i);
+					double latitude = (Double) json.get(LATITUDE);
+					double longitude = (Double) json.get(LONGITUDE);
+					float accuracy = ((Double) json.get(ACCURACY)).floatValue();
+					float speed = ((Double) json.get(SPEED)).floatValue();
+					float bearing = ((Double) json.get(BEARING)).floatValue();
+					String provider = (String) json.get(PROVIDER);
+					long timestamp = (Long) json.get(TIME);
+
+					Location location = new Location(provider);
+					location.setLatitude(latitude);
+					location.setLongitude(longitude);
+					location.setAccuracy(accuracy);
+					location.setSpeed(speed);
+					location.setBearing(bearing);
+					location.setTime(timestamp);
+					locations.add(location);
+				}
+			} catch (Exception e)
+			{
+				setRawData = false;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
 		try
 		{
-			double latitude = (Double) jsonData.get(LATITUDE);
-			double longitude = (Double) jsonData.get(LONGITUDE);
-			float accuracy = ((Double) jsonData.get(ACCURACY)).floatValue();
-			float speed = ((Double)  jsonData.get(SPEED)).floatValue();
-			float bearing = ((Double)  jsonData.get(BEARING)).floatValue();
-			String provider = (String) jsonData.get(PROVIDER);
-			long timestamp = (Long) jsonData.get(TIME);
-
-			location = new Location(provider);
-			location.setLatitude(latitude);
-			location.setLongitude(longitude);
-			location.setAccuracy(accuracy);
-			location.setSpeed(speed);
-			location.setBearing(bearing);
-			location.setTime(timestamp);
-		}
-		catch (Exception e)
-		{
-			setRawData = false;
-		}
-
-		try
-		{
-			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
-			return processor.process(senseStartTimestamp, location, sensorConfig);
-		}
-		catch (ESException e)
+			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext,
+					sensorType, setRawData, setProcessedData);
+			return processor.process(senseStartTimestamp, locations, sensorConfig);
+		} catch (ESException e)
 		{
 			e.printStackTrace();
 			return null;
