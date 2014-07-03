@@ -10,10 +10,12 @@ import android.Manifest;
 import android.content.Context;
 
 import com.ubhave.datahandler.config.DataTransferConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractTransferLogger extends AbstractDataLogger
 {
-	protected AbstractTransferLogger(Context context)
+	protected AbstractTransferLogger(Context context) throws DataHandlerException, ESException
 	{
 		super(context);
 	}

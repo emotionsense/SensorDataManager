@@ -19,6 +19,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -42,21 +43,13 @@ public abstract class AbstractDataLogger
 	protected ESDataManager dataManager;
 	protected final Context context;
 
-	protected AbstractDataLogger(final Context context)
+	protected AbstractDataLogger(final Context context) throws DataHandlerException, ESException
 	{
 		this.context = context;
 		if (permissionGranted())
 		{
-			try
-			{
-				dataManager = ESDataManager.getInstance(context);
-				configureDataStorage();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				dataManager = null;
-			}
+			dataManager = ESDataManager.getInstance(context);
+			configureDataStorage();
 		}
 	}
 	
