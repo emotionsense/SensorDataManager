@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ReceiverCallNotAllowedException;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -95,11 +96,18 @@ public class PolicyAlarm extends BroadcastReceiver
 	{
 		if (!hasStarted)
 		{
-			hasStarted = true;
-			IntentFilter intentFilter = new IntentFilter(actionName);
-			long alarmInterval = getValue(configKeyAlarmInterval);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmInterval, pendingIntent);
-			context.registerReceiver(this, intentFilter);
+			try
+			{
+				hasStarted = true;
+				IntentFilter intentFilter = new IntentFilter(actionName);
+				long alarmInterval = getValue(configKeyAlarmInterval);
+				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmInterval, pendingIntent);
+				context.registerReceiver(this, intentFilter);
+			}
+			catch (ReceiverCallNotAllowedException e)
+			{
+				// Thrown if the data manager is created from inside a broad cast receiver
+			}
 		}
 	}
 
@@ -107,9 +115,18 @@ public class PolicyAlarm extends BroadcastReceiver
 	{
 		if (hasStarted)
 		{
-			hasStarted = false;
-			alarmManager.cancel(pendingIntent);
-			context.unregisterReceiver(this);
+			try
+			{
+				hasStarted = false;
+				alarmManager.cancel(pendingIntent);
+				context.unregisterReceiver(this);
+			}
+			catch (IllegalArgumentException e)
+			{
+				// Thrown if the data manager is created from inside a broad cast receiver
+				// Since the receiver will not be registered
+			}
+			
 		}
 	}
 	
