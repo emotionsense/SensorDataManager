@@ -66,9 +66,10 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		LocationData locationData = (LocationData) data;
-		List<Location> locations = locationData.getLocation();
+		List<Location> locations = locationData.getLocations();
 		JSONArray array = new JSONArray();
-		for (Location location : locations) {
+		for (Location location : locations)
+		{
 			JSONObject tempJSON = new JSONObject();
 			if (location != null)
 			{
@@ -111,12 +112,14 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		boolean setRawData = true;
 		boolean setProcessedData = false;
 		List<Location> locations = new ArrayList<Location>();
-		try {
+		try
+		{
 			JSONArray jsonArray = (JSONArray) jsonData.get(DATA);
 			try
 			{
 				int arrayLength = jsonArray.length();
-				for (int i = 0; i < arrayLength; i++) {
+				for (int i = 0; i < arrayLength; i++)
+				{
 					JSONObject json = jsonArray.getJSONObject(i);
 					double latitude = (Double) json.get(LATITUDE);
 					double longitude = (Double) json.get(LONGITUDE);
@@ -135,20 +138,23 @@ public class LocationFormatter extends PullSensorJSONFormatter
 					location.setTime(timestamp);
 					locations.add(location);
 				}
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
 				setRawData = false;
 			}
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 			return null;
 		}
 		try
 		{
-			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext,
-					sensorType, setRawData, setProcessedData);
+			LocationProcessor processor = (LocationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
 			return processor.process(senseStartTimestamp, locations, sensorConfig);
-		} catch (ESException e)
+		}
+		catch (ESException e)
 		{
 			e.printStackTrace();
 			return null;
