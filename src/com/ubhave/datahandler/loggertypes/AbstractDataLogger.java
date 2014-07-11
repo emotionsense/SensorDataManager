@@ -133,40 +133,54 @@ public abstract class AbstractDataLogger
 
 	public void logSensorData(final SensorData data)
 	{
-		new Thread()
+		if (data != null)
 		{
-			@Override
-			public void run()
+			new Thread()
 			{
-				try
+				@Override
+				public void run()
 				{
-					dataManager.logSensorData(data);
+					try
+					{
+						dataManager.logSensorData(data);
+					}
+					catch (DataHandlerException e)
+					{
+						e.printStackTrace();
+					}
 				}
-				catch (DataHandlerException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}.start();
+			}.start();
+		}
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(LOG_TAG, "Failed logSensorData: null data");
+		}
 	}
 	
 	public void logSensorData(final SensorData data, final DataFormatter formatter)
 	{
-		new Thread()
+		if (data != null && formatter != null)
 		{
-			@Override
-			public void run()
+			new Thread()
 			{
-				try
+				@Override
+				public void run()
 				{
-					dataManager.logSensorData(data, formatter);
+					try
+					{
+						dataManager.logSensorData(data, formatter);
+					}
+					catch (DataHandlerException e)
+					{
+						e.printStackTrace();
+					}
 				}
-				catch (DataHandlerException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}.start();
+			}.start();
+		}
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(LOG_TAG, "Failed logSensorData: null data or formatter");
+		}
 	}
 
 	public void logSurveyResponse(final String jsonResponse)
@@ -224,61 +238,103 @@ public abstract class AbstractDataLogger
 
 	public void logError(final int appVersion, final String tag, final String error)
 	{
-		new Thread()
+		if (tag != null && error != null)
 		{
-			@Override
-			public void run()
+			new Thread()
 			{
-				try
+				@Override
+				public void run()
 				{
-					if (tag != null && error != null)
+					try
 					{
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, "logError: "+tag+", "+error);
+						}
 						JSONObject json = format(TAG_ERROR, tag, error);
 						json.put(TAG_APP_VERSION, appVersion);
 						dataManager.logError(json.toString());
 					}
+					catch (Exception e)
+					{
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, "logError: "+e.getLocalizedMessage());
+						}
+						e.printStackTrace();
+					}
 				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}.start();
+			}.start();
+		}
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(LOG_TAG, "Failed logError: "+tag+", "+error);
+		}
 	}
 
 	public void logInteraction(final String tag, final String action)
 	{
-		try
+		if (tag != null && action != null)
 		{
-			if (tag != null && action != null)
+			new Thread()
 			{
-				JSONObject json = format(TAG_INTERACTION, tag, action);
-				dataManager.logExtra(TAG_INTERACTION, json.toString());
-			}
+				@Override
+				public void run()
+				{
+					try
+					{
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, "logInteraction: "+tag+", "+action);
+						}
+						JSONObject json = format(TAG_INTERACTION, tag, action);
+						dataManager.logExtra(TAG_INTERACTION, json.toString());
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}.start();
 		}
-		catch (Exception e)
+		else if (DataHandlerConfig.shouldLog())
 		{
-			e.printStackTrace();
+			Log.d(LOG_TAG, "Failed logInteraction: "+tag+", "+action);
 		}
 	}
 	
 	public void logExtra(final String tag, final JSONObject action)
 	{
-		try
+		if (tag != null && action != null)
 		{
-			if (tag != null && action != null)
+			new Thread()
 			{
-				if (!action.has(TAG_LOGGER)) // avoid over-writing user data
+				@Override
+				public void run()
 				{
-					JSONObject loggingInfo = format(null, null, null);
-					action.put(TAG_LOGGER, loggingInfo);
+					try
+					{
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, "logExtra: "+tag);
+						}
+						if (!action.has(TAG_LOGGER)) // avoid over-writing user data
+						{
+							JSONObject loggingInfo = format(null, null, null);
+							action.put(TAG_LOGGER, loggingInfo);
+						}
+						dataManager.logExtra(tag, action.toString());
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
-				dataManager.logExtra(tag, action.toString());
-			}
+			}.start();
 		}
-		catch (Exception e)
+		else if (DataHandlerConfig.shouldLog())
 		{
-			e.printStackTrace();
+			Log.d(LOG_TAG, "Failed logExtra: null arg");
 		}
 	}
 }
