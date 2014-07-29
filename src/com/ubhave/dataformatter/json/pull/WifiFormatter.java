@@ -86,7 +86,10 @@ public class WifiFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
-		json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
+		if (config != null)
+		{
+			json.put(SENSE_CYCLES, config.getParameter(PullSensorConfig.NUMBER_OF_SENSE_CYCLES));
+		}
 	}
 
 	@Override

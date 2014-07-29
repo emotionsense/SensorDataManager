@@ -43,11 +43,14 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 	@Override
 	protected void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
-		Long sleepLength = (Long) config.getParameter(SLEEP_LENGTH);
-		if (sleepLength != null)
+		if (config != null)
 		{
-			json.put(SLEEP_LENGTH, sleepLength);
-			json.put(IS_ADAPTIVELY_SENSED, (Boolean) config.getParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED));
+			Long sleepLength = (Long) config.getParameter(SLEEP_LENGTH);
+			if (sleepLength != null)
+			{
+				json.put(SLEEP_LENGTH, sleepLength);
+				json.put(IS_ADAPTIVELY_SENSED, (Boolean) config.getParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED));
+			}
 		}
 	}
 
