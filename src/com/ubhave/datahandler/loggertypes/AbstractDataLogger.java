@@ -29,7 +29,7 @@ public abstract class AbstractDataLogger
 	protected final static String TAG_SURVEY_RESPONSE = "Survey";
 	protected final static String TAG_INTERACTION = "Interaction";
 	protected final static String TAG_ERROR = "Error";
-	
+
 	private final static String TAG_LOGGER = "logger";
 	private final static String TAG_USER_ID = "userId";
 	private final static String TAG_DEVICE_ID = "deviceId";
@@ -39,7 +39,7 @@ public abstract class AbstractDataLogger
 	private final static String TAG_DATA_TITLE = "dataTitle";
 	private final static String TAG_DATA_MESSAGE = "dataMessage";
 	private final static String TAG_APP_VERSION = "applicationVersion";
-	
+
 	protected ESDataManager dataManager;
 	protected final Context context;
 
@@ -52,14 +52,14 @@ public abstract class AbstractDataLogger
 			configureDataStorage();
 		}
 	}
-	
+
 	protected ArrayList<String> getPermissions()
 	{
 		ArrayList<String> permissions = new ArrayList<String>();
 		permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 		return permissions;
 	}
-	
+
 	protected boolean permissionGranted()
 	{
 		for (String permission : getPermissions())
@@ -68,14 +68,14 @@ public abstract class AbstractDataLogger
 			{
 				if (GlobalConfig.shouldLog())
 				{
-					Log.d(LOG_TAG, "Missing permission (for data logging): "+permission);
+					Log.d(LOG_TAG, "Missing permission (for data logging): " + permission);
 				}
-				throw new NullPointerException("Missing permission: "+permission);
+				throw new NullPointerException("Missing permission: " + permission);
 			}
 		}
 		return true;
 	}
-	
+
 	public ESDataManager getDataManager()
 	{
 		return dataManager;
@@ -96,7 +96,7 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected HashSet<String> getAllowedFileTypes()
 	{
 		HashSet<String> fileTypes = new HashSet<String>();
@@ -107,9 +107,9 @@ public abstract class AbstractDataLogger
 	protected abstract String getLocalStorageDirectoryName();
 
 	protected abstract String getUniqueUserId();
-	
+
 	protected abstract boolean shouldPrintLogMessages();
-	
+
 	protected abstract String getDeviceId();
 
 	public void log(final String tag, final String data)
@@ -156,7 +156,7 @@ public abstract class AbstractDataLogger
 			Log.d(LOG_TAG, "Failed logSensorData: null data");
 		}
 	}
-	
+
 	public void logSensorData(final SensorData data, final DataFormatter formatter)
 	{
 		if (data != null && formatter != null)
@@ -187,7 +187,7 @@ public abstract class AbstractDataLogger
 	{
 		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
-	
+
 	@SuppressLint("SimpleDateFormat")
 	private String localTime()
 	{
@@ -195,7 +195,7 @@ public abstract class AbstractDataLogger
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zZ");
 		return dateFormat.format(calendar.getTime());
 	}
-	
+
 	protected JSONObject format(final String dataType, final String dataTitle, final String dataMessage)
 	{
 		try
@@ -215,18 +215,24 @@ public abstract class AbstractDataLogger
 			}
 			json.put(TAG_TIMESTAMP, System.currentTimeMillis());
 			json.put(TAG_LOCAL_TIME, localTime());
-			
+
 			String userId = getUniqueUserId();
-			if (userId != null)
-			{
-				json.put(TAG_USER_ID, userId);
-			}
 			String deviceId = getDeviceId();
-			if (deviceId != null)
+			if (userId == null && deviceId == null)
 			{
-				json.put(TAG_DEVICE_ID, deviceId);
+				throw new NullPointerException("No user ids set.");
 			}
-			
+			else
+			{
+				if (userId != null)
+				{
+					json.put(TAG_USER_ID, userId);
+				}
+				if (deviceId != null)
+				{
+					json.put(TAG_DEVICE_ID, deviceId);
+				}
+			}
 			return json;
 		}
 		catch (Exception e)
@@ -249,7 +255,7 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, "logError: "+tag+", "+error);
+							Log.d(LOG_TAG, "logError: " + tag + ", " + error);
 						}
 						JSONObject json = format(TAG_ERROR, tag, error);
 						json.put(TAG_APP_VERSION, appVersion);
@@ -259,7 +265,7 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, "logError: "+e.getLocalizedMessage());
+							Log.d(LOG_TAG, "logError: " + e.getLocalizedMessage());
 						}
 						e.printStackTrace();
 					}
@@ -268,13 +274,13 @@ public abstract class AbstractDataLogger
 		}
 		else if (DataHandlerConfig.shouldLog())
 		{
-			Log.d(LOG_TAG, "Failed logError: "+tag+", "+error);
+			Log.d(LOG_TAG, "Failed logError: " + tag + ", " + error);
 		}
 	}
 
-	public void logInteraction(final String tag, final String action)
+	public void logInteraction(final String tag, final String action, final String detail)
 	{
-		if (tag != null && action != null)
+		if (action != null)
 		{
 			new Thread()
 			{
@@ -285,9 +291,9 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, "logInteraction: "+tag+", "+action);
+							Log.d(LOG_TAG, "logInteraction: " + tag + ", " + action);
 						}
-						JSONObject json = format(TAG_INTERACTION, tag, action);
+						JSONObject json = format(tag, action, detail);
 						dataManager.logExtra(TAG_INTERACTION, json.toString());
 					}
 					catch (Exception e)
@@ -299,10 +305,10 @@ public abstract class AbstractDataLogger
 		}
 		else if (DataHandlerConfig.shouldLog())
 		{
-			Log.d(LOG_TAG, "Failed logInteraction: "+tag+", "+action);
+			Log.d(LOG_TAG, "Failed logInteraction: " + tag + ", " + action);
 		}
 	}
-	
+
 	public void logExtra(final String tag, final JSONObject action)
 	{
 		if (tag != null && action != null)
@@ -316,9 +322,10 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, "logExtra: "+tag);
+							Log.d(LOG_TAG, "logExtra: " + tag);
 						}
-						if (!action.has(TAG_LOGGER)) // avoid over-writing user data
+						if (!action.has(TAG_LOGGER)) // avoid over-writing user
+														// data
 						{
 							JSONObject loggingInfo = format(null, null, null);
 							action.put(TAG_LOGGER, loggingInfo);
