@@ -45,6 +45,11 @@ public class DataTransfer implements DataTransferInterface
 			{
 				HashMap<String, String> paramsMap = getPostParams();
 				String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Posting to: "+url);
+				}
+				
 				String response = WebConnection.postDataToServer(url, file, paramsMap);
 
 				if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
