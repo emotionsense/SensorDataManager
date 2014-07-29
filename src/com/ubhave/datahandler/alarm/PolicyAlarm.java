@@ -126,13 +126,7 @@ public class PolicyAlarm extends BroadcastReceiver
 				// Thrown if the data manager is created from inside a broad cast receiver
 				// Since the receiver will not be registered
 			}
-			
 		}
-	}
-	
-	public boolean hasStarted()
-	{
-		return hasStarted;
 	}
 
 	private void setLastTransferAllowedTime(long timestamp)

@@ -43,10 +43,7 @@ public class DataTransferAlarmListener implements AlarmListener
 	
 	public void stop()
 	{
-		if (policyAlarm.hasStarted())
-		{
-			policyAlarm.stop();
-		}
+		policyAlarm.stop();
 	}
 	
 	private PolicyAlarm getPolicyAlarm()
