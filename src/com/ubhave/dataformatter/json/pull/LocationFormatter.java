@@ -21,8 +21,11 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.dataformatter.json.pull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +35,7 @@ import android.content.Context;
 import android.location.Location;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.sensors.pull.LocationConfig;
@@ -50,6 +54,7 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	private final static String BEARING = "bearing";
 	private final static String PROVIDER = "provider";
 	private final static String TIME = "time";
+	private final static String LOCAL_TIME = "local_time";
 	private final static String DATA = "locations";
 
 	private final static String LOCATION_ACCURACY = "configAccuracy";
@@ -63,37 +68,52 @@ public class LocationFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException
 	{
 		LocationData locationData = (LocationData) data;
 		List<Location> locations = locationData.getLocations();
-		JSONArray array = new JSONArray();
-		for (Location location : locations)
+		
+		if (locations != null && !locations.isEmpty())
 		{
-			JSONObject tempJSON = new JSONObject();
-			if (location != null)
+			Calendar calendar = Calendar.getInstance();
+			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
+			
+			JSONArray array = new JSONArray();
+			for (Location location : locations)
 			{
-				tempJSON.put(LATITUDE, location.getLatitude());
-				tempJSON.put(LONGITUDE, location.getLongitude());
-				tempJSON.put(ACCURACY, location.getAccuracy());
-				tempJSON.put(SPEED, location.getSpeed());
-				tempJSON.put(BEARING, location.getBearing());
-				tempJSON.put(PROVIDER, location.getProvider());
-				tempJSON.put(TIME, location.getTime());
+				JSONObject locationJSON = new JSONObject();
+				if (location != null)
+				{
+					locationJSON.put(LATITUDE, location.getLatitude());
+					locationJSON.put(LONGITUDE, location.getLongitude());
+					locationJSON.put(ACCURACY, location.getAccuracy());
+					locationJSON.put(SPEED, location.getSpeed());
+					locationJSON.put(BEARING, location.getBearing());
+					locationJSON.put(PROVIDER, location.getProvider());
+					locationJSON.put(TIME, location.getTime());
+					
+					calendar.setTimeInMillis(location.getTime());
+					locationJSON.put(LOCAL_TIME, formatter.format(calendar.getTime()));
+				}
+				else
+				{
+					locationJSON.put(LATITUDE, UNKNOWN_DOUBLE);
+					locationJSON.put(LONGITUDE, UNKNOWN_DOUBLE);
+					locationJSON.put(ACCURACY, UNKNOWN_DOUBLE);
+					locationJSON.put(SPEED, UNKNOWN_DOUBLE);
+					locationJSON.put(BEARING, UNKNOWN_DOUBLE);
+					locationJSON.put(PROVIDER, UNKNOWN_STRING);
+					locationJSON.put(TIME, UNKNOWN_LONG);
+				}
+				array.put(locationJSON);
 			}
-			else
-			{
-				tempJSON.put(LATITUDE, UNKNOWN_DOUBLE);
-				tempJSON.put(LONGITUDE, UNKNOWN_DOUBLE);
-				tempJSON.put(ACCURACY, UNKNOWN_DOUBLE);
-				tempJSON.put(SPEED, UNKNOWN_DOUBLE);
-				tempJSON.put(BEARING, UNKNOWN_DOUBLE);
-				tempJSON.put(PROVIDER, UNKNOWN_STRING);
-				tempJSON.put(TIME, UNKNOWN_LONG);
-			}
-			array.put(tempJSON);
+			json.put(DATA, array);
 		}
-		json.put(DATA, array);
+		else
+		{
+			throw new DataHandlerException(DataHandlerException.NO_DATA);
+		}
+		
 	}
 
 	@Override
