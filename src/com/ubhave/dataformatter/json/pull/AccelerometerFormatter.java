@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
@@ -54,7 +55,7 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException
 	{
 		AccelerometerData accelerometerData = (AccelerometerData) data;
 		ArrayList<float[]> readings = accelerometerData.getSensorReadings();
@@ -66,12 +67,18 @@ public class AccelerometerFormatter extends PullSensorJSONFormatter
 			JSONArray ys = new JSONArray();
 			JSONArray zs = new JSONArray();
 
+			int samples = 0;
 			for (int i=0; i<readings.size(); i++)
 			{
+				samples ++;
 				float[] sample = readings.get(i);
 				xs.put(sample[0]);
 				ys.put(sample[1]);
 				zs.put(sample[2]);
+			}
+			if (samples == 0)
+			{
+				throw new DataHandlerException(DataHandlerException.NO_DATA);
 			}
 			
 			JSONArray ts = new JSONArray();

@@ -11,6 +11,7 @@ public class DataHandlerException extends Exception
 	public final static int WRITING_TO_DEFAULT_DIRECTORY 	= 14;
 	public final static int CONFIG_CONFLICT 				= 15;
 	public final static int POST_FAILED 					= 16;
+	public final static int NO_DATA							= 17;
 	
 	private final static String MESSAGE_UNKNOWN_CONFIG		= "Unknown config key.";
 	private final static String MESSAGE_NO_URL				= "Missing URL target.";
@@ -19,6 +20,7 @@ public class DataHandlerException extends Exception
 	private final static String MESSAGE_DEFAULT				= "Error: attempting to write to default directory.";
 	private final static String MESSAGE_CONFIG_CONFLICT		= "Conflict in config values!";
 	private final static String MESSAGE_POST_FAIL			= "Failure posting data to server.";
+	private final static String MESSAGE_NO_DATA				= "No data.";
 	
 	private final int errorCode;
 	
@@ -51,6 +53,8 @@ public class DataHandlerException extends Exception
 			return MESSAGE_CONFIG_CONFLICT;
 		case POST_FAILED:
 			return MESSAGE_POST_FAIL;
+		case NO_DATA:
+			return MESSAGE_NO_DATA;
 		}
 		return super.getMessage();
 	}

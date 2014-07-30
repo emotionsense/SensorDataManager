@@ -36,6 +36,7 @@ import android.content.Context;
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
@@ -61,7 +62,7 @@ public abstract class JSONFormatter extends DataFormatter
 		this.config = DataHandlerConfig.getInstance();
 	}
 
-	public JSONObject toJSON(final SensorData data)
+	public JSONObject toJSON(final SensorData data) throws DataHandlerException
 	{
 		JSONObject json = new JSONObject();
 		if (data != null)
@@ -74,7 +75,8 @@ public abstract class JSONFormatter extends DataFormatter
 				SensorConfig config = data.getSensorConfig();
 				addGenericConfig(json, config);
 				addSensorSpecificConfig(json, config);
-			} catch (JSONException e)
+			}
+			catch (JSONException e)
 			{
 				e.printStackTrace();
 			}
@@ -83,7 +85,7 @@ public abstract class JSONFormatter extends DataFormatter
 	}
 
 	@Override
-	public String toString(final SensorData data)
+	public String toString(final SensorData data) throws DataHandlerException
 	{
 		JSONObject jsonData = toJSON(data);
 		if (jsonData != null)
@@ -112,15 +114,15 @@ public abstract class JSONFormatter extends DataFormatter
 		try
 		{
 			return new JSONObject(jsonString);
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	protected <T> ArrayList<T> getJSONArray(JSONObject data, String key,
-			Class<T> c) throws NullPointerException
+	protected <T> ArrayList<T> getJSONArray(JSONObject data, String key, Class<T> c) throws NullPointerException
 	{
 		try
 		{
@@ -132,38 +134,38 @@ public abstract class JSONFormatter extends DataFormatter
 				{
 					T member = c.cast(jsonArray.get(i));
 					list.add(member);
-				} catch (Exception e)
+				}
+				catch (Exception e)
 				{
 					e.printStackTrace();
 				}
 			}
 			return list;
-		} catch (JSONException e)
+		}
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	// @SuppressLint("SimpleDateFormat")
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
 		try
 		{
-			String userId = (String) config
-					.get(DataStorageConfig.UNIQUE_USER_ID);
+			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
 			if (userId != null && userId.length() > 0)
 			{
 				json.put(USER_ID, userId);
 			}
 
-			String deviceId = (String) config
-					.get(DataStorageConfig.UNIQUE_DEVICE_ID);
+			String deviceId = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
 			if (deviceId != null && deviceId.length() > 0)
 			{
 				json.put(DEVICE_ID, deviceId);
 			}
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -171,23 +173,23 @@ public abstract class JSONFormatter extends DataFormatter
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(data.getTimestamp());
 
-		SimpleDateFormat formatter = new SimpleDateFormat(
-				"HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
 		try
 		{
 			json.put(SENSE_TIME, formatter.format(calendar.getTime()));
 			json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 			try
 			{
-				String sensorName = SensorUtils.getSensorName(data
-						.getSensorType());
+				String sensorName = SensorUtils.getSensorName(data.getSensorType());
 				json.put(SENSOR_TYPE, sensorName);
-			} catch (ESException e)
+			}
+			catch (ESException e)
 			{
 				e.printStackTrace();
 				json.put(SENSOR_TYPE, UNKNOWN_SENSOR);
 			}
-		} catch (JSONException e)
+		}
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
@@ -199,12 +201,12 @@ public abstract class JSONFormatter extends DataFormatter
 		try
 		{
 			String dateString = (String) json.get(SENSE_TIME);
-			SimpleDateFormat formatter = new SimpleDateFormat(
-					"HH:mm:ss:SSS dd MM yyyy Z z");
+			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(formatter.parse(dateString));
 			return calendar.getTimeInMillis();
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			return -1;
@@ -213,14 +215,11 @@ public abstract class JSONFormatter extends DataFormatter
 
 	public abstract SensorData toSensorData(String jsonString);
 
-	protected abstract void addGenericConfig(JSONObject json,
-			SensorConfig config) throws JSONException;
+	protected abstract void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException;
 
-	protected abstract void addSensorSpecificData(JSONObject json,
-			SensorData data) throws JSONException;
+	protected abstract void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException;
 
-	protected abstract void addSensorSpecificConfig(JSONObject json,
-			SensorConfig config) throws JSONException;
+	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException;
 
 	protected abstract SensorConfig getGenericConfig(JSONObject json);
 
@@ -230,7 +229,8 @@ public abstract class JSONFormatter extends DataFormatter
 		{
 			Integer value = ((Long) data.get(key)).intValue();
 			return value;
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			return null;
 		}
@@ -242,7 +242,8 @@ public abstract class JSONFormatter extends DataFormatter
 		{
 			String value = (String) data.get(key);
 			return value;
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			return null;
 		}
@@ -254,7 +255,8 @@ public abstract class JSONFormatter extends DataFormatter
 		{
 			Boolean value = (Boolean) data.get(key);
 			return value;
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			return null;
 		}
@@ -271,7 +273,8 @@ public abstract class JSONFormatter extends DataFormatter
 			}
 			else
 				return null;
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			return null;
 		}

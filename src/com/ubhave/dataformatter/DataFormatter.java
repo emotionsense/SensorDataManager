@@ -22,14 +22,14 @@ import com.ubhave.dataformatter.json.push.PhoneStateFormatter;
 import com.ubhave.dataformatter.json.push.ProximityFormatter;
 import com.ubhave.dataformatter.json.push.ScreenFormatter;
 import com.ubhave.dataformatter.json.push.SmsFormatter;
+import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public abstract class DataFormatter
 {
 
-	public static JSONFormatter getJSONFormatter(final Context c,
-			final int sensorType)
+	public static JSONFormatter getJSONFormatter(final Context c, final int sensorType)
 	{
 		switch (sensorType)
 		{
@@ -77,5 +77,5 @@ public abstract class DataFormatter
 		}
 	}
 
-	public abstract String toString(final SensorData data);
+	public abstract String toString(final SensorData data) throws DataHandlerException;
 }
