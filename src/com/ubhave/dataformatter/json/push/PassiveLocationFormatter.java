@@ -27,12 +27,13 @@ import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pushsensor.PassiveLocationData;
+import com.ubhave.sensormanager.data.push.PassiveLocationData;
 import com.ubhave.sensormanager.process.AbstractProcessor;
 import com.ubhave.sensormanager.process.push.PassiveLocationProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class PassiveLocationFormatter extends PushSensorJSONFormatter {
+public class PassiveLocationFormatter extends PushSensorJSONFormatter
+{
 	private final static String LATITUDE = "latitude";
 	private final static String LONGITUDE = "longitude";
 	private final static String ACCURACY = "accuracy";
@@ -51,7 +52,8 @@ public class PassiveLocationFormatter extends PushSensorJSONFormatter {
 	}
 
 	@Override
-	public SensorData toSensorData(String jsonString) {
+	public SensorData toSensorData(String jsonString)
+	{
 		JSONObject jsonData = super.parseData(jsonString);
 		long senseStartTimestamp = super.parseTimeStamp(jsonData);
 		SensorConfig sensorConfig = super.getGenericConfig(jsonData);
@@ -59,7 +61,8 @@ public class PassiveLocationFormatter extends PushSensorJSONFormatter {
 		boolean setRawData = true;
 		boolean setProcessedData = false;
 		Location location;
-		try {
+		try
+		{
 			String provider = (String) jsonData.get(PROVIDER);
 			location = new Location(provider);
 			double latitude = (Double) jsonData.get(LATITUDE);
@@ -75,16 +78,19 @@ public class PassiveLocationFormatter extends PushSensorJSONFormatter {
 			location.setSpeed(speed);
 			location.setBearing(bearing);
 			location.setTime(timestamp);
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 			return null;
 		}
-		try {
-			PassiveLocationProcessor processor = (PassiveLocationProcessor) AbstractProcessor.getProcessor(
-					applicationContext,
-					sensorType, setRawData, setProcessedData);
+		try
+		{
+			PassiveLocationProcessor processor = (PassiveLocationProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
 			return processor.process(senseStartTimestamp, location, sensorConfig);
-		} catch (ESException e) {
+		}
+		catch (ESException e)
+		{
 			e.printStackTrace();
 			return null;
 		}

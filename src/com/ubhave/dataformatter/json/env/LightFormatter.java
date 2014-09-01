@@ -1,4 +1,4 @@
-package com.ubhave.dataformatter.json.push;
+package com.ubhave.dataformatter.json.env;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,7 +8,7 @@ import android.content.Context;
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pushsensor.LightData;
+import com.ubhave.sensormanager.data.env.LightData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class LightFormatter extends PushSensorJSONFormatter
@@ -25,7 +25,7 @@ public class LightFormatter extends PushSensorJSONFormatter
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
         LightData lightData = (LightData) data;
-		json.put(LIGHT, lightData.getLight());
+		json.put(LIGHT, lightData.getValue());
 		json.put(MAX_RANGE, lightData.getMaxRange());
 	}
 	
@@ -40,7 +40,7 @@ public class LightFormatter extends PushSensorJSONFormatter
 			LightData data = new LightData(recvTimestamp, sensorConfig);
 			try
 			{
-				data.setLight(((Double) jsonData.get(LIGHT)).floatValue());
+				data.setValue(((Double) jsonData.get(LIGHT)).floatValue());
 				data.setMaxRange(((Double) jsonData.get(MAX_RANGE)).floatValue());
 			}
 			catch (Exception e)

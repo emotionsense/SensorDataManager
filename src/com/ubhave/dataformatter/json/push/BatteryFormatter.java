@@ -30,7 +30,7 @@ import android.os.BatteryManager;
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pushsensor.BatteryData;
+import com.ubhave.sensormanager.data.push.BatteryData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class BatteryFormatter extends PushSensorJSONFormatter

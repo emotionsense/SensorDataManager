@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
+import com.ubhave.sensormanager.config.pull.PullSensorConfig;
 
 public abstract class PullSensorJSONFormatter extends JSONFormatter
 {
@@ -39,7 +39,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 	{
 		super(context, sensorType);
 	}
-	
+
 	@Override
 	protected void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
@@ -61,12 +61,13 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 		{
 			Long sleepLength = (Long) json.get(SLEEP_LENGTH);
 			config.setParameter(SLEEP_LENGTH, sleepLength);
-			
+
 			Boolean isAdaptivelySensed = (Boolean) json.get(IS_ADAPTIVELY_SENSED);
 			config.setParameter(PullSensorConfig.ADAPTIVE_SENSING_ENABLED, isAdaptivelySensed);
 		}
 		catch (Exception e)
-		{}
+		{
+		}
 		return config;
 	}
 }

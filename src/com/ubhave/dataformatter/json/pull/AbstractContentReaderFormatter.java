@@ -13,8 +13,8 @@ import android.content.Context;
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderEntry;
-import com.ubhave.sensormanager.data.pullsensor.AbstractContentReaderListData;
+import com.ubhave.sensormanager.data.pull.AbstractContentReaderEntry;
+import com.ubhave.sensormanager.data.pull.AbstractContentReaderListData;
 
 public abstract class AbstractContentReaderFormatter extends PullSensorJSONFormatter
 {

@@ -35,8 +35,8 @@ import android.content.Context;
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pullsensor.PhoneRadioData;
-import com.ubhave.sensormanager.data.pullsensor.PhoneRadioDataList;
+import com.ubhave.sensormanager.data.pull.PhoneRadioData;
+import com.ubhave.sensormanager.data.pull.PhoneRadioDataList;
 import com.ubhave.sensormanager.process.AbstractProcessor;
 import com.ubhave.sensormanager.process.pull.PhoneRadioProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;
@@ -57,8 +57,7 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data)
-			throws JSONException
+	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
 		PhoneRadioDataList phoneRadioDataList = (PhoneRadioDataList) data;
 		ArrayList<PhoneRadioData> results = phoneRadioDataList.getPhoneRadios();
@@ -83,8 +82,7 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config)
-			throws JSONException
+	protected void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException
 	{
 	}
 
@@ -103,8 +101,7 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 			try
 			{
 				ArrayList<PhoneRadioData> phoneRadioData = new ArrayList<PhoneRadioData>();
-				JSONArray jsonArray = (JSONArray) jsonData
-						.get(PHONE_RADIO_RESULT);
+				JSONArray jsonArray = (JSONArray) jsonData.get(PHONE_RADIO_RESULT);
 				for (int i = 0; i < jsonArray.length(); i++)
 				{
 					JSONObject entry = (JSONObject) jsonArray.get(i);
@@ -115,12 +112,10 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 					phoneRadioData.add(new PhoneRadioData(mcc, mnc, lac, cid));
 				}
 
-				PhoneRadioProcessor processor = (PhoneRadioProcessor) AbstractProcessor
-						.getProcessor(applicationContext, sensorType,
-								setRawData, setProcessedData);
-				return processor.process(senseStartTimestamp, phoneRadioData,
-						sensorConfig);
-			} catch (Exception e)
+				PhoneRadioProcessor processor = (PhoneRadioProcessor) AbstractProcessor.getProcessor(applicationContext, sensorType, setRawData, setProcessedData);
+				return processor.process(senseStartTimestamp, phoneRadioData, sensorConfig);
+			}
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}

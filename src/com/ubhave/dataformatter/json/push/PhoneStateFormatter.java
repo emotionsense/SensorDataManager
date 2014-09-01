@@ -29,7 +29,7 @@ import android.content.Context;
 import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pushsensor.PhoneStateData;
+import com.ubhave.sensormanager.data.push.PhoneStateData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class PhoneStateFormatter extends PushSensorJSONFormatter

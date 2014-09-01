@@ -32,10 +32,10 @@ import android.content.Context;
 
 import com.ubhave.dataformatter.json.PullSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
-import com.ubhave.sensormanager.config.sensors.pull.PullSensorConfig;
+import com.ubhave.sensormanager.config.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pullsensor.ApplicationData;
-import com.ubhave.sensormanager.data.pullsensor.ApplicationDataList;
+import com.ubhave.sensormanager.data.pull.ApplicationData;
+import com.ubhave.sensormanager.data.pull.ApplicationDataList;
 import com.ubhave.sensormanager.process.AbstractProcessor;
 import com.ubhave.sensormanager.process.pull.ApplicationProcessor;
 import com.ubhave.sensormanager.sensors.SensorUtils;

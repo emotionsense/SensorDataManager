@@ -191,11 +191,11 @@ public class FileStoreCleaner
 
 	private String getIdentifier() throws DataHandlerException
 	{
-		String user_id = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
-		if (user_id == null)
+		String device_id = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
+		if (device_id == null)
 		{
-			String device_id = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
-			if (device_id == null)
+			String user_id = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+			if (user_id  == null)
 			{
 				if (DataHandlerConfig.shouldLog())
 				{
@@ -203,8 +203,8 @@ public class FileStoreCleaner
 				}
 				throw new DataHandlerException(DataHandlerException.CONFIG_CONFLICT);
 			}
-			return device_id;
+			return user_id;
 		}
-		return user_id;
+		return device_id;
 	}
 }
