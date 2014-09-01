@@ -9,7 +9,6 @@ import com.ubhave.dataformatter.json.PushSensorJSONFormatter;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.data.env.AbstractEnvironmentData;
-import com.ubhave.sensormanager.data.env.PressureData;
 
 public abstract class AbstractEnvironmentFormatter extends PushSensorJSONFormatter
 {
@@ -22,7 +21,7 @@ public abstract class AbstractEnvironmentFormatter extends PushSensorJSONFormatt
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException
 	{
-		PressureData pData = (PressureData) data;
+		AbstractEnvironmentData pData = (AbstractEnvironmentData) data;
 		json.put(getMetric(), pData.getValue());
 	}
 	
@@ -40,7 +39,6 @@ public abstract class AbstractEnvironmentFormatter extends PushSensorJSONFormatt
 			try
 			{
 				data.setValue(((Double) jsonData.get(getMetric())).floatValue());
-				addExtraJSON(data, jsonData);
 			}
 			catch (Exception e)
 			{
@@ -55,9 +53,4 @@ public abstract class AbstractEnvironmentFormatter extends PushSensorJSONFormatt
 	}
 	
 	protected abstract AbstractEnvironmentData getInstance(long timestamp, SensorConfig config);
-	
-	protected void addExtraJSON(AbstractEnvironmentData data, JSONObject jsonData)
-	{
-		
-	}
 }
