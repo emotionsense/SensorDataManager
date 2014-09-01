@@ -3,6 +3,10 @@ package com.ubhave.dataformatter;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.dataformatter.json.env.AmbientTemperatureFormatter;
+import com.ubhave.dataformatter.json.env.HumidityFormatter;
+import com.ubhave.dataformatter.json.env.LightFormatter;
+import com.ubhave.dataformatter.json.env.PressureFormatter;
 import com.ubhave.dataformatter.json.pull.AccelerometerFormatter;
 import com.ubhave.dataformatter.json.pull.ApplicationFormatter;
 import com.ubhave.dataformatter.json.pull.BluetoothFormatter;
@@ -16,7 +20,6 @@ import com.ubhave.dataformatter.json.pull.WifiFormatter;
 import com.ubhave.dataformatter.json.push.BatteryFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStateFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStrengthFormatter;
-import com.ubhave.dataformatter.json.push.LightFormatter;
 import com.ubhave.dataformatter.json.push.PassiveLocationFormatter;
 import com.ubhave.dataformatter.json.push.PhoneStateFormatter;
 import com.ubhave.dataformatter.json.push.ProximityFormatter;
@@ -71,7 +74,12 @@ public abstract class DataFormatter
 			return new ConnectionStrengthFormatter(c);
 		case SensorUtils.SENSOR_TYPE_PASSIVE_LOCATION:
 			return new PassiveLocationFormatter(c);
-
+		case SensorUtils.SENSOR_TYPE_AMBIENT_TEMPERATURE:
+			return new AmbientTemperatureFormatter(c);
+		case SensorUtils.SENSOR_TYPE_HUMIDITY:
+			return new HumidityFormatter(c);
+		case SensorUtils.SENSOR_TYPE_PRESSURE:
+			return new PressureFormatter(c);
 		default:
 			return null;
 		}
