@@ -108,6 +108,7 @@ public class FileStoreCleaner
 						}
 						File parentDirectory = file.getParentFile();
 						file.delete();
+						
 						removeDirectoryIfEmpty(parentDirectory);
 					}
 				}
@@ -176,10 +177,11 @@ public class FileStoreCleaner
 						+ inputFile.getName()
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
 		
-		File outputFile = new File(uploadDirectory, gzipFileName);
-		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		FileInputStream in = new FileInputStream(inputFile);
 		int len;
+		
+		File outputFile = new File(uploadDirectory, gzipFileName);
+		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		while ((len = in.read(buffer)) > 0)
 		{
 			gzipOS.write(buffer, 0, len);
