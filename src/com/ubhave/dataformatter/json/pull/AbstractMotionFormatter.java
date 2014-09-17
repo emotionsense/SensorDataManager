@@ -52,11 +52,11 @@ public abstract class AbstractMotionFormatter extends PullSensorJSONFormatter
 	}
 
 	@Override
-	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException
+	protected void addSensorSpecificData(JSONObject json, SensorData motionData) throws JSONException, DataHandlerException
 	{
-		AbstractMotionData accelerometerData = (AbstractMotionData) data;
-		ArrayList<float[]> readings = accelerometerData.getSensorReadings();
-		ArrayList<Long> timestamps = accelerometerData.getSensorReadingTimestamps();
+		AbstractMotionData data = (AbstractMotionData) motionData;
+		ArrayList<float[]> readings = data.getSensorReadings();
+		ArrayList<Long> timestamps = data.getSensorReadingTimestamps();
 		if (readings != null && timestamps != null)
 		{
 			// Raw data set
@@ -64,18 +64,16 @@ public abstract class AbstractMotionFormatter extends PullSensorJSONFormatter
 			JSONArray ys = new JSONArray();
 			JSONArray zs = new JSONArray();
 
-			int samples = 0;
+			if (readings.isEmpty())
+			{
+				throw new DataHandlerException(DataHandlerException.NO_DATA);
+			}
 			for (int i = 0; i < readings.size(); i++)
 			{
-				samples++;
 				float[] sample = readings.get(i);
 				xs.put(sample[0]);
 				ys.put(sample[1]);
 				zs.put(sample[2]);
-			}
-			if (samples == 0)
-			{
-				throw new DataHandlerException(DataHandlerException.NO_DATA);
 			}
 
 			JSONArray ts = new JSONArray();

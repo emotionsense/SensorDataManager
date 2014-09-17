@@ -71,10 +71,12 @@ public abstract class JSONFormatter extends DataFormatter
 			{
 				addGenericData(json, data);
 				addSensorSpecificData(json, data);
-
 				SensorConfig config = data.getSensorConfig();
-				addGenericConfig(json, config);
-				addSensorSpecificConfig(json, config);
+				if (config != null)
+				{
+					addGenericConfig(json, config);
+					addSensorSpecificConfig(json, config);
+				}
 			}
 			catch (JSONException e)
 			{
