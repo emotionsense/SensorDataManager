@@ -2,6 +2,7 @@ package com.ubhave.datahandler.store;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
@@ -99,17 +100,22 @@ public class FileStoreCleaner
 					final File uploadDirectory = getUploadDirectory();
 					synchronized (fileTransferLock)
 					{
-						gzipFile(file, uploadDirectory);
-						if (DataHandlerConfig.shouldLog())
+						try
 						{
-							String abs = file.getAbsolutePath();
-							Log.d(TAG, "moved file " + abs + " to server upload dir");
-							Log.d(TAG, "deleting file: " + abs);
+							gzipFile(file, uploadDirectory);
+							if (DataHandlerConfig.shouldLog())
+							{
+								String abs = file.getAbsolutePath();
+								Log.d(TAG, "moved file " + abs + " to server upload dir");
+								Log.d(TAG, "deleting file: " + abs);
+							}
+							File parentDirectory = file.getParentFile();
+							file.delete();
+							
+							removeDirectoryIfEmpty(parentDirectory);
 						}
-						File parentDirectory = file.getParentFile();
-						file.delete();
-						
-						removeDirectoryIfEmpty(parentDirectory);
+						catch (FileNotFoundException e)
+						{}
 					}
 				}
 				catch (Exception e)
@@ -169,6 +175,7 @@ public class FileStoreCleaner
 
 	private void gzipFile(final File inputFile, final File uploadDirectory) throws IOException, DataHandlerException
 	{
+		FileInputStream in = new FileInputStream(inputFile);
 		byte[] buffer = new byte[1024];
 		File sourceDirectory = new File(inputFile.getParent());
 		String gzipFileName = 
@@ -177,9 +184,8 @@ public class FileStoreCleaner
 						+ inputFile.getName()
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
 		
-		FileInputStream in = new FileInputStream(inputFile);
-		int len;
 		
+		int len;
 		File outputFile = new File(uploadDirectory, gzipFileName);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 		while ((len = in.read(buffer)) > 0)

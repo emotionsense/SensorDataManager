@@ -14,6 +14,7 @@ import com.ubhave.dataformatter.json.pull.CallContentReaderFormatter;
 import com.ubhave.dataformatter.json.pull.CameraFormatter;
 import com.ubhave.dataformatter.json.pull.GyroscopeFormatter;
 import com.ubhave.dataformatter.json.pull.LocationFormatter;
+import com.ubhave.dataformatter.json.pull.MagneticFieldFormatter;
 import com.ubhave.dataformatter.json.pull.MicrophoneFormatter;
 import com.ubhave.dataformatter.json.pull.SmsContentReaderFormatter;
 import com.ubhave.dataformatter.json.pull.WifiFormatter;
@@ -80,6 +81,8 @@ public abstract class DataFormatter
 			return new HumidityFormatter(c);
 		case SensorUtils.SENSOR_TYPE_PRESSURE:
 			return new PressureFormatter(c);
+		case SensorUtils.SENSOR_TYPE_MAGNETIC_FIELD:
+			return new MagneticFieldFormatter(c);
 		default:
 			return null;
 		}
