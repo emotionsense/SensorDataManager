@@ -35,7 +35,7 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.SensorConfig;
 import com.ubhave.sensormanager.config.pull.PullSensorConfig;
 import com.ubhave.sensormanager.data.SensorData;
-import com.ubhave.sensormanager.data.pull.AccelerometerData;
+import com.ubhave.sensormanager.data.pull.AbstractMotionData;
 import com.ubhave.sensormanager.process.pull.AbstractMotionProcessor;
 
 public abstract class AbstractMotionFormatter extends PullSensorJSONFormatter
@@ -54,7 +54,7 @@ public abstract class AbstractMotionFormatter extends PullSensorJSONFormatter
 	@Override
 	protected void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException
 	{
-		AccelerometerData accelerometerData = (AccelerometerData) data;
+		AbstractMotionData accelerometerData = (AbstractMotionData) data;
 		ArrayList<float[]> readings = accelerometerData.getSensorReadings();
 		ArrayList<Long> timestamps = accelerometerData.getSensorReadingTimestamps();
 		if (readings != null && timestamps != null)
