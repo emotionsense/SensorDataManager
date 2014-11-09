@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.store;
+package com.ubhave.datastore.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
 
-public class LogFileStoreWriter
+public class FileStoreWriter
 {
 	private static final String TAG = "LogFileDataStorage";
 	
@@ -20,7 +20,7 @@ public class LogFileStoreWriter
 	private final DataHandlerConfig config;
 	private final HashMap<String, Object> lockMap;
 
-	public LogFileStoreWriter(final FileStoreCleaner fileStoreCleaner, final HashMap<String, Object> lockMap)
+	public FileStoreWriter(final FileStoreCleaner fileStoreCleaner, final HashMap<String, Object> lockMap)
 	{
 		this.config = DataHandlerConfig.getInstance();
 		this.fileStoreCleaner = fileStoreCleaner;
@@ -137,7 +137,7 @@ public class LogFileStoreWriter
 	{
 		try
 		{
-			return (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
+			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
 		}
 		catch (Exception e)
 		{

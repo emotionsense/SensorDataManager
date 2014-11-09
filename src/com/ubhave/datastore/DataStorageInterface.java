@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.store;
+package com.ubhave.datastore;
 
 import java.io.IOException;
 import java.util.List;

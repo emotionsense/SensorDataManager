@@ -8,7 +8,6 @@ import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractImmediateTransferLogger extends AbstractTransferLogger
 {
-
 	protected AbstractImmediateTransferLogger(Context context) throws DataHandlerException, ESException
 	{
 		super(context);

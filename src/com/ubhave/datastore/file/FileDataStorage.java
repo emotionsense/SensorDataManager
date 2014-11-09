@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.store;
+package com.ubhave.datastore.file;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,26 +17,25 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datastore.DataStorageInterface;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class DataStorage implements DataStorageInterface
-{
-//	private static final String TAG = "DataStorage";
-	
+public class FileDataStorage implements DataStorageInterface
+{	
 	private final Context context;
 	private final DataHandlerConfig config;
-	private final LogFileStoreWriter logFileStore;
+	private final FileStoreWriter logFileStore;
 	private final FileStoreCleaner fileStoreCleaner;
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
-	public DataStorage(Context context, final Object fileTransferLock)
+	public FileDataStorage(Context context, final Object fileTransferLock)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
 		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock);
-		this.logFileStore = new LogFileStoreWriter(fileStoreCleaner, lockMap);
+		this.logFileStore = new FileStoreWriter(fileStoreCleaner, lockMap);
 	}
 
 	@Override

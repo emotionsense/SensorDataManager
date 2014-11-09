@@ -26,7 +26,7 @@ import com.ubhave.sensormanager.data.SensorData;
 public abstract class AbstractDataLogger
 {
 	private final static String LOG_TAG = "AbstractDataLogger";
-	public final static String TAG_SURVEY_RESPONSE = "Survey";
+//	public final static String TAG_SURVEY_RESPONSE = "Survey"; // TODO move to x-sense
 	public final static String TAG_INTERACTION = "Interaction";
 	public final static String TAG_ERROR = "Error";
 
@@ -48,7 +48,7 @@ public abstract class AbstractDataLogger
 		this.context = context;
 		if (permissionGranted())
 		{
-			dataManager = ESDataManager.getInstance(context);
+			dataManager = ESDataManager.getInstance(context, getDataStorageType());
 			configureDataStorage();
 		}
 	}
@@ -56,9 +56,14 @@ public abstract class AbstractDataLogger
 	protected ArrayList<String> getPermissions()
 	{
 		ArrayList<String> permissions = new ArrayList<String>();
-		permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		if (getDataStorageType() == DataStorageConfig.STORAGE_TYPE_FILES)
+		{
+			permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		}
 		return permissions;
 	}
+	
+	protected abstract int getDataStorageType();
 
 	protected boolean permissionGranted()
 	{
@@ -86,9 +91,13 @@ public abstract class AbstractDataLogger
 		try
 		{
 			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
-			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
+			
+			if (getDataStorageType() == DataStorageConfig.STORAGE_TYPE_FILES)
+			{
+				dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
+			}
 		}
 		catch (Exception e)
 		{
@@ -181,11 +190,6 @@ public abstract class AbstractDataLogger
 		{
 			Log.d(LOG_TAG, "Failed logSensorData: null data or formatter");
 		}
-	}
-
-	public void logSurveyResponse(final String jsonResponse)
-	{
-		log(TAG_SURVEY_RESPONSE, jsonResponse);
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -324,8 +328,7 @@ public abstract class AbstractDataLogger
 						{
 							Log.d(LOG_TAG, "logExtra: " + tag);
 						}
-						if (!action.has(TAG_LOGGER)) // avoid over-writing user
-														// data
+						if (!action.has(TAG_LOGGER))
 						{
 							JSONObject loggingInfo = format(null, null, null);
 							action.put(TAG_LOGGER, loggingInfo);

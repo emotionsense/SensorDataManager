@@ -11,10 +11,11 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datahandler.store.DataStorage;
-import com.ubhave.datahandler.store.DataStorageInterface;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
+import com.ubhave.datastore.DataStorageInterface;
+import com.ubhave.datastore.db.DBDataStorage;
+import com.ubhave.datastore.file.FileDataStorage;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -23,15 +24,34 @@ public class ESDataManager implements ESDataManagerInterface
 	private static final String TAG = "DataManager";
 	private static final Object singletonLock = new Object();
 	private static final Object fileTransferLock = new Object();
-	private static ESDataManager instance;
+	
+	private static ESDataManager fileStorageInstance, databaseStorageInstance;
 
 	private final Context context;
 	private final DataHandlerConfig config;
 	private final DataStorageInterface storage;
 	private final DataTransferInterface transfer;
+	
+	// TODO single alarm for both instances
 	private final DataTransferAlarmListener dataTransferAlarmListener;
-
-	public static ESDataManager getInstance(final Context context) throws ESException, DataHandlerException
+	
+	public static ESDataManager getInstance(final Context context, int storageType) throws ESException, DataHandlerException
+	{
+		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
+		{
+			return createInstance(context, fileStorageInstance, DataStorageConfig.STORAGE_TYPE_FILES);
+		}
+		else if (storageType == DataStorageConfig.STORAGE_TYPE_DB)
+		{
+			return createInstance(context, databaseStorageInstance, DataStorageConfig.STORAGE_TYPE_DB);
+		}
+		else
+		{
+			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
+		}	
+	}
+	
+	private static ESDataManager createInstance(Context context, ESDataManager instance, int storageType) throws ESException, DataHandlerException
 	{
 		if (instance == null)
 		{
@@ -39,22 +59,36 @@ public class ESDataManager implements ESDataManagerInterface
 			{
 				if (instance == null)
 				{
-					instance = new ESDataManager(context);
+					instance = new ESDataManager(context, storageType);
 				}
 			}
 		}
 		return instance;
 	}
 
-	private ESDataManager(final Context context) throws ESException, DataHandlerException
+	private ESDataManager(final Context context, final int storageType) throws ESException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
-		storage = new DataStorage(context, fileTransferLock);
+		
+		storage = getStorage(storageType);
 		transfer = new DataTransfer(context);
 		
 		dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 		setupAlarmForTransfer();
+	}
+	
+	private DataStorageInterface getStorage(int storageType) throws DataHandlerException
+	{
+		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
+		{
+			return new FileDataStorage(context, fileTransferLock);
+		}
+		else if (storageType == DataStorageConfig.STORAGE_TYPE_DB)
+		{
+			return new DBDataStorage(context);
+		}
+		throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 	}
 
 	private void setupAlarmForTransfer() throws DataHandlerException
@@ -192,14 +226,14 @@ public class ESDataManager implements ESDataManagerInterface
 	{
 		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
 		{
-			long currentFileLife = (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
-			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, -1L);
+			long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
+			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
 			storage.moveArchivedFilesForUpload();
 			synchronized (fileTransferLock)
 			{
 				transfer.uploadData();
 			}
-			config.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, currentFileLife);
+			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
 		}
 	}
 }

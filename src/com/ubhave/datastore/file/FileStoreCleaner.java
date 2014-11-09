@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.store;
+package com.ubhave.datastore.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -136,7 +136,7 @@ public class FileStoreCleaner
 	{
 		try
 		{
-			return (Long) config.get(DataStorageConfig.FILE_LIFE_MILLIS);
+			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
 		}
 		catch (Exception e)
 		{

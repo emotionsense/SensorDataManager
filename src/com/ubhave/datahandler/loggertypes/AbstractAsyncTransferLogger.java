@@ -33,7 +33,7 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 		try
 		{
 			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_PERIODICALLY);
-			dataManager.setConfig(DataStorageConfig.FILE_LIFE_MILLIS, getFileLifeMillis());
+			dataManager.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, getDataLifeMillis());
 			dataManager.setConfig(DataTransferConfig.TRANSFER_ALARM_INTERVAL, getTransferAlarmLengthMillis());
 		}
 		catch (Exception e)
@@ -42,7 +42,7 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 		}
 	}
 
-	protected abstract long getFileLifeMillis();
+	protected abstract long getDataLifeMillis();
 
 	protected abstract long getTransferAlarmLengthMillis();
 	
