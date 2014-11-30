@@ -40,6 +40,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 
+import com.ubhave.datahandler.config.DataHandlerConstants;
+
 public class WebConnection
 {
 	public static String postToServer(final String serverUrl, final HashMap<String, String> params)
@@ -64,7 +66,7 @@ public class WebConnection
 				FileBody fileBody = new FileBody(file);
 				if (fileBody != null)
 				{
-					multipartEntity.addPart("uploadedfile", fileBody);
+					multipartEntity.addPart(DataHandlerConstants.POST_FILE_KEY, fileBody);
 				}
 			}
 
