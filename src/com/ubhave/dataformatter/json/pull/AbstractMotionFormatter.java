@@ -40,11 +40,11 @@ import com.ubhave.sensormanager.process.pull.AbstractMotionProcessor;
 
 public abstract class AbstractMotionFormatter extends PullSensorJSONFormatter
 {
-	private final static String X_AXIS = "xAxis";
-	private final static String Y_AXIS = "yAxis";
-	private final static String Z_AXIS = "zAxis";
-	private final static String READING_TIMESTAMPS = "sensorTimeStamps";
-	private final static String SAMPLE_LENGTH = "sampleLengthMillis";
+	protected final static String X_AXIS = "xAxis";
+	protected final static String Y_AXIS = "yAxis";
+	protected final static String Z_AXIS = "zAxis";
+	protected final static String READING_TIMESTAMPS = "sensorTimeStamps";
+	protected final static String SAMPLE_LENGTH = "sampleLengthMillis";
 
 	public AbstractMotionFormatter(final Context context, int sensorType)
 	{
