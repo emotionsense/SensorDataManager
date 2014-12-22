@@ -61,8 +61,8 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 			ProximityData data = new ProximityData(recvTimestamp, sensorConfig);
 			try
 			{
-				data.setDistance(((Double) jsonData.get(DISTANCE)).floatValue());
-				data.setMaxRange(((Double) jsonData.get(MAX_RANGE)).floatValue());
+				data.setDistance(getValue(jsonData, DISTANCE));
+				data.setMaxRange(getValue(jsonData, MAX_RANGE));
 			}
 			catch (Exception e)
 			{
@@ -71,5 +71,19 @@ public class ProximityFormatter extends PushSensorJSONFormatter
 			return data;
 		}
 		else return null;
+	}
+	
+	private float getValue(final JSONObject json, final String key) throws JSONException
+	{
+		try
+		{
+			float value = ((Float) json.get(key)).floatValue();
+			return value;
+		}
+		catch (ClassCastException e)
+		{
+			float value = ((Integer) json.get(key)).floatValue();
+			return value;
+		}
 	}
 }
