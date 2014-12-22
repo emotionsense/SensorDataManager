@@ -15,15 +15,15 @@ import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractTransferLogger extends AbstractDataLogger
 {
-	protected AbstractTransferLogger(Context context) throws DataHandlerException, ESException
+	protected AbstractTransferLogger(final Context context) throws DataHandlerException, ESException
 	{
 		super(context);
 	}
 	
 	@Override
-	protected ArrayList<String> getPermissions()
+	protected ArrayList<String> getPermissions(int storageType)
 	{
-		ArrayList<String> permissions = super.getPermissions();
+		ArrayList<String> permissions = super.getPermissions(storageType);
 		permissions.add(Manifest.permission.INTERNET);
 		return permissions;
 	}
@@ -49,7 +49,7 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 		}
 	}
 	
-	private JSONObject toJSON(HashMap<String, String> map) throws JSONException
+	private JSONObject toJSON(final HashMap<String, String> map) throws JSONException
 	{
 		JSONObject json = new JSONObject();
 		for (String key : map.keySet())

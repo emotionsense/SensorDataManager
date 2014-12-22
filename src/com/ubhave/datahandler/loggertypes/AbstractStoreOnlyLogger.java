@@ -8,7 +8,7 @@ import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractStoreOnlyLogger extends AbstractDataLogger
 {
-	protected AbstractStoreOnlyLogger(Context context) throws DataHandlerException, ESException
+	protected AbstractStoreOnlyLogger(final Context context) throws DataHandlerException, ESException
 	{
 		super(context);
 	}

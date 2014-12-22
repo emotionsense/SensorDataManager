@@ -12,16 +12,15 @@ import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 {
-
-	protected AbstractAsyncTransferLogger(Context context) throws DataHandlerException, ESException
+	protected AbstractAsyncTransferLogger(final Context context) throws DataHandlerException, ESException
 	{
 		super(context);
 	}
 	
 	@Override
-	protected ArrayList<String> getPermissions()
+	protected ArrayList<String> getPermissions(final int storageType)
 	{
-		ArrayList<String> permissions = super.getPermissions();
+		ArrayList<String> permissions = super.getPermissions(storageType);
 		permissions.add(Manifest.permission.ACCESS_NETWORK_STATE);
 		return permissions;
 	}
