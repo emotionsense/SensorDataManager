@@ -22,6 +22,7 @@ import com.ubhave.sensormanager.data.SensorData;
 public abstract class ESDataManager implements ESDataManagerInterface
 {
 	protected static final String TAG = "DataManager";
+	protected static final Object fileTransferLock = new Object();
 	private static final Object singletonLock = new Object();
 	
 	private static ESDataManager fileStorageInstance, databaseStorageInstance;
@@ -199,6 +200,63 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		else
 		{
 			storage.logExtra(tag, data);
+		}
+	}
+	
+	@Override
+	public void transferStoredData()
+	{
+		try
+		{
+			final String uploadDirectory = storage.prepareDataForUpload();
+			synchronized (fileTransferLock)
+			{
+				transfer.attemptDataUpload(uploadDirectory);
+			}
+		}
+		catch (DataHandlerException e)
+		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.e(TAG, "Upload directory is not set in the config.");
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Override
+	public void postAllStoredData() throws DataHandlerException
+	{
+		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
+		{
+			try
+			{
+				final long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
+				
+				config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
+				final String uploadDirectory = storage.prepareDataForUpload();
+				synchronized (fileTransferLock)
+				{
+					transfer.uploadData(uploadDirectory);
+				}
+				
+				config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
+			}
+			catch (DataHandlerException e)
+			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.e(TAG, "Upload directory is not set in the config.");
+					e.printStackTrace();
+				}
+			}
+		}
+		else
+		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "Transfer policy is store-only: nothing to do.");
+			}
 		}
 	}
 }

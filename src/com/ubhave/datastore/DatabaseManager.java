@@ -19,30 +19,4 @@ public class DatabaseManager extends ESDataManager
 	{
 		return new DBDataStorage(context);
 	}
-
-	@Override
-	public void transferStoredData()
-	{
-//		storage.moveArchivedFilesForUpload();
-//		synchronized (fileTransferLock)
-//		{
-//			transfer.attemptDataUpload();
-//		}
-	}
-	
-	@Override
-	public void postAllStoredData() throws DataHandlerException
-	{
-//		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
-//		{
-//			long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-//			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
-//			storage.moveArchivedFilesForUpload();
-//			synchronized (fileTransferLock)
-//			{
-//				transfer.uploadData();
-//			}
-//			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
-//		}
-	}
 }

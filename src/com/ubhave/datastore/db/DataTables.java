@@ -2,6 +2,9 @@ package com.ubhave.datastore.db;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,11 +32,14 @@ public class DataTables extends SQLiteOpenHelper
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+	{}
+	
+	public Set<String> getTableNames()
 	{
-		// TODO Ensure data is not lost on upgrade
+		return dataTableMap.keySet();
 	}
 
-	protected DataTable getTable(final String tableName)
+	public DataTable getTable(final String tableName)
 	{
 		if (!dataTableMap.containsKey(tableName))
 		{
@@ -69,5 +75,34 @@ public class DataTables extends SQLiteOpenHelper
 		List<SensorData> data = table.getRecentData(database, formatter, timeLimit);
 		database.close();
 		return data;
+	}
+	
+	public List<JSONObject> getUnsyncedData(final String tableName)
+	{
+		DataTable table = getTable(tableName);
+		SQLiteDatabase database = getReadableDatabase();
+		List<JSONObject> data = table.getUnsyncedData(database);
+		database.close();
+		return data;
+	}
+	
+	public void setSynced(final String tableName)
+	{	
+		DataTable table = getTable(tableName);
+		SQLiteDatabase database = getWritableDatabase();
+		database.beginTransaction();
+		try
+		{
+			table.setSynced(database);
+			database.setTransactionSuccessful();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			database.endTransaction();
+		}
 	}
 }

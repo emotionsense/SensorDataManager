@@ -13,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.http.WebConnection;
@@ -34,9 +33,8 @@ public class DataTransfer implements DataTransferInterface
 	}
 	
 	@Override
-	public void uploadData() throws DataHandlerException
+	public void uploadData(final String uploadDirectory) throws DataHandlerException
 	{
-		String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 		File directory = new File(uploadDirectory);
 		File[] files = directory.listFiles();
 		if (files != null)
@@ -51,7 +49,6 @@ public class DataTransfer implements DataTransferInterface
 				}
 				
 				String response = WebConnection.postDataToServer(url, file, paramsMap);
-
 				if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
 				{
 					if (DataHandlerConfig.shouldLog())
@@ -75,11 +72,11 @@ public class DataTransfer implements DataTransferInterface
 	}
 
 	@Override
-	public void attemptDataUpload()
+	public void attemptDataUpload(final String sourceDirectory)
 	{
 		try
 		{
-			uploadData();
+			uploadData(sourceDirectory);
 		}
 		catch (Exception e)
 		{

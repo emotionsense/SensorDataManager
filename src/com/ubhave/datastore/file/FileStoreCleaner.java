@@ -111,7 +111,6 @@ public class FileStoreCleaner
 							}
 							File parentDirectory = file.getParentFile();
 							file.delete();
-							
 							removeDirectoryIfEmpty(parentDirectory);
 						}
 						catch (FileNotFoundException e)
@@ -175,15 +174,14 @@ public class FileStoreCleaner
 
 	private void gzipFile(final File inputFile, final File uploadDirectory) throws IOException, DataHandlerException
 	{
+		DataHandlerConfig config = DataHandlerConfig.getInstance();
 		FileInputStream in = new FileInputStream(inputFile);
 		byte[] buffer = new byte[1024];
 		File sourceDirectory = new File(inputFile.getParent());
-		String gzipFileName = 
-						getIdentifier() + "_"
+		String gzipFileName = config.getIdentifier() + "_"
 						+ sourceDirectory.getName() + "_"
 						+ inputFile.getName()
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
-		
 		
 		int len;
 		File outputFile = new File(uploadDirectory, gzipFileName);
@@ -195,24 +193,5 @@ public class FileStoreCleaner
 		in.close();
 		gzipOS.finish();
 		gzipOS.close();
-	}
-
-	private String getIdentifier() throws DataHandlerException
-	{
-		String device_id = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
-		if (device_id == null)
-		{
-			String user_id = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
-			if (user_id  == null)
-			{
-				if (DataHandlerConfig.shouldLog())
-				{
-					Log.d(TAG, "Error: user identifier is: "+user_id+", device identifier is: "+device_id);
-				}
-				throw new DataHandlerException(DataHandlerException.CONFIG_CONFLICT);
-			}
-			return user_id;
-		}
-		return device_id;
 	}
 }

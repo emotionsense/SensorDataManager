@@ -25,5 +25,5 @@ public interface DataStorageInterface
 	/*
 	 * Initiating an upload
 	 */
-	public void moveArchivedFilesForUpload();
+	public String prepareDataForUpload() throws DataHandlerException;
 }

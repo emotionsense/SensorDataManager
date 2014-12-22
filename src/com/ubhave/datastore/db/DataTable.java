@@ -3,6 +3,9 @@ package com.ubhave.datastore.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,27 +35,53 @@ public class DataTable
 				+ ");");
 	}
 	
-//	public void dropTable(final SQLiteDatabase database)
-//	{
-//		database.execSQL("DROP TABLE IF EXISTS " + tableName);
-//	}
-//	public void removeContents(final SQLiteDatabase database)
-//	{
-//		database.delete(tableName, null, null);
-//	}
-//	public void upgradeTable(final SQLiteDatabase database)
-//	{
-//		dropTable(database);
-//		createTable(database);
-//	}
-	
 	public void add(final SQLiteDatabase database, final long entryTime, final String data)
 	{
-		// TODO: is there a limit to the String length?
 		ContentValues content = new ContentValues();
 		content.put(timeStampKey, entryTime);
 		content.put(dataKey, data);
 		database.insert(tableName, null, content);
+	}
+	
+	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database)
+	{
+		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
+		try
+		{
+			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ?", new String[]{"0"}, null, null, null);
+			if (cursor != null)
+			{
+				int dataColumn = cursor.getColumnIndex(dataKey);
+				cursor.moveToFirst();
+				while (!cursor.isAfterLast())
+				{
+					try
+					{
+						JSONObject entry = new JSONObject(cursor.getString(dataColumn));
+						unsyncedData.add(entry);
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+					cursor.moveToNext();
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return unsyncedData;
+	}
+	
+	public void setSynced(final SQLiteDatabase database)
+	{
+		ContentValues content = new ContentValues();
+		content.put(syncedWithServer, 1);
+		database.update(tableName, content, null, null);
+		
+		// TODO: remove synced data
 	}
 	
 	public List<SensorData> getRecentData(final SQLiteDatabase database, final JSONFormatter formatter, final long timeLimit)

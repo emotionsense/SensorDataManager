@@ -39,11 +39,12 @@ public class FileDataStorage implements DataStorageInterface
 	}
 
 	@Override
-	public void moveArchivedFilesForUpload()
+	public String prepareDataForUpload()
 	{
 		try
 		{
-			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			final String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			final String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 			File[] rootDirectory = (new File(rootPath)).listFiles();
 			if (rootDirectory != null)
 			{
@@ -52,7 +53,7 @@ public class FileDataStorage implements DataStorageInterface
 					if (directory != null && directory.isDirectory())
 					{
 						String directoryName = directory.getName();
-						if (directoryName != null && !directoryName.contains((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME)))
+						if (directoryName != null && !directoryName.contains(uploadDirectory))
 						{
 							synchronized (getLock(directoryName))
 							{
@@ -69,10 +70,12 @@ public class FileDataStorage implements DataStorageInterface
 					}
 				}
 			}
+			return uploadDirectory;
 		}
 		catch (DataHandlerException e)
 		{
 			e.printStackTrace();
+			return null;
 		}
 	}
 
