@@ -14,8 +14,8 @@ import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.datastore.DataStorageInterface;
-import com.ubhave.datastore.DatabaseManager;
-import com.ubhave.datastore.FileStoreManager;
+import com.ubhave.datastore.db.DatabaseManager;
+import com.ubhave.datastore.file.FileStoreManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -37,7 +37,6 @@ public class ESDataManager implements ESDataManagerInterface
 	
 	public static ESDataManager getInstance(final Context context, int storageType) throws ESException, DataHandlerException
 	{
-		Log.d("ESDataManager", "Requesting instance: "+storageType);
 		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 		{
 			if (fileStorageInstance == null)
@@ -46,7 +45,6 @@ public class ESDataManager implements ESDataManagerInterface
 				{
 					if (fileStorageInstance == null)
 					{
-						Log.d("ESDataManager", "Creating new file storage instance.");
 						fileStorageInstance = new FileStoreManager(context);
 					}
 				}
@@ -61,7 +59,6 @@ public class ESDataManager implements ESDataManagerInterface
 				{
 					if (databaseStorageInstance == null)
 					{
-						Log.d("ESDataManager", "Creating new db storage instance.");
 						databaseStorageInstance = new DatabaseManager(context);
 					}
 				}
@@ -76,7 +73,6 @@ public class ESDataManager implements ESDataManagerInterface
 				{
 					if (noStorageInstance == null)
 					{
-						Log.d("ESDataManager", "Creating new no storage instance.");
 						noStorageInstance = new ESDataManager(context);
 					}
 				}
@@ -93,8 +89,8 @@ public class ESDataManager implements ESDataManagerInterface
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
-		storage = getStorage();
 		transfer = new DataTransfer(context);
+		storage = getStorage();
 		if (storage != null)
 		{
 			setupAlarmForTransfer();
@@ -251,6 +247,11 @@ public class ESDataManager implements ESDataManagerInterface
 	{
 		try
 		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "transferStoredData()");
+			}
+			
 			final String uploadDirectory = storage.prepareDataForUpload();
 			synchronized (fileTransferLock)
 			{

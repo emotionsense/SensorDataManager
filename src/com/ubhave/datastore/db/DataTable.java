@@ -20,13 +20,9 @@ public class DataTable
 	protected final static String syncedWithServer = "synced";
 	protected final static String dataKey = "data";
 	
-	public DataTable(final String tableName)
+	public DataTable(final SQLiteDatabase database, final String tableName)
 	{
 		this.tableName = tableName.replaceAll(" ", "_");
-	}
-	
-	public void createTable(final SQLiteDatabase database)
-	{
 		database.execSQL("CREATE TABLE IF NOT EXISTS " + tableName
 				+ " ("
 				+ timeStampKey + " INTEGER NOT NULL, "

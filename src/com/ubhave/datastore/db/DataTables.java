@@ -42,7 +42,21 @@ public class DataTables extends SQLiteOpenHelper
 	{
 		if (!dataTableMap.containsKey(tableName))
 		{
-			dataTableMap.put(tableName, new DataTable(tableName));
+			SQLiteDatabase database = getWritableDatabase();
+			database.beginTransaction();
+			try
+			{
+				dataTableMap.put(tableName, new DataTable(database, tableName));
+				database.setTransactionSuccessful();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				database.endTransaction();
+			}
 		}
 		return dataTableMap.get(tableName);
 	}

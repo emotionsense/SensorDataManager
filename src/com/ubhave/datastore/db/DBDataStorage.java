@@ -28,6 +28,7 @@ public class DBDataStorage implements DataStorageInterface
 {
 	private static final String TAG = "LogDBDataStorage";
 	private static final String DEFAULT_DB_NAME = "com.ubhave.datastore";
+	private static final Object fileTransferLock = new Object();
 	
 	private final Context context;
 	private final DataTables dataTables;
@@ -35,7 +36,6 @@ public class DBDataStorage implements DataStorageInterface
 	public DBDataStorage(final Context context)
 	{
 		this.context = context;
-		
 		this.dataTables = new DataTables(context, getDBName());
 	}
 	
@@ -76,34 +76,39 @@ public class DBDataStorage implements DataStorageInterface
 					String gzipFileName = config.getIdentifier() + "_"
 							+ tableName + "_"
 							+ System.currentTimeMillis()
+							+ ".log"
 							+ DataStorageConstants.ZIP_FILE_SUFFIX;
-					if (DataHandlerConfig.shouldLog())
+					
+					synchronized (fileTransferLock)
 					{
-						Log.d(TAG, "Writing to: "+gzipFileName);
-					}
+						File outputFile = new File(outputDir, gzipFileName);
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(TAG, "Writing to: "+outputFile.getAbsolutePath());
+						}
 
-					File outputFile = new File(outputDir, gzipFileName);
-					GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
-					try
-					{
-						Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
+						GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
 						try
 						{
-							for (JSONObject entry : entries)
+							Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
+							try
 							{
-								writer.write(entry.toString() + "\n");
+								for (JSONObject entry : entries)
+								{
+									writer.write(entry.toString() + "\n");
+								}
+							}
+							finally
+							{
+								writer.flush();
+								gzipOS.finish();
+								writer.close();
 							}
 						}
 						finally
 						{
-							writer.flush();
-							writer.close();
+							gzipOS.close();
 						}
-					}
-					finally
-					{
-						gzipOS.finish();
-						gzipOS.close();
 					}
 				}
 			}

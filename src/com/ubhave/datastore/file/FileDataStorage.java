@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
@@ -44,8 +45,9 @@ public class FileDataStorage implements DataStorageInterface
 		try
 		{
 			final String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-			final String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
+			String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 			File[] rootDirectory = (new File(rootPath)).listFiles();
+			int counter = 0;
 			if (rootDirectory != null)
 			{
 				for (File directory : rootDirectory)
@@ -55,6 +57,7 @@ public class FileDataStorage implements DataStorageInterface
 						String directoryName = directory.getName();
 						if (directoryName != null && !directoryName.contains(uploadDirectory))
 						{
+							counter ++;
 							synchronized (getLock(directoryName))
 							{
 								try
@@ -70,7 +73,14 @@ public class FileDataStorage implements DataStorageInterface
 					}
 				}
 			}
-			return uploadDirectory;
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d("DataManager", "Moved "+counter+" directories.");
+			}
+			
+			
+			uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
+			return new File(uploadDirectory).getAbsolutePath();
 		}
 		catch (DataHandlerException e)
 		{
