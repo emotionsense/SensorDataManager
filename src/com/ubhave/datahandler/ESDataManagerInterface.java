@@ -27,7 +27,7 @@ public interface ESDataManagerInterface
 	/*
 	 * Retrieving logged data
 	 */
-	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException;
+	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws DataHandlerException, ESException, IOException;
 	
 	/*
 	 * Uploading stored data

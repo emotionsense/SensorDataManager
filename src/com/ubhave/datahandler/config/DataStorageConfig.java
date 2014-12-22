@@ -21,6 +21,7 @@ public class DataStorageConfig
 	 * Config Values
 	 */
 	
+	public final static int STORAGE_TYPE_NONE = -1;
 	public final static int STORAGE_TYPE_DB = 0;
 	public final static int STORAGE_TYPE_FILES = 1;
 

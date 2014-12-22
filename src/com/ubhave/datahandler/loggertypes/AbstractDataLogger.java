@@ -26,11 +26,12 @@ public abstract class AbstractDataLogger
 	private final static String LOG_TAG = "AbstractDataLogger";
 	protected ESDataManager dataManager;
 	protected final Context context;
+	protected final int storageType;
 
-	protected AbstractDataLogger(final Context context) throws DataHandlerException, ESException
+	protected AbstractDataLogger(final Context context, final int storageType) throws DataHandlerException, ESException
 	{
 		this.context = context;
-		int storageType = getDataStorageType();
+		this.storageType = storageType;
 		if (permissionGranted(storageType))
 		{
 			dataManager = ESDataManager.getInstance(context, storageType);
@@ -41,8 +42,6 @@ public abstract class AbstractDataLogger
 			throw new DataHandlerException(DataHandlerException.MISSING_PERMISSIONS);
 		}
 	}
-	
-	protected abstract int getDataStorageType();
 
 	protected ArrayList<String> getPermissions(int storageType)
 	{
@@ -82,7 +81,7 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-			if (getDataStorageType() == DataStorageConfig.STORAGE_TYPE_FILES)
+			if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 			{
 				dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
 			}

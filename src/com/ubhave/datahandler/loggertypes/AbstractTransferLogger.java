@@ -15,9 +15,9 @@ import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractTransferLogger extends AbstractDataLogger
 {
-	protected AbstractTransferLogger(final Context context) throws DataHandlerException, ESException
+	protected AbstractTransferLogger(final Context context, int storageType) throws DataHandlerException, ESException
 	{
-		super(context);
+		super(context, storageType);
 	}
 	
 	@Override

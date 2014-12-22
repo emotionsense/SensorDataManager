@@ -19,22 +19,25 @@ import com.ubhave.datastore.FileStoreManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
-public abstract class ESDataManager implements ESDataManagerInterface
+public class ESDataManager implements ESDataManagerInterface
 {
 	protected static final String TAG = "DataManager";
 	protected static final Object fileTransferLock = new Object();
 	private static final Object singletonLock = new Object();
 	
-	private static ESDataManager fileStorageInstance, databaseStorageInstance;
+	private static ESDataManager noStorageInstance;
+	private static ESDataManager fileStorageInstance;
+	private static ESDataManager databaseStorageInstance;
 
 	protected final Context context;
 	protected final DataHandlerConfig config;
 	protected final DataStorageInterface storage;
 	protected final DataTransferInterface transfer;
-	protected final DataTransferAlarmListener dataTransferAlarmListener;
+	protected DataTransferAlarmListener dataTransferAlarmListener;
 	
 	public static ESDataManager getInstance(final Context context, int storageType) throws ESException, DataHandlerException
 	{
+		Log.d("ESDataManager", "Requesting instance: "+storageType);
 		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 		{
 			if (fileStorageInstance == null)
@@ -43,6 +46,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				{
 					if (fileStorageInstance == null)
 					{
+						Log.d("ESDataManager", "Creating new file storage instance.");
 						fileStorageInstance = new FileStoreManager(context);
 					}
 				}
@@ -57,13 +61,29 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				{
 					if (databaseStorageInstance == null)
 					{
+						Log.d("ESDataManager", "Creating new db storage instance.");
 						databaseStorageInstance = new DatabaseManager(context);
 					}
 				}
 			}
 			return databaseStorageInstance;
 		}
-		else
+		else if (storageType == DataStorageConfig.STORAGE_TYPE_NONE)
+		{
+			if (noStorageInstance == null)
+			{
+				synchronized (singletonLock)
+				{
+					if (noStorageInstance == null)
+					{
+						Log.d("ESDataManager", "Creating new no storage instance.");
+						noStorageInstance = new ESDataManager(context);
+					}
+				}
+			}
+			return noStorageInstance;
+		}
+		else 
 		{
 			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 		}	
@@ -73,15 +93,18 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
-		
 		storage = getStorage();
 		transfer = new DataTransfer(context);
-		
-		dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
-		setupAlarmForTransfer();
+		if (storage != null)
+		{
+			setupAlarmForTransfer();
+		}
 	}
 	
-	protected abstract DataStorageInterface getStorage();
+	protected DataStorageInterface getStorage()
+	{
+		return null;
+	}
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
@@ -89,6 +112,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
 			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
+			dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 			dataTransferAlarmListener.setConnectionTypeAndStart(connectionType);
 		}
 	}
@@ -103,7 +127,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			{
 				setupAlarmForTransfer();
 			}
-			else
+			else if (dataTransferAlarmListener != null)
 			{
 				if (DataHandlerConfig.shouldLog())
 				{
@@ -114,7 +138,10 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		}
 		else if (key.equals(DataTransferConfig.TRANSFER_ALARM_INTERVAL))
 		{
-			dataTransferAlarmListener.configUpdated();
+			if (dataTransferAlarmListener != null)
+			{
+				dataTransferAlarmListener.configUpdated();
+			}
 		}
 	}
 	
@@ -125,17 +152,21 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	}
 
 	@Override
-	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
+	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws DataHandlerException, ESException, IOException
 	{
-		long startTime = System.currentTimeMillis();
-		List<SensorData> recentData = storage.getRecentSensorData(sensorId, startTimestamp);
-		long duration = System.currentTimeMillis() - startTime;
-
-		if (DataHandlerConfig.shouldLog())
+		if (storage != null)
 		{
-			Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
+			long startTime = System.currentTimeMillis();
+			List<SensorData> recentData = storage.getRecentSensorData(sensorId, startTimestamp);
+			long duration = System.currentTimeMillis() - startTime;
+
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "getRecentSensorData() duration for processing (ms) : " + duration);
+			}
+			return recentData;
 		}
-		return recentData;
+		throw new DataHandlerException(DataHandlerException.NO_STORAGE);
 	}
 
 	private boolean shouldTransferImmediately()
@@ -160,9 +191,13 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			{
 				transfer.postData(formatter.toString(data));
 			}
-			else
+			else if (storage != null)
 			{
 				storage.logSensorData(data, formatter);
+			}
+			else
+			{
+				throw new DataHandlerException(DataHandlerException.NO_STORAGE);
 			}
 		}
 	}
@@ -184,9 +219,13 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		{
 			transfer.postError(error);
 		}
-		else
+		else if (storage != null)
 		{
 			storage.logError(error);
+		}
+		else
+		{
+			throw new DataHandlerException(DataHandlerException.NO_STORAGE);
 		}
 	}
 
@@ -197,9 +236,13 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		{
 			transfer.postExtra(tag, data);
 		}
-		else
+		else if (storage != null)
 		{
 			storage.logExtra(tag, data);
+		}
+		else
+		{
+			throw new DataHandlerException(DataHandlerException.NO_STORAGE);
 		}
 	}
 	

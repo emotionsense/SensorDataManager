@@ -30,7 +30,7 @@ public class FileDataStorage implements DataStorageInterface
 	private final FileStoreCleaner fileStoreCleaner;
 	private static HashMap<String, Object> lockMap = new HashMap<String, Object>();
 
-	public FileDataStorage(Context context, final Object fileTransferLock)
+	public FileDataStorage(final Context context, final Object fileTransferLock)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();

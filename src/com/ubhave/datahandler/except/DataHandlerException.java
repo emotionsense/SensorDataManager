@@ -3,34 +3,36 @@ package com.ubhave.datahandler.except;
 public class DataHandlerException extends Exception
 {
 	private static final long serialVersionUID = 8240175615135197888L;
-	
-	public final static int UNKNOWN_CONFIG 					= 10;
-	public final static int NO_URL_TARGET 					= 11;
-	public final static int IO_EXCEPTION 					= 12;
-	public final static int UNIMPLEMENTED 					= 13;
-	public final static int WRITING_TO_DEFAULT_DIRECTORY 	= 14;
-	public final static int CONFIG_CONFLICT 				= 15;
-	public final static int POST_FAILED 					= 16;
-	public final static int NO_DATA							= 17;
-	public final static int MISSING_PERMISSIONS				= 18;
-	
-	private final static String MESSAGE_UNKNOWN_CONFIG		= "Unknown config key.";
-	private final static String MESSAGE_NO_URL				= "Missing URL target.";
-	private final static String MESSAGE_IO_EXCEPT			= "I/O Error!";
-	private final static String MESSAGE_UNIMPLEMENTED		= "This feature is unimplemented";
-	private final static String MESSAGE_DEFAULT				= "Error: attempting to write to default directory.";
-	private final static String MESSAGE_CONFIG_CONFLICT		= "Conflict in config values!";
-	private final static String MESSAGE_POST_FAIL			= "Failure posting data to server.";
-	private final static String MESSAGE_NO_DATA				= "No data.";
-	private final static String MESSAGE_PERMISSIONS			= "Missing required permissions.";
-	
+
+	public final static int UNKNOWN_CONFIG = 10;
+	public final static int NO_URL_TARGET = 11;
+	public final static int IO_EXCEPTION = 12;
+	public final static int UNIMPLEMENTED = 13;
+	public final static int WRITING_TO_DEFAULT_DIRECTORY = 14;
+	public final static int CONFIG_CONFLICT = 15;
+	public final static int POST_FAILED = 16;
+	public final static int NO_DATA = 17;
+	public final static int MISSING_PERMISSIONS = 18;
+	public final static int NO_STORAGE = 19;
+
+	private final static String MESSAGE_UNKNOWN_CONFIG = "Unknown config key.";
+	private final static String MESSAGE_NO_URL = "Missing URL target.";
+	private final static String MESSAGE_IO_EXCEPT = "I/O Error!";
+	private final static String MESSAGE_UNIMPLEMENTED = "This feature is unimplemented";
+	private final static String MESSAGE_DEFAULT = "Error: attempting to write to default directory.";
+	private final static String MESSAGE_CONFIG_CONFLICT = "Conflict in config values!";
+	private final static String MESSAGE_POST_FAIL = "Failure posting data to server.";
+	private final static String MESSAGE_NO_DATA = "No data.";
+	private final static String MESSAGE_PERMISSIONS = "Missing required permissions.";
+	private final static String MESSAGE_NO_STORAGE = "No storage defined.";
+
 	private final int errorCode;
-	
+
 	public DataHandlerException(int code)
 	{
 		errorCode = code;
 	}
-	
+
 	public int getErrorCode()
 	{
 		return errorCode;
@@ -57,6 +59,10 @@ public class DataHandlerException extends Exception
 			return MESSAGE_POST_FAIL;
 		case NO_DATA:
 			return MESSAGE_NO_DATA;
+		case MISSING_PERMISSIONS:
+			return MESSAGE_PERMISSIONS;
+		case NO_STORAGE:
+			return MESSAGE_NO_STORAGE;
 		}
 		return super.getMessage();
 	}
