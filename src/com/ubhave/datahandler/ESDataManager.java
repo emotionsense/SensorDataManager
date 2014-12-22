@@ -14,82 +14,73 @@ import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.datastore.DataStorageInterface;
-import com.ubhave.datastore.db.DBDataStorage;
-import com.ubhave.datastore.file.FileDataStorage;
+import com.ubhave.datastore.DatabaseManager;
+import com.ubhave.datastore.FileStoreManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
-public class ESDataManager implements ESDataManagerInterface
+public abstract class ESDataManager implements ESDataManagerInterface
 {
-	private static final String TAG = "DataManager";
+	protected static final String TAG = "DataManager";
 	private static final Object singletonLock = new Object();
-	private static final Object fileTransferLock = new Object();
 	
 	private static ESDataManager fileStorageInstance, databaseStorageInstance;
 
-	private final Context context;
-	private final DataHandlerConfig config;
-	private final DataStorageInterface storage;
-	private final DataTransferInterface transfer;
-	
-	// TODO single alarm for both instances
-	private final DataTransferAlarmListener dataTransferAlarmListener;
+	protected final Context context;
+	protected final DataHandlerConfig config;
+	protected final DataStorageInterface storage;
+	protected final DataTransferInterface transfer;
+	protected final DataTransferAlarmListener dataTransferAlarmListener;
 	
 	public static ESDataManager getInstance(final Context context, int storageType) throws ESException, DataHandlerException
 	{
 		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 		{
-			return createInstance(context, fileStorageInstance, DataStorageConfig.STORAGE_TYPE_FILES);
+			if (fileStorageInstance == null)
+			{
+				synchronized (singletonLock)
+				{
+					if (fileStorageInstance == null)
+					{
+						fileStorageInstance = new FileStoreManager(context);
+					}
+				}
+			}
+			return fileStorageInstance;
 		}
 		else if (storageType == DataStorageConfig.STORAGE_TYPE_DB)
 		{
-			return createInstance(context, databaseStorageInstance, DataStorageConfig.STORAGE_TYPE_DB);
+			if (databaseStorageInstance == null)
+			{
+				synchronized (singletonLock)
+				{
+					if (databaseStorageInstance == null)
+					{
+						databaseStorageInstance = new DatabaseManager(context);
+					}
+				}
+			}
+			return databaseStorageInstance;
 		}
 		else
 		{
 			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 		}	
 	}
-	
-	private static ESDataManager createInstance(Context context, ESDataManager instance, int storageType) throws ESException, DataHandlerException
-	{
-		if (instance == null)
-		{
-			synchronized (singletonLock)
-			{
-				if (instance == null)
-				{
-					instance = new ESDataManager(context, storageType);
-				}
-			}
-		}
-		return instance;
-	}
 
-	private ESDataManager(final Context context, final int storageType) throws ESException, DataHandlerException
+	protected ESDataManager(final Context context) throws ESException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
 		
-		storage = getStorage(storageType);
+		storage = getStorage();
 		transfer = new DataTransfer(context);
 		
 		dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 		setupAlarmForTransfer();
 	}
 	
-	private DataStorageInterface getStorage(int storageType) throws DataHandlerException
-	{
-		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
-		{
-			return new FileDataStorage(context, fileTransferLock);
-		}
-		else if (storageType == DataStorageConfig.STORAGE_TYPE_DB)
-		{
-			return new DBDataStorage(context);
-		}
-		throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
-	}
+	protected abstract DataStorageInterface getStorage();
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
@@ -208,32 +199,6 @@ public class ESDataManager implements ESDataManagerInterface
 		else
 		{
 			storage.logExtra(tag, data);
-		}
-	}
-
-	@Override
-	public void transferStoredData()
-	{
-		storage.moveArchivedFilesForUpload();
-		synchronized (fileTransferLock)
-		{
-			transfer.attemptDataUpload();
-		}
-	}
-	
-	@Override
-	public void postAllStoredData() throws DataHandlerException
-	{
-		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
-		{
-			long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
-			storage.moveArchivedFilesForUpload();
-			synchronized (fileTransferLock)
-			{
-				transfer.uploadData();
-			}
-			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
 		}
 	}
 }

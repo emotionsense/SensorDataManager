@@ -28,6 +28,7 @@ public class DBDataStorage implements DataStorageInterface
 	@Override
 	public void moveArchivedFilesForUpload()
 	{
+		// TODO compress files into temp cache
 		// try
 		// {
 		// String rootPath = (String)

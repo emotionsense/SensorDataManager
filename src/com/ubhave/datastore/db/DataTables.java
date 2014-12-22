@@ -14,6 +14,7 @@ public class DataTables extends SQLiteOpenHelper
 {
 	private final static String dbName = "com.ubhave.datastore";
 	private final static int dbVersion = 1;
+	
 	private final HashMap<String, DataTable> dataTableMap;
 
 	public DataTables(final Context context)
@@ -23,15 +24,13 @@ public class DataTables extends SQLiteOpenHelper
 	}
 
 	@Override
-	public void onCreate(SQLiteDatabase db)
-	{
-		// Nothing
-	}
+	public void onCreate(final SQLiteDatabase db)
+	{}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		// TODO Auto-generated method stub
+		// TODO Ensure data is not lost on upgrade
 	}
 
 	protected DataTable getTable(final String tableName)
