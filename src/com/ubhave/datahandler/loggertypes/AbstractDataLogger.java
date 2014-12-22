@@ -84,7 +84,7 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
 			if (getDataStorageType() == DataStorageConfig.STORAGE_TYPE_FILES)
 			{
-				dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME, getLocalStorageDirectoryName());
+				dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
 			}
 		}
 		catch (Exception e)
@@ -94,7 +94,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	protected abstract String getLocalStorageDirectoryName();
+	protected abstract String getStorageName();
 
 	protected abstract String getUniqueUserId();
 

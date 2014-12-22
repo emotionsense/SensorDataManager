@@ -16,6 +16,7 @@ import android.util.Log;
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datastore.DataStorageInterface;
@@ -26,13 +27,30 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public class DBDataStorage implements DataStorageInterface
 {
 	private static final String TAG = "LogDBDataStorage";
+	private static final String DEFAULT_DB_NAME = "com.ubhave.datastore";
+	
 	private final Context context;
 	private final DataTables dataTables;
 
 	public DBDataStorage(final Context context)
 	{
 		this.context = context;
-		this.dataTables = new DataTables(context);
+		
+		this.dataTables = new DataTables(context, getDBName());
+	}
+	
+	private String getDBName()
+	{
+		try
+		{
+			String dbName = (String) DataHandlerConfig.getInstance().get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
+			return dbName;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return DEFAULT_DB_NAME;
+		}
 	}
 
 	@Override

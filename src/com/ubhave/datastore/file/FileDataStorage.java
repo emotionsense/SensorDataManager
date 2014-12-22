@@ -43,7 +43,7 @@ public class FileDataStorage implements DataStorageInterface
 	{
 		try
 		{
-			final String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			final String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
 			final String uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 			File[] rootDirectory = (new File(rootPath)).listFiles();
 			if (rootDirectory != null)
@@ -86,7 +86,7 @@ public class FileDataStorage implements DataStorageInterface
 		try
 		{
 			String sensorName = SensorUtils.getSensorName(sensorId);
-			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
 			JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
 			synchronized (getLock(sensorName))
 			{

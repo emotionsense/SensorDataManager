@@ -58,7 +58,7 @@ public class DataHandlerConfig
 	
 	private void updateLocalUploadDirectoryPath()
 	{
-		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME);
+		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
 		String uploadDir = absoluteDir +"/"+ config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		config.put(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH, uploadDir);
 	}
@@ -67,7 +67,7 @@ public class DataHandlerConfig
 	{
 		if (validKeys.contains(key))
 		{
-			if (key.equals(DataStorageConfig.LOCAL_STORAGE_ROOT_DIRECTORY_NAME))
+			if (key.equals(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME))
 			{
 				String absoluteDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String) value;
 				config.put(key,  absoluteDir);

@@ -15,12 +15,11 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTables extends SQLiteOpenHelper
 {
-	private final static String dbName = "com.ubhave.datastore";
 	private final static int dbVersion = 1;
 	
 	private final HashMap<String, DataTable> dataTableMap;
 
-	public DataTables(final Context context)
+	public DataTables(final Context context, final String dbName)
 	{
 		super(context, dbName, null, dbVersion);
 		this.dataTableMap = new HashMap<String, DataTable>();
