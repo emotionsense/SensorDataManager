@@ -2,6 +2,7 @@ package com.ubhave.datahandler.loggertypes;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
@@ -177,73 +178,33 @@ public abstract class AbstractDataLogger
 
 	public void logError(final ApplicationError error)
 	{
-		if (error != null)
-		{
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(LOG_TAG, "logError: " + error.getDataType());
-						}
-						JSONObject json = error.format(getUniqueUserId(), getDeviceId());
-						dataManager.logError(json.toString());
-					}
-					catch (Exception e)
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(LOG_TAG, "logError: " + e.getLocalizedMessage());
-						}
-						e.printStackTrace();
-					}
-				}
-			}.start();
-		}
-		else if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(LOG_TAG, "Attempted to log null ApplicationError");
-		}
+		logExtra(ApplicationError.TAG, error);
 	}
 
 	public void logInteraction(final UserInteraction interaction)
 	{
-		if (interaction != null)
-		{
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(LOG_TAG, "logInteraction: " + interaction.getDataType());
-						}
-						JSONObject json = interaction.format(getUniqueUserId(), getDeviceId());
-						dataManager.logExtra(UserInteraction.TAG, json.toString());
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}.start();
-		}
-		else if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(LOG_TAG, "Attempted to log null interaction.");
-		}
+		logExtra(UserInteraction.TAG, interaction);
 	}
 
 	public void logExtra(final String tag, final AbstractLogData action)
 	{
-		if (tag != null && action != null)
+		try
+		{
+			JSONObject json = action.format(getUniqueUserId(), getDeviceId());
+			logExtra(tag, json);
+		}
+		catch (JSONException e)
+		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(LOG_TAG, "Failed logExtra: JSONException");
+			}
+		}
+	}
+	
+	public void logExtra(final String tag, final JSONObject json)
+	{
+		if (tag != null && json != null)
 		{
 			new Thread()
 			{
@@ -256,7 +217,6 @@ public abstract class AbstractDataLogger
 						{
 							Log.d(LOG_TAG, "logExtra: " + tag);
 						}
-						JSONObject json = action.format(getUniqueUserId(), getDeviceId());
 						dataManager.logExtra(tag, json.toString());
 					}
 					catch (Exception e)

@@ -154,12 +154,6 @@ public class DBDataStorage implements DataStorageInterface
 	}
 
 	@Override
-	public void logError(final String error) throws DataHandlerException
-	{
-		dataTables.writeData(DataStorageConstants.ERROR_DIRECTORY_NAME, error);
-	}
-
-	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
 		dataTables.writeData(tag, data);

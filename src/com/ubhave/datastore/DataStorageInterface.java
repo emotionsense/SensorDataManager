@@ -19,7 +19,6 @@ public interface DataStorageInterface
 	 * Write data
 	 */
 	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException;
-	public void logError(final String error) throws DataHandlerException;
 	public void logExtra(final String tag, final String data) throws DataHandlerException;
 	
 	/*

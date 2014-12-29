@@ -21,7 +21,6 @@ public interface ESDataManagerInterface
 	 */
 	public void logSensorData(final SensorData data) throws DataHandlerException;
 	public void logSensorData(final SensorData data, DataFormatter formatter) throws DataHandlerException;
-	public void logError(final String error) throws DataHandlerException;
 	public void logExtra(final String tag, final String data) throws DataHandlerException;
 	
 	/*

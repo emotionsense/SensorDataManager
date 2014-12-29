@@ -209,23 +209,6 @@ public class ESDataManager implements ESDataManagerInterface
 	}
 
 	@Override
-	public void logError(final String error) throws DataHandlerException
-	{
-		if (shouldTransferImmediately())
-		{
-			transfer.postError(error);
-		}
-		else if (storage != null)
-		{
-			storage.logError(error);
-		}
-		else
-		{
-			throw new DataHandlerException(DataHandlerException.NO_STORAGE);
-		}
-	}
-
-	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
 		if (shouldTransferImmediately())
