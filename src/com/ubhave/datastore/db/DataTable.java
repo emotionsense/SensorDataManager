@@ -9,8 +9,10 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTable
@@ -20,13 +22,16 @@ public class DataTable
 	protected final static String syncedWithServer = "synced";
 	protected final static String dataKey = "data";
 	
+	private final static String SYNCED = "1";
+	private final static String UNSYNCED = "0";
+	
 	public DataTable(final SQLiteDatabase database, final String tableName)
 	{
 		this.tableName = tableName.replaceAll(" ", "_");
 		database.execSQL("CREATE TABLE IF NOT EXISTS " + tableName
 				+ " ("
 				+ timeStampKey + " INTEGER NOT NULL, "
-				+ syncedWithServer + " INTEGER DEFAULT 0, "
+				+ syncedWithServer + " INTEGER DEFAULT "+UNSYNCED+", "
 				+ dataKey + " TEXT NOT NULL"
 				+ ");");
 	}
@@ -44,7 +49,7 @@ public class DataTable
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ?", new String[]{"0"}, null, null, null);
+			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ?", new String[]{UNSYNCED}, null, null, null);
 			if (cursor != null)
 			{
 				int dataColumn = cursor.getColumnIndex(dataKey);
@@ -74,10 +79,13 @@ public class DataTable
 	public void setSynced(final SQLiteDatabase database)
 	{
 		ContentValues content = new ContentValues();
-		content.put(syncedWithServer, 1);
+		content.put(syncedWithServer, SYNCED);
 		database.update(tableName, content, null, null);
-		
-		// TODO: remove synced data
+		int numRows = database.delete(tableName, syncedWithServer+" == ?", new String[]{SYNCED});
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d("DataTable", "Deleted "+numRows+" synced rows from "+tableName);
+		}
 	}
 	
 	public List<SensorData> getRecentData(final SQLiteDatabase database, final JSONFormatter formatter, final long timeLimit)

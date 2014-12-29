@@ -52,6 +52,15 @@ public class DBDataStorage implements DataStorageInterface
 			return DEFAULT_DB_NAME;
 		}
 	}
+	
+	@Override
+	public void onDataUploaded()
+	{
+		for (String tableName : dataTables.getTableNames())
+		{
+			dataTables.setSynced(tableName);
+		}
+	}
 
 	@Override
 	public String prepareDataForUpload()

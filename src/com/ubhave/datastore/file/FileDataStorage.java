@@ -38,6 +38,10 @@ public class FileDataStorage implements DataStorageInterface
 		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock);
 		this.logFileStore = new FileStoreWriter(fileStoreCleaner, lockMap);
 	}
+	
+	@Override
+	public void onDataUploaded()
+	{}
 
 	@Override
 	public String prepareDataForUpload()

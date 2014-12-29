@@ -256,6 +256,7 @@ public class ESDataManager implements ESDataManagerInterface
 			synchronized (fileTransferLock)
 			{
 				transfer.attemptDataUpload(uploadDirectory);
+				storage.onDataUploaded();
 			}
 		}
 		catch (DataHandlerException e)
