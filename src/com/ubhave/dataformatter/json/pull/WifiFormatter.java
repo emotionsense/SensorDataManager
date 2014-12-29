@@ -102,6 +102,8 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		boolean setRawData = true;
 		boolean setProcessedData = false;
 		
+		// TODO: what if result contains UNAVAILABLE
+		
 		ArrayList<WifiScanResult> wifiList = null; 
 		try
 		{

@@ -14,8 +14,8 @@ import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.logdata.AbstractLogData;
 import com.ubhave.datahandler.logdata.ApplicationError;
-import com.ubhave.datahandler.logdata.LogExtra;
 import com.ubhave.datahandler.logdata.UserInteraction;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
@@ -241,7 +241,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logExtra(final String tag, final LogExtra action)
+	public void logExtra(final String tag, final AbstractLogData action)
 	{
 		if (tag != null && action != null)
 		{
