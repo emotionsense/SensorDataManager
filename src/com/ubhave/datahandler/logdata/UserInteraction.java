@@ -1,8 +1,5 @@
 package com.ubhave.datahandler.logdata;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class UserInteraction extends AbstractLogData
 {
 	public final static String TAG = "Interaction";
@@ -18,13 +15,5 @@ public class UserInteraction extends AbstractLogData
 	public String getDataType()
 	{
 		return tag;
-	}
-	
-	@Override
-	public JSONObject format(final String userId, final String deviceId) throws NullPointerException, JSONException
-	{
-		JSONObject json = super.format(userId, deviceId);
-		
-		return json;
 	}
 }

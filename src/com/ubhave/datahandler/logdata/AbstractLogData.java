@@ -22,11 +22,18 @@ public abstract class AbstractLogData
 	private final String title;
 	private final String message;
 	
+	public AbstractLogData()
+	{
+		this.logTime = System.currentTimeMillis();
+		this.title = null;
+		this.message = null;
+	}
+	
 	public AbstractLogData(final String title, final String message)
 	{
+		this.logTime = System.currentTimeMillis();
 		this.title = title;
 		this.message = message;
-		this.logTime = System.currentTimeMillis();
 	}
 	
 	private String localTime()
