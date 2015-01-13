@@ -63,7 +63,10 @@ public class DBDataStorage implements DataStorageInterface
 		{
 			if (d.getName().contains(DataStorageConstants.LOG_FILE_SUFFIX))
 			{
-				Log.d(TAG, "Delete temp file: "+d.getName());
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Delete temp file: "+d.getName());
+				}
 				d.delete();
 			}
 		}
@@ -149,7 +152,11 @@ public class DBDataStorage implements DataStorageInterface
 	@Override
 	public String prepareDataForUpload()
 	{
-		Log.d(TAG, "DB prepareDataForUpload()");
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "DB prepareDataForUpload()");
+		}
+		
 		try
 		{
 			DataHandlerConfig config = DataHandlerConfig.getInstance();
@@ -160,16 +167,15 @@ public class DBDataStorage implements DataStorageInterface
 			int written = 0;
 			for (String tableName : dataTables.getTableNames())
 			{
-				Log.d(TAG, "Prepare: "+tableName);
 				try
 				{
 					List<JSONObject> entries = dataTables.getUnsyncedData(tableName);
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "Prepare: "+tableName+" has "+entries.size()+" entries for upload.");
+					}
 					if (!entries.isEmpty())
 					{
-//						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "Prepare: "+tableName+" has "+entries.size()+" entries.");
-						}
 						writeEntries(outputDir, id, tableName, entries);
 						written++;
 					}

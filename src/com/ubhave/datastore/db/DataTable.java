@@ -64,7 +64,7 @@ public class DataTable
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			long timeLimit = getDurationLimit();
+			long timeLimit = System.currentTimeMillis() - getDurationLimit();
 			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
