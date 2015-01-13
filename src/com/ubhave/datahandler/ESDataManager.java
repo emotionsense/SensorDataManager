@@ -226,7 +226,7 @@ public class ESDataManager implements ESDataManagerInterface
 	}
 	
 	@Override
-	public void transferStoredData()
+	public boolean transferStoredData()
 	{
 		try
 		{
@@ -236,19 +236,24 @@ public class ESDataManager implements ESDataManagerInterface
 			}
 			
 			final String uploadDirectory = storage.prepareDataForUpload();
-			synchronized (fileTransferLock)
+			if (uploadDirectory != null)
 			{
-				transfer.attemptDataUpload(uploadDirectory);
-				storage.onDataUploaded();
+				synchronized (fileTransferLock)
+				{
+					transfer.uploadData(uploadDirectory);
+					storage.onDataUploaded();
+				}
 			}
+			return true;
 		}
 		catch (DataHandlerException e)
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.e(TAG, "Upload directory is not set in the config.");
+				Log.e(TAG, e.getLocalizedMessage());
 				e.printStackTrace();
 			}
+			return false;
 		}
 	}
 	
@@ -257,26 +262,13 @@ public class ESDataManager implements ESDataManagerInterface
 	{
 		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
 		{
-			try
+			final long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
+			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
+			boolean dataUploaded = transferStoredData();
+			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
+			if (!dataUploaded)
 			{
-				final long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-				
-				config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
-				final String uploadDirectory = storage.prepareDataForUpload();
-				synchronized (fileTransferLock)
-				{
-					transfer.uploadData(uploadDirectory);
-				}
-				
-				config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
-			}
-			catch (DataHandlerException e)
-			{
-				if (DataHandlerConfig.shouldLog())
-				{
-					Log.e(TAG, "Upload directory is not set in the config.");
-					e.printStackTrace();
-				}
+				throw new DataHandlerException(DataHandlerException.POST_FAILED);
 			}
 		}
 		else

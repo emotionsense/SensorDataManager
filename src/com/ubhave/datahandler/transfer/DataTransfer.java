@@ -91,19 +91,6 @@ public class DataTransfer implements DataTransferInterface
 		}
 	}
 
-	@Override
-	public void attemptDataUpload(final String sourceDirectory)
-	{
-		try
-		{
-			uploadData(sourceDirectory);
-		}
-		catch (Exception e)
-		{
-			Log.e(TAG, Log.getStackTraceString(e));
-		}
-	}
-
 	private void setLogsUploadTime(long timestamp)
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

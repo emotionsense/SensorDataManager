@@ -9,8 +9,9 @@ import org.json.JSONObject;
 
 public abstract class AbstractLogData
 {
-	private final static String TAG_USER_ID = "userId";
-	private final static String TAG_DEVICE_ID = "deviceId";
+	private final static String TAG_USER_ID = "userid";
+	private final static String TAG_DEVICE_ID = "deviceid";
+	
 	private final static String TAG_TIMESTAMP = "timestamp";
 	private final static String TAG_LOCAL_TIME = "localTime";
 	private final static String TAG_DATA_TYPE = "dataType";

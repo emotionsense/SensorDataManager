@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTable
@@ -44,12 +45,27 @@ public class DataTable
 		database.insert(tableName, null, content);
 	}
 	
+	private long getDurationLimit()
+	{
+		try
+		{
+			DataHandlerConfig config = DataHandlerConfig.getInstance();
+			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
+		}
+	}
+	
 	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database)
 	{
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ?", new String[]{UNSYNCED}, null, null, null);
+			long timeLimit = getDurationLimit();
+			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
 				int dataColumn = cursor.getColumnIndex(dataKey);

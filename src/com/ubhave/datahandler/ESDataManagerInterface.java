@@ -31,7 +31,7 @@ public interface ESDataManagerInterface
 	/*
 	 * Uploading stored data
 	 */
-	public void transferStoredData();
+	public boolean transferStoredData();
 	public void postAllStoredData() throws DataHandlerException;
 	
 }

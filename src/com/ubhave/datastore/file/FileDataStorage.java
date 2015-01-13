@@ -82,7 +82,6 @@ public class FileDataStorage implements DataStorageInterface
 				Log.d("DataManager", "Moved "+counter+" directories.");
 			}
 			
-			
 			uploadDirectory = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 			return new File(uploadDirectory).getAbsolutePath();
 		}

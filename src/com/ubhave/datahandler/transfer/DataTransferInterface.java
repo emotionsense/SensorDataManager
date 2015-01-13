@@ -7,7 +7,6 @@ public interface DataTransferInterface
 	/*
 	 * Transferring stored data
 	 */
-	public void attemptDataUpload(final String sourceDirectory);
 	public void uploadData(final String sourceDirectory) throws DataHandlerException;
 	
 	/*

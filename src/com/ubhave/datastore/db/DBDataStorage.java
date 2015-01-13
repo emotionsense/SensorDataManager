@@ -43,8 +43,7 @@ public class DBDataStorage implements DataStorageInterface
 	{
 		try
 		{
-			String dbName = (String) DataHandlerConfig.getInstance().get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-			return dbName;
+			return (String) DataHandlerConfig.getInstance().get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
 		}
 		catch (Exception e)
 		{
@@ -53,80 +52,149 @@ public class DBDataStorage implements DataStorageInterface
 		}
 	}
 	
+	private File getCleanCacheDir()
+	{
+		File outputDir = context.getCacheDir();
+		if (!outputDir.exists())
+		{
+			outputDir.mkdirs();
+		}
+		else for (File d : outputDir.listFiles())
+		{
+			if (d.getName().contains(DataStorageConstants.LOG_FILE_SUFFIX))
+			{
+				Log.d(TAG, "Delete temp file: "+d.getName());
+				d.delete();
+			}
+		}
+		return outputDir;
+	}
+	
 	@Override
 	public void onDataUploaded()
 	{
+		getCleanCacheDir();
 		for (String tableName : dataTables.getTableNames())
 		{
 			dataTables.setSynced(tableName);
+		}
+	}
+	
+	private int writeMaxEntries(final File outputFile, List<JSONObject> entries) throws IOException
+	{
+		int written = 0;
+		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
+		try
+		{
+			Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
+			try
+			{
+				for (int i=0; i<DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++)
+				{
+					if (!entries.isEmpty())
+					{
+						JSONObject entry = entries.get(0);
+						writer.write(entry.toString() + "\n");
+						entries.remove(0);
+						written++;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			finally
+			{
+				writer.flush();
+				gzipOS.finish();
+				writer.close();
+			}
+		}
+		finally
+		{
+			gzipOS.close();
+		}
+		return written;
+	}
+	
+	private void writeEntries(final File outputDir, final String id, final String tableName, final List<JSONObject> entries) throws IOException
+	{
+		while (!entries.isEmpty())
+		{
+			synchronized (fileTransferLock)
+			{
+				String gzipFileName = id + "_"
+						+ tableName + "_"
+						+ System.currentTimeMillis()
+						+ DataStorageConstants.LOG_FILE_SUFFIX
+						+ DataStorageConstants.ZIP_FILE_SUFFIX;
+				
+				File outputFile = new File(outputDir, gzipFileName);
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Writing to: "+outputFile.getAbsolutePath());
+				}
+				
+				int written = writeMaxEntries(outputFile, entries);
+				if (written == 0)
+				{
+					outputFile.delete();
+					break;
+				}
+			}
 		}
 	}
 
 	@Override
 	public String prepareDataForUpload()
 	{
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		File outputDir = context.getCacheDir();
-		if (!outputDir.exists())
+		Log.d(TAG, "DB prepareDataForUpload()");
+		try
 		{
-			outputDir.mkdirs();
-		}
-		for (String tableName : dataTables.getTableNames())
-		{
-			try
+			DataHandlerConfig config = DataHandlerConfig.getInstance();
+			String id = config.getIdentifier();
+			
+			File outputDir = getCleanCacheDir();
+			
+			int written = 0;
+			for (String tableName : dataTables.getTableNames())
 			{
-				List<JSONObject> entries = dataTables.getUnsyncedData(tableName);
-				if (DataHandlerConfig.shouldLog())
+				Log.d(TAG, "Prepare: "+tableName);
+				try
 				{
-					Log.d(TAG, "Prepare: "+tableName+" has "+entries.size()+" entries.");
-				}
-				if (!entries.isEmpty())
-				{
-					String gzipFileName = config.getIdentifier() + "_"
-							+ tableName + "_"
-							+ System.currentTimeMillis()
-							+ ".log"
-							+ DataStorageConstants.ZIP_FILE_SUFFIX;
-					
-					synchronized (fileTransferLock)
+					List<JSONObject> entries = dataTables.getUnsyncedData(tableName);
+					if (!entries.isEmpty())
 					{
-						File outputFile = new File(outputDir, gzipFileName);
-						if (DataHandlerConfig.shouldLog())
+//						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(TAG, "Writing to: "+outputFile.getAbsolutePath());
+							Log.d(TAG, "Prepare: "+tableName+" has "+entries.size()+" entries.");
 						}
-
-						GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
-						try
-						{
-							Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
-							try
-							{
-								for (JSONObject entry : entries)
-								{
-									writer.write(entry.toString() + "\n");
-								}
-							}
-							finally
-							{
-								writer.flush();
-								gzipOS.finish();
-								writer.close();
-							}
-						}
-						finally
-						{
-							gzipOS.close();
-						}
+						writeEntries(outputDir, id, tableName, entries);
+						written++;
 					}
 				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 			}
-			catch (Exception e)
+			if (written == 0)
+			{
+				Log.d(TAG, "DB prepareDataForUpload(): no data to upload.");
+				return null;
+			}
+			return outputDir.getAbsolutePath();
+		}
+		catch (DataHandlerException e)
+		{
+			if (DataHandlerConfig.shouldLog())
 			{
 				e.printStackTrace();
 			}
+			
+			return null;
 		}
-		return outputDir.getAbsolutePath();
 	}
 
 	@Override
