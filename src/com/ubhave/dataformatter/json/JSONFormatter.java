@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
@@ -44,10 +45,12 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public abstract class JSONFormatter extends DataFormatter
 {
+	private final static String LOG_TAG = "JSONFormatter";
 	private final static String SENSOR_TYPE = "sensorType";
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	
 	private final static String USER_ID = "userid";
 	private final static String DEVICE_ID = "deviceid";
 
@@ -160,11 +163,19 @@ public abstract class JSONFormatter extends DataFormatter
 			{
 				json.put(USER_ID, userId);
 			}
+			else if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(LOG_TAG, "Warning: no user id set.");
+			}
 
 			String deviceId = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
 			if (deviceId != null && deviceId.length() > 0)
 			{
 				json.put(DEVICE_ID, deviceId);
+			}
+			else if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(LOG_TAG, "Warning: no device id set.");
 			}
 		}
 		catch (Exception e)
