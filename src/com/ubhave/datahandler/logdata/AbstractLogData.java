@@ -7,8 +7,13 @@ import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ubhave.datahandler.except.DataHandlerException;
+
 public abstract class AbstractLogData
 {
+	public final static String TAG_INTERACTION = "Interaction";
+	public final static String TAG_ERROR = "Error";
+	
 	private final static String TAG_USER_ID = "userid";
 	private final static String TAG_DEVICE_ID = "deviceid";
 	
@@ -16,25 +21,11 @@ public abstract class AbstractLogData
 	private final static String TAG_LOCAL_TIME = "localTime";
 	private final static String TAG_DATA_TYPE = "dataType";
 	
-	protected final static String TAG_DATA_TITLE = "dataTitle";
-	protected final static String TAG_DATA_MESSAGE = "dataMessage";
-	
 	private final long logTime;
-	private final String title;
-	private final String message;
 	
 	public AbstractLogData()
 	{
 		this.logTime = System.currentTimeMillis();
-		this.title = null;
-		this.message = null;
-	}
-	
-	public AbstractLogData(final String title, final String message)
-	{
-		this.logTime = System.currentTimeMillis();
-		this.title = title;
-		this.message = message;
 	}
 	
 	private String localTime()
@@ -47,12 +38,12 @@ public abstract class AbstractLogData
 	
 	public abstract String getDataType();
 	
-	public JSONObject format(final String userId, final String deviceId) throws NullPointerException, JSONException
+	public JSONObject format(final String userId, final String deviceId) throws DataHandlerException, JSONException
 	{
 		JSONObject json = new JSONObject();
 		if (userId == null && deviceId == null)
 		{
-			throw new NullPointerException("No user ids set.");
+			throw new DataHandlerException(DataHandlerException.MISSING_REQUIRED_DATA);
 		}
 		else
 		{
@@ -66,14 +57,6 @@ public abstract class AbstractLogData
 			if (deviceId != null)
 			{
 				json.put(TAG_DEVICE_ID, deviceId);
-			}
-			if (title != null)
-			{
-				json.put(TAG_DATA_TITLE, title);
-			}
-			if (message != null)
-			{
-				json.put(TAG_DATA_MESSAGE, message);
 			}
 		}
 		return json;

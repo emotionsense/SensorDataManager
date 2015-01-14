@@ -2,7 +2,6 @@ package com.ubhave.datahandler.loggertypes;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
@@ -16,8 +15,6 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.logdata.AbstractLogData;
-import com.ubhave.datahandler.logdata.ApplicationError;
-import com.ubhave.datahandler.logdata.UserInteraction;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.data.SensorData;
@@ -25,6 +22,7 @@ import com.ubhave.sensormanager.data.SensorData;
 public abstract class AbstractDataLogger
 {
 	private final static String LOG_TAG = "AbstractDataLogger";
+	
 	protected ESDataManager dataManager;
 	protected final Context context;
 	protected final int storageType;
@@ -139,7 +137,10 @@ public abstract class AbstractDataLogger
 					}
 					catch (DataHandlerException e)
 					{
-						e.printStackTrace();
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, e.getMessage());
+						}
 					}
 				}
 			}.start();
@@ -176,14 +177,14 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logError(final ApplicationError error)
+	public void logError(final AbstractLogData error)
 	{
-		logExtra(ApplicationError.TAG, error);
+		logExtra(AbstractLogData.TAG_ERROR, error);
 	}
 
-	public void logInteraction(final UserInteraction interaction)
+	public void logInteraction(final AbstractLogData interaction)
 	{
-		logExtra(UserInteraction.TAG, interaction);
+		logExtra(AbstractLogData.TAG_INTERACTION, interaction);
 	}
 
 	public void logExtra(final String tag, final AbstractLogData action)
@@ -193,11 +194,11 @@ public abstract class AbstractDataLogger
 			JSONObject json = action.format(getUniqueUserId(), getDeviceId());
 			logExtra(tag, json);
 		}
-		catch (JSONException e)
+		catch (Exception e)
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(LOG_TAG, "Failed logExtra: JSONException");
+				Log.d(LOG_TAG, e.getMessage());
 			}
 		}
 	}
@@ -221,7 +222,10 @@ public abstract class AbstractDataLogger
 					}
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, e.getMessage());
+						}
 					}
 				}
 			}.start();

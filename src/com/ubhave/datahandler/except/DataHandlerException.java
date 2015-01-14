@@ -14,6 +14,7 @@ public class DataHandlerException extends Exception
 	public final static int NO_DATA = 17;
 	public final static int MISSING_PERMISSIONS = 18;
 	public final static int NO_STORAGE = 19;
+	public final static int MISSING_REQUIRED_DATA = 20;
 
 	private final static String MESSAGE_UNKNOWN_CONFIG = "Unknown config key.";
 	private final static String MESSAGE_NO_URL = "Missing URL target.";
@@ -23,6 +24,7 @@ public class DataHandlerException extends Exception
 	private final static String MESSAGE_CONFIG_CONFLICT = "Conflict in config values!";
 	private final static String MESSAGE_POST_FAIL = "Failure posting data to server.";
 	private final static String MESSAGE_NO_DATA = "No data.";
+	private final static String MESSAGE_MISSING_REQUIRED_DATA = "Missing required data.";
 	private final static String MESSAGE_PERMISSIONS = "Missing required permissions.";
 	private final static String MESSAGE_NO_STORAGE = "No storage defined.";
 
@@ -63,6 +65,8 @@ public class DataHandlerException extends Exception
 			return MESSAGE_PERMISSIONS;
 		case NO_STORAGE:
 			return MESSAGE_NO_STORAGE;
+		case MISSING_REQUIRED_DATA:
+			return MESSAGE_MISSING_REQUIRED_DATA;
 		}
 		return super.getMessage();
 	}
