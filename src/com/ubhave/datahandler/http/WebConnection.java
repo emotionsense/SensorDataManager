@@ -40,7 +40,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 
-import com.ubhave.datahandler.config.DataHandlerConstants;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataTransferConfig;
 
 public class WebConnection
 {
@@ -66,7 +67,9 @@ public class WebConnection
 				FileBody fileBody = new FileBody(file);
 				if (fileBody != null)
 				{
-					multipartEntity.addPart(DataHandlerConstants.POST_FILE_KEY, fileBody);
+					DataHandlerConfig config = DataHandlerConfig.getInstance();
+					String postKey = (String) config.get(DataTransferConfig.POST_FILE_KEY);
+					multipartEntity.addPart(postKey, fileBody);
 				}
 			}
 

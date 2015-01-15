@@ -7,5 +7,4 @@ public class DataHandlerConstants
 	
 	public final static int REQUEST_CODE_DATA_TRANSFER = 8951;
 	public final static String TRANSFER_ALARM_ID = "dataTransferAlarm";
-	public final static String POST_FILE_KEY = "uploadedfile";
 }

@@ -44,12 +44,15 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_PERIODICALLY);
 			dataManager.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, getDataLifeMillis());
 			dataManager.setConfig(DataTransferConfig.TRANSFER_ALARM_INTERVAL, getTransferAlarmLengthMillis());
+			dataManager.setConfig(DataTransferConfig.POST_FILE_KEY, getFilePostKey());
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
+	
+	protected abstract String getFilePostKey();
 
 	protected abstract long getDataLifeMillis();
 

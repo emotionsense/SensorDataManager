@@ -13,6 +13,7 @@ public class DataHandlerConfig
 {
 	private final static String TAG = "DataHandlerConfig";
 	private static DataHandlerConfig instance;
+	
 	public final static String PRINT_LOG_D_MESSAGES = "PRINT_LOG_D_MESSAGES";
 	private final static boolean DEFAULT_PRINT_LOG_D_MESSAGES = true;
 

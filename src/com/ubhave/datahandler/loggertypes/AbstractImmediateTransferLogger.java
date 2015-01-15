@@ -38,5 +38,11 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 		}
 	}
 	
+	@Override
+	protected String getStorageName()
+	{
+		return null; // No storage
+	}
+	
 	protected abstract String getPostDataParamKey();
 }
