@@ -16,10 +16,11 @@ import com.ubhave.datahandler.transfer.DataTransferInterface;
 import com.ubhave.datastore.DataStorageInterface;
 import com.ubhave.datastore.db.DatabaseManager;
 import com.ubhave.datastore.file.FileStoreManager;
+import com.ubhave.datastore.none.NoStorageManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
-public class ESDataManager implements ESDataManagerInterface
+public abstract class ESDataManager implements ESDataManagerInterface
 {
 	protected static final String TAG = "DataManager";
 	protected static final Object fileTransferLock = new Object();
@@ -73,7 +74,7 @@ public class ESDataManager implements ESDataManagerInterface
 				{
 					if (noStorageInstance == null)
 					{
-						noStorageInstance = new ESDataManager(context);
+						noStorageInstance = new NoStorageManager(context);
 					}
 				}
 			}
@@ -97,10 +98,7 @@ public class ESDataManager implements ESDataManagerInterface
 		}
 	}
 	
-	protected DataStorageInterface getStorage()
-	{
-		return null;
-	}
+	protected abstract DataStorageInterface getStorage();
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{

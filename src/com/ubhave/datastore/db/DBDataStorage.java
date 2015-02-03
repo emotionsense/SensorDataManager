@@ -79,6 +79,7 @@ public class DBDataStorage implements DataStorageInterface
 		getCleanCacheDir();
 		for (String tableName : dataTables.getTableNames())
 		{
+			Log.d("DB", tableName+" set synced");
 			dataTables.setSynced(tableName);
 		}
 	}

@@ -11,12 +11,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTables extends SQLiteOpenHelper
 {
+	private final static Object lock = new Object();
 	private final static int dbVersion = 1;
-	
+
 	private final HashMap<String, DataTable> dataTableMap;
 
 	public DataTables(final Context context, final String dbName)
@@ -27,12 +30,14 @@ public class DataTables extends SQLiteOpenHelper
 
 	@Override
 	public void onCreate(final SQLiteDatabase db)
-	{}
+	{
+	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{}
-	
+	{
+	}
+
 	public Set<String> getTableNames()
 	{
 		return dataTableMap.keySet();
@@ -40,13 +45,41 @@ public class DataTables extends SQLiteOpenHelper
 
 	public DataTable getTable(final String tableName)
 	{
-		if (!dataTableMap.containsKey(tableName))
+		synchronized (lock)
 		{
+			if (!dataTableMap.containsKey(tableName))
+			{
+				SQLiteDatabase database = getWritableDatabase();
+				database.beginTransaction();
+				try
+				{
+					dataTableMap.put(tableName, new DataTable(database, tableName));
+					database.setTransactionSuccessful();
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					database.endTransaction();
+					database.close();
+				}
+			}
+			return dataTableMap.get(tableName);
+		}
+	}
+
+	public void writeData(final String tableName, final String data)
+	{
+		synchronized (lock)
+		{
+			DataTable table = getTable(tableName);
 			SQLiteDatabase database = getWritableDatabase();
 			database.beginTransaction();
 			try
 			{
-				dataTableMap.put(tableName, new DataTable(database, tableName));
+				table.add(database, System.currentTimeMillis(), data);
 				database.setTransactionSuccessful();
 			}
 			catch (Exception e)
@@ -58,64 +91,103 @@ public class DataTables extends SQLiteOpenHelper
 				database.endTransaction();
 			}
 		}
-		return dataTableMap.get(tableName);
-	}
-
-	public void writeData(final String tableName, final String data)
-	{
-		DataTable table = getTable(tableName);
-		SQLiteDatabase database = getWritableDatabase();
-		database.beginTransaction();
-		try
-		{
-			table.add(database, System.currentTimeMillis(), data);
-			database.setTransactionSuccessful();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			database.endTransaction();
-		}
 	}
 
 	public List<SensorData> getRecentSensorData(final String tableName, final JSONFormatter formatter, final long timeLimit)
 	{
-		DataTable table = getTable(tableName);
-		SQLiteDatabase database = getReadableDatabase();
-		List<SensorData> data = table.getRecentData(database, formatter, timeLimit);
-		database.close();
-		return data;
+		synchronized (lock)
+		{
+			List<SensorData> data = null;
+			DataTable table = getTable(tableName);
+			SQLiteDatabase database = getReadableDatabase();
+			database.beginTransaction();
+			try
+			{
+				data = table.getRecentData(database, formatter, timeLimit);
+				database.setTransactionSuccessful();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				database.endTransaction();
+				database.close();
+			}
+			return data;
+		}
 	}
-	
-	public List<JSONObject> getUnsyncedData(final String tableName)
+
+	private List<JSONObject> getData(final String tableName, final long timeLimit)
 	{
-		DataTable table = getTable(tableName);
-		SQLiteDatabase database = getReadableDatabase();
-		List<JSONObject> data = table.getUnsyncedData(database);
-		database.close();
-		return data;
+		synchronized (lock)
+		{
+			List<JSONObject> data = null;
+			DataTable table = getTable(tableName);
+			SQLiteDatabase database = getReadableDatabase();
+			database.beginTransaction();
+			try
+			{
+				data = table.getUnsyncedData(database, timeLimit);
+				database.setTransactionSuccessful();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				database.endTransaction();
+				database.close();
+			}
+			return data;
+		}
 	}
 	
-	public void setSynced(final String tableName)
-	{	
-		DataTable table = getTable(tableName);
-		SQLiteDatabase database = getWritableDatabase();
-		database.beginTransaction();
+	public List<JSONObject> getExpiredData(final String tableName)
+	{
+		long timeLimit;
 		try
 		{
-			table.setSynced(database);
-			database.setTransactionSuccessful();
+			DataHandlerConfig config = DataHandlerConfig.getInstance();
+			timeLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			timeLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
 		}
-		finally
+		
+		return getData(tableName, timeLimit);
+	}
+	
+	public List<JSONObject> getUnsyncedData(final String tableName)
+	{
+		return getData(tableName, System.currentTimeMillis());
+	}
+
+	public void setSynced(final String tableName)
+	{
+		synchronized (lock)
 		{
-			database.endTransaction();
+			DataTable table = getTable(tableName);
+			SQLiteDatabase database = getWritableDatabase();
+			database.beginTransaction();
+			try
+			{
+				table.setSynced(database);
+				database.setTransactionSuccessful();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				database.endTransaction();
+				database.close();
+			}
 		}
 	}
 }

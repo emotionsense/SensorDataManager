@@ -13,7 +13,6 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTable
@@ -37,35 +36,26 @@ public class DataTable
 				+ ");");
 	}
 	
-	public void add(final SQLiteDatabase database, final long entryTime, final String data)
+	public void add(final SQLiteDatabase database, final long entryTime, final String data) throws Exception
 	{
+		Log.d("AbstractDataLogger", tableName+": "+data); // TODO remove
 		ContentValues content = new ContentValues();
 		content.put(timeStampKey, entryTime);
 		content.put(dataKey, data);
-		database.insert(tableName, null, content);
+		long rowId = database.insert(tableName, null, content);
+		if (rowId == -1)
+		{
+			throw new Exception("Data Not Inserted");
+		}
+		Log.d("AbstractDataLogger", tableName+": "+rowId); // TODO remove
 	}
 	
-	private long getDurationLimit()
-	{
-		try
-		{
-			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		}
-	}
-	
-	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database)
+	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database, final long timeLimit)
 	{
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			long timeLimit = System.currentTimeMillis() - getDurationLimit();
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
+			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" < ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
 				int dataColumn = cursor.getColumnIndex(dataKey);
