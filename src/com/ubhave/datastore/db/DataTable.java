@@ -38,7 +38,6 @@ public class DataTable
 	
 	public void add(final SQLiteDatabase database, final long entryTime, final String data) throws Exception
 	{
-		Log.d("AbstractDataLogger", tableName+": "+data); // TODO remove
 		ContentValues content = new ContentValues();
 		content.put(timeStampKey, entryTime);
 		content.put(dataKey, data);
@@ -55,7 +54,7 @@ public class DataTable
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" < ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
+			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
 				int dataColumn = cursor.getColumnIndex(dataKey);

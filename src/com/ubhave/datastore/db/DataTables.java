@@ -145,7 +145,7 @@ public class DataTables extends SQLiteOpenHelper
 		}
 	}
 	
-	public List<JSONObject> getExpiredData(final String tableName)
+	public List<JSONObject> getUnsyncedData(final String tableName)
 	{
 		long timeLimit;
 		try
@@ -160,11 +160,6 @@ public class DataTables extends SQLiteOpenHelper
 		}
 		
 		return getData(tableName, timeLimit);
-	}
-	
-	public List<JSONObject> getUnsyncedData(final String tableName)
-	{
-		return getData(tableName, System.currentTimeMillis());
 	}
 
 	public void setSynced(final String tableName)

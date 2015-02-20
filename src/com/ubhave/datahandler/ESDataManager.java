@@ -269,12 +269,9 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				throw new DataHandlerException(DataHandlerException.POST_FAILED);
 			}
 		}
-		else
+		else if (DataHandlerConfig.shouldLog())
 		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, "Transfer policy is store-only: nothing to do.");
-			}
+			Log.d(TAG, "Transfer policy is store-only: nothing to do.");
 		}
 	}
 }
