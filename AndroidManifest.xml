@@ -5,7 +5,7 @@
 
     <uses-sdk
         android:minSdkVersion="10"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="22" />
 
     <!-- Required to store data on device (policy: store only/transfer periodically) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

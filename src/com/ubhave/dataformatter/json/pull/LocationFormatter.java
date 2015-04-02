@@ -113,7 +113,6 @@ public class LocationFormatter extends PullSensorJSONFormatter
 		{
 			throw new DataHandlerException(DataHandlerException.NO_DATA);
 		}
-		
 	}
 
 	@Override

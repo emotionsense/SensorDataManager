@@ -95,10 +95,34 @@ public abstract class AbstractDataLogger
 	protected abstract String getStorageName();
 
 	protected abstract String getUniqueUserId();
+	
+	public void setUniqueUserId(final String userId)
+	{
+		try
+		{
+			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, userId);
+		}
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	protected abstract boolean shouldPrintLogMessages();
 
 	protected abstract String getDeviceId();
+	
+	public void setDeviceId(final String deviceId)
+	{
+		try
+		{
+			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, deviceId);
+		}
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+		}	
+	}
 
 	public void log(final String tag, final String data)
 	{
