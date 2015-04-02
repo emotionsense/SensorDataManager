@@ -1,3 +1,8 @@
-bin/*
 gen/*
+
+bin/classes/*
+
 .DS_Store
+
+.settings/*
+
