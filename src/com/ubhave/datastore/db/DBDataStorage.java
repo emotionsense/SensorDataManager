@@ -3,6 +3,7 @@ package com.ubhave.datastore.db;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
@@ -13,6 +14,12 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Log;
 
+import com.facebook.android.crypto.keychain.SharedPrefsBackedKeyChain;
+import com.facebook.crypto.Crypto;
+import com.facebook.crypto.Entity;
+import com.facebook.crypto.exception.CryptoInitializationException;
+import com.facebook.crypto.exception.KeyChainException;
+import com.facebook.crypto.util.SystemNativeCryptoLibrary;
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
@@ -28,6 +35,7 @@ public class DBDataStorage implements DataStorageInterface {
 	private static final String TAG = "LogDBDataStorage";
 	private static final String DEFAULT_DB_NAME = "com.ubhave.datastore";
 	private static final Object fileTransferLock = new Object();
+	private static final String DB_ENTITY = "dbEntity";
 
 	private final Context context;
 	private final DataTables dataTables;
@@ -73,10 +81,16 @@ public class DBDataStorage implements DataStorageInterface {
 	}
 
 	private int writeMaxEntries(final File outputFile, List<JSONObject> entries)
-			throws IOException {
+			throws IOException, CryptoInitializationException,
+			KeyChainException {
 		int written = 0;
-		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(
-				outputFile));
+		Entity entity = new Entity(DB_ENTITY + System.currentTimeMillis());
+		OutputStream outputStream = new FileOutputStream(outputFile);
+		Crypto crypto = new Crypto(new SharedPrefsBackedKeyChain(context),
+				new SystemNativeCryptoLibrary());
+		OutputStream cOutputStream = crypto.getCipherOutputStream(outputStream,
+				entity);
+		GZIPOutputStream gzipOS = new GZIPOutputStream(cOutputStream);
 		try {
 			Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
 			try {
@@ -115,9 +129,16 @@ public class DBDataStorage implements DataStorageInterface {
 				if (DataHandlerConfig.shouldLog()) {
 					Log.d(TAG, "Writing to: " + outputFile.getAbsolutePath());
 				}
-
-				int written = writeMaxEntries(outputFile, entries);
-				if (written == 0) {
+				try {
+					int written = writeMaxEntries(outputFile, entries);
+					if (written == 0) {
+						outputFile.delete();
+						break;
+					}
+				} catch (CryptoInitializationException ce) {
+					outputFile.delete();
+					break;
+				} catch (KeyChainException kce) {
 					outputFile.delete();
 					break;
 				}
