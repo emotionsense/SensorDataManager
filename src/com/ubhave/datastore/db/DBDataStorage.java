@@ -88,6 +88,11 @@ public class DBDataStorage implements DataStorageInterface {
 		OutputStream outputStream = new FileOutputStream(outputFile);
 		Crypto crypto = new Crypto(new SharedPrefsBackedKeyChain(context),
 				new SystemNativeCryptoLibrary());
+		if (!crypto.isAvailable()) {
+			outputFile.delete();
+			outputStream.close();
+			return 0;
+		}
 		OutputStream cOutputStream = crypto.getCipherOutputStream(outputStream,
 				entity);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(cOutputStream);
@@ -110,6 +115,7 @@ public class DBDataStorage implements DataStorageInterface {
 				writer.close();
 			}
 		} finally {
+			outputStream.close();
 			gzipOS.close();
 		}
 		return written;
