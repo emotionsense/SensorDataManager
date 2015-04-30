@@ -91,12 +91,9 @@ public class DBDataStorage implements DataStorageInterface {
 		if (!crypto.isAvailable()) {
 			return 0;
 		}
-
-		OutputStream outputStream = new FileOutputStream(outputFile);
-		OutputStream cOutputStream = crypto.getCipherOutputStream(outputStream,
-				entity);
-		GZIPOutputStream gzipOS = new GZIPOutputStream(cOutputStream);
-		Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
+		Writer writer = new OutputStreamWriter(new GZIPOutputStream(
+				crypto.getCipherOutputStream(new FileOutputStream(outputFile),
+						entity)), "UTF-8");
 		try {
 			for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
 				if (!entries.isEmpty()) {
@@ -109,12 +106,7 @@ public class DBDataStorage implements DataStorageInterface {
 				}
 			}
 		} finally {
-			// writer.flush();
-			// writer.close();
-			// gzipOS.finish();
-			// gzipOS.close();
-			cOutputStream.flush();
-			cOutputStream.close();
+			writer.close();
 		}
 
 		return written;
