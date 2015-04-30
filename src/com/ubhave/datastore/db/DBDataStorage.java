@@ -117,6 +117,8 @@ public class DBDataStorage implements DataStorageInterface {
 				writer.close();
 			}
 		} finally {
+			cOutputStream.flush();
+			cOutputStream.close();
 			outputStream.close();
 			gzipOS.close();
 		}
