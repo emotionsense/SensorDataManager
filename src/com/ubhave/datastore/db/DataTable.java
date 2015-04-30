@@ -72,6 +72,7 @@ public class DataTable
 					}
 					cursor.moveToNext();
 				}
+				cursor.close();
 			}
 		}
 		catch (Exception e)
