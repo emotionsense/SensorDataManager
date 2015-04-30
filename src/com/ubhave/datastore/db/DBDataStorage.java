@@ -80,7 +80,7 @@ public class DBDataStorage implements DataStorageInterface {
 		}
 	}
 
-	private int writeMaxEntries(final File outputFile, List<JSONObject> entries)
+	private synchronized int writeMaxEntries(final File outputFile, List<JSONObject> entries)
 			throws IOException, CryptoInitializationException,
 			KeyChainException {
 		int written = 0;
@@ -110,6 +110,8 @@ public class DBDataStorage implements DataStorageInterface {
 					}
 				}
 			} finally {
+				cOutputStream.flush();
+				cOutputStream.close();
 				writer.flush();
 				gzipOS.finish();
 				writer.close();
