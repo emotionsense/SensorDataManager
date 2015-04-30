@@ -85,15 +85,14 @@ public class DBDataStorage implements DataStorageInterface {
 			CryptoInitializationException, KeyChainException {
 		int written = 0;
 		Entity entity = new Entity(DB_ENTITY + System.currentTimeMillis());
-		OutputStream outputStream = new FileOutputStream(outputFile);
+
 		Crypto crypto = new Crypto(new SharedPrefsBackedKeyChain(context),
 				new SystemNativeCryptoLibrary());
 		if (!crypto.isAvailable()) {
-			outputFile.delete();
-			outputStream.close();
 			return 0;
 		}
 
+		OutputStream outputStream = new FileOutputStream(outputFile);
 		OutputStream cOutputStream = crypto.getCipherOutputStream(outputStream,
 				entity);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(cOutputStream);
@@ -110,11 +109,12 @@ public class DBDataStorage implements DataStorageInterface {
 				}
 			}
 		} finally {
-			gzipOS.finish();
+			// writer.flush();
+			// writer.close();
+			// gzipOS.finish();
+			// gzipOS.close();
 			cOutputStream.flush();
 			cOutputStream.close();
-			writer.flush();
-			writer.close();
 		}
 
 		return written;
