@@ -80,9 +80,9 @@ public class DBDataStorage implements DataStorageInterface {
 		}
 	}
 
-	private synchronized int writeMaxEntries(final File outputFile, List<JSONObject> entries)
-			throws IOException, CryptoInitializationException,
-			KeyChainException {
+	private synchronized int writeMaxEntries(final File outputFile,
+			List<JSONObject> entries) throws IOException,
+			CryptoInitializationException, KeyChainException {
 		int written = 0;
 		Entity entity = new Entity(DB_ENTITY + System.currentTimeMillis());
 		OutputStream outputStream = new FileOutputStream(outputFile);
@@ -93,35 +93,30 @@ public class DBDataStorage implements DataStorageInterface {
 			outputStream.close();
 			return 0;
 		}
+
 		OutputStream cOutputStream = crypto.getCipherOutputStream(outputStream,
 				entity);
 		GZIPOutputStream gzipOS = new GZIPOutputStream(cOutputStream);
+		Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
 		try {
-			Writer writer = new OutputStreamWriter(gzipOS, "UTF-8");
-			try {
-				for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
-					if (!entries.isEmpty()) {
-						JSONObject entry = entries.get(0);
-						writer.write(entry.toString() + "\n");
-						entries.remove(0);
-						written++;
-					} else {
-						break;
-					}
+			for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
+				if (!entries.isEmpty()) {
+					JSONObject entry = entries.get(0);
+					writer.write(entry.toString() + "\n");
+					entries.remove(0);
+					written++;
+				} else {
+					break;
 				}
-			} finally {
-				cOutputStream.flush();
-				cOutputStream.close();
-				writer.flush();
-				gzipOS.finish();
-				writer.close();
 			}
 		} finally {
+			gzipOS.finish();
 			cOutputStream.flush();
 			cOutputStream.close();
-			outputStream.close();
-			gzipOS.close();
+			writer.flush();
+			writer.close();
 		}
+
 		return written;
 	}
 
