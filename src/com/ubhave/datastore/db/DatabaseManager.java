@@ -1,5 +1,6 @@
 package com.ubhave.datastore.db;
 
+import net.sqlcipher.database.SQLiteDatabase;
 import android.content.Context;
 
 import com.ubhave.datahandler.ESDataManager;
@@ -12,6 +13,7 @@ public class DatabaseManager extends ESDataManager
 	public DatabaseManager(final Context context) throws ESException, DataHandlerException
 	{
 		super(context);
+		SQLiteDatabase.loadLibs(context);
 	}
 	
 	@Override
