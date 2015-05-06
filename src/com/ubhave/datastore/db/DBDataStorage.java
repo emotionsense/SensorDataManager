@@ -6,19 +6,16 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
+
+import net.lingala.zip4j.io.ZipOutputStream;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
 
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.facebook.android.crypto.keychain.SharedPrefsBackedKeyChain;
-import com.facebook.crypto.Crypto;
-import com.facebook.crypto.Entity;
-import com.facebook.crypto.exception.CryptoInitializationException;
-import com.facebook.crypto.exception.KeyChainException;
-import com.facebook.crypto.util.SystemNativeCryptoLibrary;
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
@@ -34,14 +31,22 @@ public class DBDataStorage implements DataStorageInterface {
 	private static final String TAG = "LogDBDataStorage";
 	private static final String DEFAULT_DB_NAME = "com.ubhave.datastore";
 	private static final Object fileTransferLock = new Object();
-	private static final String DB_ENTITY = "dbEntity";
 
 	private final Context context;
 	private final DataTables dataTables;
+	private static final String ARCHIVE_PW = "iLhVKR27yLYdB7q2iLhVKR27yLYdB7q2";
+	private final ZipParameters parameters;
 
 	public DBDataStorage(final Context context) {
 		this.context = context;
 		this.dataTables = new DataTables(context, getDBName());
+		parameters = new ZipParameters();
+		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+		parameters.setEncryptFiles(true);
+		parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
+		parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
+		parameters.setPassword(ARCHIVE_PW);
 	}
 
 	private String getDBName() {
@@ -80,24 +85,18 @@ public class DBDataStorage implements DataStorageInterface {
 	}
 
 	private synchronized int writeMaxEntries(final File outputFile,
-			List<JSONObject> entries) throws IOException,
-			CryptoInitializationException, KeyChainException {
+			List<JSONObject> entries) throws IOException {
 		int written = 0;
-		Entity entity = new Entity(DB_ENTITY + System.currentTimeMillis());
 
-		Crypto crypto = new Crypto(new SharedPrefsBackedKeyChain(context),
-				new SystemNativeCryptoLibrary());
-		if (!crypto.isAvailable()) {
-			return 0;
-		}
-		Writer writer = new OutputStreamWriter(new GZIPOutputStream(
-				crypto.getCipherOutputStream(new FileOutputStream(outputFile),
-						entity)), "UTF-8");
+		Writer writer = new OutputStreamWriter(new ZipOutputStream(
+				new FileOutputStream(outputFile)), "UTF-8");
+
 		try {
 			for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
 				if (!entries.isEmpty()) {
 					JSONObject entry = entries.get(0);
 					writer.write(entry.toString() + "\n");
+					writer.flush();
 					entries.remove(0);
 					written++;
 				} else {
@@ -116,25 +115,17 @@ public class DBDataStorage implements DataStorageInterface {
 			throws IOException {
 		while (!entries.isEmpty()) {
 			synchronized (fileTransferLock) {
-				String gzipFileName = id + "_" + tableName + "_"
+				String zipFileName = id + "_" + tableName + "_"
 						+ System.currentTimeMillis()
 						+ DataStorageConstants.LOG_FILE_SUFFIX
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
 
-				File outputFile = new File(outputDir, gzipFileName);
+				File outputFile = new File(outputDir, zipFileName);
 				if (DataHandlerConfig.shouldLog()) {
 					Log.d(TAG, "Writing to: " + outputFile.getAbsolutePath());
 				}
-				try {
-					int written = writeMaxEntries(outputFile, entries);
-					if (written == 0) {
-						outputFile.delete();
-						break;
-					}
-				} catch (CryptoInitializationException ce) {
-					outputFile.delete();
-					break;
-				} catch (KeyChainException kce) {
+				int written = writeMaxEntries(outputFile, entries);
+				if (written == 0) {
 					outputFile.delete();
 					break;
 				}
