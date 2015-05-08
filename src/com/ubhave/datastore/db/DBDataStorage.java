@@ -3,10 +3,11 @@ package com.ubhave.datastore.db;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.ZipOutputStream;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
@@ -34,7 +35,7 @@ public class DBDataStorage implements DataStorageInterface {
 
 	private final Context context;
 	private final DataTables dataTables;
-	private static final String ARCHIVE_PW = "iLhVKR27yLYdB7q2iLhVKR27yLYdB7q2";
+	private static final String ARCHIVE_PW = "HGKnSl4mN0805Kft";
 	private final ZipParameters parameters;
 
 	public DBDataStorage(final Context context) {
@@ -85,18 +86,38 @@ public class DBDataStorage implements DataStorageInterface {
 	}
 
 	private synchronized int writeMaxEntries(final File outputFile,
-			List<JSONObject> entries) throws IOException {
+			List<JSONObject> entries) throws IOException, ZipException {
 		int written = 0;
-
-		Writer writer = new OutputStreamWriter(new ZipOutputStream(
-				new FileOutputStream(outputFile)), "UTF-8");
-
+		final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(
+				outputFile));
+		File tmpFile = File.createTempFile("data", null);
 		try {
+			List<JSONObject> entriesCopy = new ArrayList<JSONObject>();
+			for (JSONObject e : entries) {
+				entriesCopy.add(e);
+			}
+
+			// First, write dummy data to tmpFile to get right parameters
+			OutputStream os = new FileOutputStream(tmpFile);
+			for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
+				if (!entriesCopy.isEmpty()) {
+					JSONObject entry = entries.get(0);
+					byte[] data = (entry.toString() + "\n").getBytes();
+					os.write(data, 0, data.length);
+					entriesCopy.remove(0);
+				} else {
+					break;
+				}
+			}
+			os.close();
+
+			out.putNextEntry(tmpFile, parameters);
+
 			for (int i = 0; i < DataStorageConstants.UPLOAD_FILE_MAX_LINES; i++) {
 				if (!entries.isEmpty()) {
 					JSONObject entry = entries.get(0);
-					writer.write(entry.toString() + "\n");
-					writer.flush();
+					byte[] data = (entry.toString() + "\n").getBytes();
+					out.write(data, 0, data.length);
 					entries.remove(0);
 					written++;
 				} else {
@@ -104,7 +125,10 @@ public class DBDataStorage implements DataStorageInterface {
 				}
 			}
 		} finally {
-			writer.close();
+			tmpFile.delete();
+			out.closeEntry();
+			out.finish();
+			out.close();
 		}
 
 		return written;
@@ -113,6 +137,7 @@ public class DBDataStorage implements DataStorageInterface {
 	private void writeEntries(final File outputDir, final String id,
 			final String tableName, final List<JSONObject> entries)
 			throws IOException {
+
 		while (!entries.isEmpty()) {
 			synchronized (fileTransferLock) {
 				String zipFileName = id + "_" + tableName + "_"
@@ -120,11 +145,19 @@ public class DBDataStorage implements DataStorageInterface {
 						+ DataStorageConstants.LOG_FILE_SUFFIX
 						+ DataStorageConstants.ZIP_FILE_SUFFIX;
 
-				File outputFile = new File(outputDir, zipFileName);
+				final File outputFile = new File(outputDir, zipFileName);
 				if (DataHandlerConfig.shouldLog()) {
 					Log.d(TAG, "Writing to: " + outputFile.getAbsolutePath());
 				}
-				int written = writeMaxEntries(outputFile, entries);
+				int written;
+				try {
+					written = writeMaxEntries(outputFile, entries);
+				} catch (ZipException e) {
+					Log.e(TAG, "Failed writing " + outputFile.getAbsolutePath());
+					e.printStackTrace();
+					outputFile.delete();
+					break;
+				}
 				if (written == 0) {
 					outputFile.delete();
 					break;

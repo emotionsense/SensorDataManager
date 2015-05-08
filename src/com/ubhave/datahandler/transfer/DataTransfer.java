@@ -18,129 +18,115 @@ import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.http.WebConnection;
 
-public class DataTransfer implements DataTransferInterface
-{
+public class DataTransfer implements DataTransferInterface {
 	private final static String TAG = "DataTransfer";
 	private static final String LAST_LOGS_UPLOAD_TIME = "com.ubhave.datahandler.LAST_LOGS_UPLOAD_TIME";
 
 	private final Context context;
 	private final DataHandlerConfig config;
 
-	public DataTransfer(final Context context)
-	{
+	public DataTransfer(final Context context) {
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
 		setLogsUploadTime(System.currentTimeMillis());
 	}
 
 	@Override
-	public void uploadData(final String uploadDirectory) throws DataHandlerException
-	{
-		if (DataHandlerConfig.shouldLog())
-		{
+	public void uploadData(final String uploadDirectory)
+			throws DataHandlerException {
+		if (DataHandlerConfig.shouldLog()) {
 			Log.d(TAG, "Attempting upload from: " + uploadDirectory);
 		}
 		File directory = new File(uploadDirectory);
 		File[] files = directory.listFiles();
-		if (files != null)
-		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, "Attempting upload "+files.length+" files.");
+		if (files != null) {
+			if (DataHandlerConfig.shouldLog()) {
+				Log.d(TAG, "Attempting upload " + files.length + " files.");
 			}
-			for (File file : files)
-			{
-				if (file.isFile() && file.getName().contains(DataStorageConstants.ZIP_FILE_SUFFIX))
-				{
+			for (File file : files) {
+				if (file.isFile()
+						&& file.getName().contains(
+								DataStorageConstants.ZIP_FILE_SUFFIX)) {
 					HashMap<String, String> paramsMap = getPostParams();
-					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-					if (DataHandlerConfig.shouldLog())
-					{
+					String url = (String) config
+							.get(DataTransferConfig.POST_DATA_URL);
+					if (DataHandlerConfig.shouldLog()) {
 						Log.d(TAG, "Posting to: " + url);
 					}
 
-					String response = WebConnection.postDataToServer(url, file, paramsMap);
-					if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "file " + file + " successfully uploaded to the server");
+					String response = WebConnection.postDataToServer(url, file,
+							paramsMap);
+					if (response.equals(config
+							.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS))) {
+						if (DataHandlerConfig.shouldLog()) {
+							Log.d(TAG, "file " + file
+									+ " successfully uploaded to the server");
 							Log.d(TAG, "file " + file + " deleting local copy");
 						}
 						file.delete();
 						setLogsUploadTime(System.currentTimeMillis());
-					}
-					else
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
+					} else {
+						if (DataHandlerConfig.shouldLog()) {
+							Log.d(TAG,
+									"file "
+											+ file
+											+ " failed to upload file to the server, response received: "
+											+ response);
 						}
-						throw new DataHandlerException(DataHandlerException.POST_FAILED);
+						throw new DataHandlerException(
+								DataHandlerException.POST_FAILED);
 					}
-				}
-				else if (DataHandlerConfig.shouldLog())
-				{
+				} else if (DataHandlerConfig.shouldLog()) {
 					Log.d(TAG, "Skip: " + file.getName());
 				}
 			}
-		}
-		else if (DataHandlerConfig.shouldLog())
-		{
+		} else if (DataHandlerConfig.shouldLog()) {
 			Log.d(TAG, "Attempting file list is null.");
 		}
 	}
 
-	private void setLogsUploadTime(long timestamp)
-	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+	private void setLogsUploadTime(long timestamp) {
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(context);
 		SharedPreferences.Editor prefsEditor = preferences.edit();
 		prefsEditor.putLong(LAST_LOGS_UPLOAD_TIME, timestamp);
 		prefsEditor.commit();
 	}
 
-	public long getLogsUploadTime()
-	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+	public long getLogsUploadTime() {
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(context);
 		return preferences.getLong(LAST_LOGS_UPLOAD_TIME, 0);
 	}
 
-	private HashMap<String, String> getPostParams()
-	{
+	private HashMap<String, String> getPostParams() {
 		HashMap<String, String> paramsMap = new HashMap<String, String>();
-		if (config.containsConfig(DataTransferConfig.POST_PARAMETERS))
-		{
-			try
-			{
-				JSONObject json = (JSONObject) config.get(DataTransferConfig.POST_PARAMETERS);
+		if (config.containsConfig(DataTransferConfig.POST_PARAMETERS)) {
+			try {
+				JSONObject json = (JSONObject) config
+						.get(DataTransferConfig.POST_PARAMETERS);
 				Iterator<?> keyIterator = json.keys();
-				while (keyIterator.hasNext())
-				{
-					try
-					{
+				while (keyIterator.hasNext()) {
+					try {
 						String key = (String) keyIterator.next();
 						String value = json.getString(key);
 						paramsMap.put(key, value);
-					}
-					catch (JSONException e)
-					{
+					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
-			}
-			catch (DataHandlerException e)
-			{
+			} catch (DataHandlerException e) {
 				e.printStackTrace();
 			}
 		}
 		return paramsMap;
 	}
 
-	private void post(final String url, final String data) throws DataHandlerException
-	{
-		try
-		{
-			String dataKey = (String) config.get(DataTransferConfig.POST_RAW_DATA_KEY);
+	private void post(final String url, final String data)
+			throws DataHandlerException {
+		try {
+			String dataKey = (String) config
+					.get(DataTransferConfig.POST_RAW_DATA_KEY);
 			JSONObject dataParam = new JSONObject();
 			dataParam.put(dataKey, data);
 
@@ -148,57 +134,44 @@ public class DataTransfer implements DataTransferInterface
 			paramsMap.put(dataKey, data);
 
 			String response = WebConnection.postToServer(url, paramsMap);
-			String expectedResponse = (String) config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS);
-			if (!response.equals(expectedResponse))
-			{
+			String expectedResponse = (String) config
+					.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS);
+			if (!response.equals(expectedResponse)) {
 				throw new DataHandlerException(DataHandlerException.POST_FAILED);
 			}
-		}
-		catch (JSONException e)
-		{
+		} catch (JSONException e) {
 			e.printStackTrace();
 			throw new DataHandlerException(DataHandlerException.POST_FAILED);
 		}
 	}
 
 	@Override
-	public void postData(final String data) throws DataHandlerException
-	{
+	public void postData(final String data) throws DataHandlerException {
 		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-		if (url == null)
-		{
+		if (url == null) {
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
-		}
-		else
-		{
+		} else {
 			post(url, data);
 		}
 	}
 
 	@Override
-	public void postError(final String error) throws DataHandlerException
-	{
+	public void postError(final String error) throws DataHandlerException {
 		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-		if (url == null)
-		{
+		if (url == null) {
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
-		}
-		else
-		{
+		} else {
 			post(url, error);
 		}
 	}
 
 	@Override
-	public void postExtra(final String tag, final String data) throws DataHandlerException
-	{
+	public void postExtra(final String tag, final String data)
+			throws DataHandlerException {
 		String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-		if (url == null)
-		{
+		if (url == null) {
 			throw new DataHandlerException(DataHandlerException.NO_URL_TARGET);
-		}
-		else
-		{
+		} else {
 			post(url, data);
 		}
 	}
