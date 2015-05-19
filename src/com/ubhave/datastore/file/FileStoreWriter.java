@@ -3,9 +3,7 @@ package com.ubhave.datastore.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
@@ -18,20 +16,12 @@ public class FileStoreWriter
 	private static final String TAG = "LogFileDataStorage";
 
 	private final DataHandlerConfig config;
-	private HashMap<String, Object> lockMap;
 	private FileVault fileWriter;
 
-	public FileStoreWriter(final Context context)
+	public FileStoreWriter(final FileVault vault)
 	{
 		this.config = DataHandlerConfig.getInstance();
-		this.lockMap = new HashMap<String, Object>();
-		this.fileWriter = new FileVault();
-	}
-	
-	public FileStoreWriter(final Context context, final HashMap<String, Object> lockMap)
-	{
-		this(context);
-		this.lockMap = lockMap;
+		this.fileWriter = vault;
 	}
 	
 	public void writeData(final String directoryName, String data) throws DataHandlerException
@@ -43,7 +33,7 @@ public class FileStoreWriter
 			throw new DataHandlerException(DataHandlerException.WRITING_TO_DEFAULT_DIRECTORY);
 		}
 
-		synchronized (getLock(directoryName))
+		synchronized (FileVault.getLock(directoryName))
 		{
 			final File directory = getDirectory(rootPath, directoryName);
 			try
@@ -70,24 +60,6 @@ public class FileStoreWriter
 				throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 			}
 		}
-	}
-	
-	private Object getLock(final String key)
-	{
-		Object lock;
-		synchronized (lockMap)
-		{
-			if (lockMap.containsKey(key))
-			{
-				lock = lockMap.get(key);
-			}
-			else
-			{
-				lock = new Object();
-				lockMap.put(key, lock);
-			}
-		}
-		return lock;
 	}
 	
 	private File getDirectory(final String rootPath, final String directoryName)
