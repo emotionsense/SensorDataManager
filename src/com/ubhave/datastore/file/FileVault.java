@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
 import java.security.MessageDigest;
+import java.util.HashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -26,8 +27,28 @@ public class FileVault
 	private static final String PASSWORD_HASH_ALGORITHM = "SHA-256";
 	private static final String UTF8 = "UTF-8";
 
+	private static final HashMap<String, Object> lockMap = new HashMap<String, Object>();
+	
+	public static Object getLock(final String key)
+	{
+		Object lock;
+		synchronized (lockMap)
+		{
+			if (lockMap.containsKey(key))
+			{
+				lock = lockMap.get(key);
+			}
+			else
+			{
+				lock = new Object();
+				lockMap.put(key, lock);
+			}
+		}
+		return lock;
+	}
+	
 	private final Key key;
-
+	
 	public FileVault()
 	{
 		this.key = buildKey();
