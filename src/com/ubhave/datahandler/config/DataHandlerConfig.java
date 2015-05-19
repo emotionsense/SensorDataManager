@@ -95,8 +95,7 @@ public class DataHandlerConfig
 		if (file.isFile())
 		{
 			String fileName = file.getName();
-			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX)
-					|| ((Boolean) config.get(DataTransferConfig.POST_MEDIA_FILES) && fileName.endsWith(DataStorageConstants.AUDIO_FILE_SUFFIX));
+			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX);
 		}
 		else
 		{
