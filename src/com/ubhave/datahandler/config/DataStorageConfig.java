@@ -16,11 +16,11 @@ public class DataStorageConfig
 	public final static String DATA_LIFE_MILLIS = "fileDuration";
 	public final static String UNIQUE_USER_ID = "uniqueUserID";
 	public final static String UNIQUE_DEVICE_ID = "uniqueDeviceID";
+	public final static String FILE_STORAGE_ENCRYPTION_PASSWORD = "encryptionPassword";
 	
 	/*
 	 * Config Values
 	 */
-	
 	public final static int STORAGE_TYPE_NONE = -1;
 	public final static int STORAGE_TYPE_DB = 0;
 	public final static int STORAGE_TYPE_FILES = 1;
@@ -30,7 +30,6 @@ public class DataStorageConfig
 	 */
 	public final static String DEFAULT_UPLOAD_DIRECTORY_NAME = "to_be_uploaded";
 	public final static long DEFAULT_FILE_LIFE_MILLIS = 30 * 60 * 60 * 1000L; // 30 hours
-	public final static String DEFAULT_ROOT_DIRECTORY = "esdm_root";
 
 	public static HashSet<String> validKeys()
 	{
@@ -41,13 +40,13 @@ public class DataStorageConfig
 		validKeys.add(DATA_LIFE_MILLIS);
 		validKeys.add(UNIQUE_USER_ID);
 		validKeys.add(UNIQUE_DEVICE_ID);
+		validKeys.add(FILE_STORAGE_ENCRYPTION_PASSWORD);
 		return validKeys;
 	}
 
 	public static HashMap<String, Object> defaultValues()
 	{
 		HashMap<String, Object> defaults = new HashMap<String, Object>();
-		defaults.put(LOCAL_STORAGE_ROOT_NAME, DEFAULT_ROOT_DIRECTORY);
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME, DEFAULT_UPLOAD_DIRECTORY_NAME);
 		
 		String absoluteDir = (String) defaults.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
