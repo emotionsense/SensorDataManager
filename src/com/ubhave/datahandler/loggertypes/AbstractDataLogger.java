@@ -80,6 +80,7 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
+			dataManager.setConfig(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD, getEncryptionPassword());
 			if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 			{
 				dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
@@ -96,6 +97,12 @@ public abstract class AbstractDataLogger
 
 	protected abstract String getUniqueUserId();
 	
+	protected abstract String getDeviceId();
+	
+	protected abstract boolean shouldPrintLogMessages();
+	
+	protected abstract String getEncryptionPassword();
+	
 	public void setUniqueUserId(final String userId)
 	{
 		try
@@ -107,10 +114,6 @@ public abstract class AbstractDataLogger
 			e.printStackTrace();
 		}
 	}
-
-	protected abstract boolean shouldPrintLogMessages();
-
-	protected abstract String getDeviceId();
 	
 	public void setDeviceId(final String deviceId)
 	{
