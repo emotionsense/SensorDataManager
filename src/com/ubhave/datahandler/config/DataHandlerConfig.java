@@ -59,6 +59,7 @@ public class DataHandlerConfig
 	
 	public String getLocalUploadDirectoryPath()
 	{
+		// TODO check permissions
 		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
 		return absoluteDir +"/"+ config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 	}
