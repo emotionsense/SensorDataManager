@@ -8,8 +8,6 @@ public class DataStorageConfig
 	/*
 	 * Config Keys
 	 */
-	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH = "uploadDirPath"; // Note: not user defined
-	
 	public final static String LOCAL_STORAGE_ROOT_NAME = "localDir";
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME = "uploadDirName";
 	public final static String LOCAL_STORAGE_DATA_FORMAT = "dataFormat";
@@ -36,7 +34,6 @@ public class DataStorageConfig
 		HashSet<String> validKeys = new HashSet<String>();
 		validKeys.add(LOCAL_STORAGE_ROOT_NAME);
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
-		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
 		validKeys.add(DATA_LIFE_MILLIS);
 		validKeys.add(UNIQUE_USER_ID);
 		validKeys.add(UNIQUE_DEVICE_ID);
@@ -48,10 +45,6 @@ public class DataStorageConfig
 	{
 		HashMap<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME, DEFAULT_UPLOAD_DIRECTORY_NAME);
-		
-		String absoluteDir = (String) defaults.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-		String uploadDir = absoluteDir +"/"+ defaults.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
-		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH, uploadDir);
 		defaults.put(DATA_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
 		return defaults;
 	}
