@@ -65,6 +65,7 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		JSONArray resultJSON = new JSONArray();
 		if (results != null)
 		{
+			json.put(UNAVAILABLE, false);
 			for (WifiScanResult result : results)
 			{
 				JSONObject scanJSON = new JSONObject();
@@ -78,7 +79,7 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		}
 		else
 		{
-			resultJSON.put(UNAVAILABLE);
+			json.put(UNAVAILABLE, true);
 		}
 		json.put(SCAN_RESULT, resultJSON);
 	}
@@ -102,25 +103,25 @@ public class WifiFormatter extends PullSensorJSONFormatter
 		boolean setRawData = true;
 		boolean setProcessedData = false;
 		
-		// TODO: what if result contains UNAVAILABLE
-		
-		ArrayList<WifiScanResult> wifiList = null; 
+		ArrayList<WifiScanResult> wifiList = new ArrayList<WifiScanResult>(); 
 		try
 		{
-			JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
-			wifiList = new ArrayList<WifiScanResult>(); 
-			
-			for (int i = 0; i < jsonArray.length(); i++)
+			boolean isUnavailable = jsonData.getBoolean(UNAVAILABLE);
+			if (!isUnavailable)
 			{
-				JSONObject jsonObject = (JSONObject)jsonArray.get(i);
-				String ssid = (String)jsonObject.get(SSID);
-				String bssid = (String)jsonObject.get(BSSID);
-				String capabilities = (String)jsonObject.get(CAPABILITIES);
-				int level = ((Long)jsonObject.get(LEVEL)).intValue();
-				int frequency = ((Long)jsonObject.get(FREQUENCY)).intValue();
-				
-				WifiScanResult scanResult = new WifiScanResult(ssid, bssid, capabilities, level, frequency);
-				wifiList.add(scanResult);
+				JSONArray jsonArray = (JSONArray)jsonData.get(SCAN_RESULT);
+				for (int i = 0; i < jsonArray.length(); i++)
+				{
+					JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+					String ssid = (String)jsonObject.get(SSID);
+					String bssid = (String)jsonObject.get(BSSID);
+					String capabilities = (String)jsonObject.get(CAPABILITIES);
+					int level = ((Long)jsonObject.get(LEVEL)).intValue();
+					int frequency = ((Long)jsonObject.get(FREQUENCY)).intValue();
+					
+					WifiScanResult scanResult = new WifiScanResult(ssid, bssid, capabilities, level, frequency);
+					wifiList.add(scanResult);
+				}
 			}
 		}
 		catch (Exception e)
