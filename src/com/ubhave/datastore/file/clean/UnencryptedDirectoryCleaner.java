@@ -22,8 +22,9 @@ public class UnencryptedDirectoryCleaner implements DirectoryCleaner
 	}
 	
 	@Override
-	public void moveDirectoryContentsForUpload(final File directory) throws DataHandlerException, IOException
+	public int moveDirectoryContentsForUpload(final File directory) throws DataHandlerException, IOException
 	{
+		int dataFiles = 0;
 		File[] fileList = directory.listFiles();
 		if (fileList != null)
 		{
@@ -45,6 +46,7 @@ public class UnencryptedDirectoryCleaner implements DirectoryCleaner
 				}
 			}
 			
+			dataFiles = threads.size();
 			while (!threads.isEmpty())
 			{
 				try
@@ -66,5 +68,6 @@ public class UnencryptedDirectoryCleaner implements DirectoryCleaner
 				}
 			}
 		}
+		return dataFiles;
 	}
 }

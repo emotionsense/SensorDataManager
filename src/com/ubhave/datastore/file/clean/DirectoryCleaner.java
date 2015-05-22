@@ -7,5 +7,5 @@ import com.ubhave.datahandler.except.DataHandlerException;
 
 public interface DirectoryCleaner
 {
-	public void moveDirectoryContentsForUpload(final File directory) throws DataHandlerException, IOException;
+	public int moveDirectoryContentsForUpload(final File directory) throws DataHandlerException, IOException;
 }
