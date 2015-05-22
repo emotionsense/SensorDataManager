@@ -13,7 +13,7 @@ public interface DataStorageInterface
 	/*
 	 * Retrieving stored data
 	 */
-	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException;
+	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, DataHandlerException, IOException;
 	
 	/*
 	 * Write data
