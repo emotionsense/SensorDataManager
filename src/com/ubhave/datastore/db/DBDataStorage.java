@@ -211,7 +211,6 @@ public class DBDataStorage implements DataStorageInterface
 	{
 		String tableName = SensorUtils.getSensorName(sensorId);
 		JSONFormatter formatter = DataFormatter.getJSONFormatter(context, sensorId);
-		// TODO this will break if the user isn't using this formatter to store data
 		return dataTables.getRecentSensorData(tableName, formatter, startTimestamp);
 	}
 

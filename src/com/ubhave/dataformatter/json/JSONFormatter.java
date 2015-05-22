@@ -156,9 +156,13 @@ public abstract class JSONFormatter extends DataFormatter
 
 	protected void addGenericData(JSONObject json, SensorData data)
 	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(data.getTimestamp());
+
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
 		try
 		{
-			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID);
+			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID, null);
 			if (userId != null && userId.length() > 0)
 			{
 				json.put(USER_ID, userId);
@@ -168,7 +172,7 @@ public abstract class JSONFormatter extends DataFormatter
 				Log.d(LOG_TAG, "Warning: no user id set.");
 			}
 
-			String deviceId = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID);
+			String deviceId = (String) config.get(DataStorageConfig.UNIQUE_DEVICE_ID, null);
 			if (deviceId != null && deviceId.length() > 0)
 			{
 				json.put(DEVICE_ID, deviceId);
@@ -177,18 +181,7 @@ public abstract class JSONFormatter extends DataFormatter
 			{
 				Log.d(LOG_TAG, "Warning: no device id set.");
 			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(data.getTimestamp());
-
-		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
-		try
-		{
+			
 			json.put(SENSE_TIME, formatter.format(calendar.getTime()));
 			json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 			try

@@ -8,8 +8,6 @@ import net.lingala.zip4j.util.Zip4jConstants;
 
 import org.json.JSONObject;
 
-import android.content.Context;
-
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -17,16 +15,16 @@ import com.ubhave.datahandler.except.DataHandlerException;
 public class UploadVault implements UploadVaultInterface
 {
 	private final static String TAG = "UploadVault";
-	private final Context context;
+//	private final Context context;
 	private final ZipParameters parameters;
 	private final DataHandlerConfig config;
 	
 //	final File uploadDirectory = new File((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH));
 //	final String uploadDirectoryName = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 	
-	public UploadVault(final Context context)
+	public UploadVault()
 	{
-		this.context = context;
+//		this.context = context;
 		this.parameters = getZipParameters();
 		this.config = DataHandlerConfig.getInstance();
 	}
@@ -97,6 +95,13 @@ public class UploadVault implements UploadVaultInterface
 	public void writeData(final String dataName, final List<JSONObject> data) throws DataHandlerException
 	{
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void writeData(String dataName, String data)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

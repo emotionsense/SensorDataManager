@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
 
 public class PolicyAlarm extends BroadcastReceiver
 {
@@ -26,7 +25,8 @@ public class PolicyAlarm extends BroadcastReceiver
 	private final Context context;
 	private boolean hasStarted;
 
-	public enum TRANSFER_POLICY {
+	public enum TRANSFER_POLICY
+	{
 		WIFI_ONLY, ANY_NETWORK
 	}
 
@@ -35,15 +35,14 @@ public class PolicyAlarm extends BroadcastReceiver
 	private AlarmListener listener;
 	private final String configKeyAlarmInterval, configKeyWifiLimit;
 
-	public PolicyAlarm(final String id, final Context context, final Intent intent, final int requestCode,
-			final String actionName, String configKeyAlarmInterval, String configKeyWifiLimit)
+	public PolicyAlarm(final String id, final Context context, final Intent intent, final int requestCode, final String actionName, String configKeyAlarmInterval, String configKeyWifiLimit)
 	{
 		this.alarmId = id;
 		this.context = context;
 		this.actionName = actionName;
 		this.configKeyAlarmInterval = configKeyAlarmInterval;
 		this.configKeyWifiLimit = configKeyAlarmInterval;
-		
+
 		this.hasStarted = false;
 		this.transferPolicy = TRANSFER_POLICY.WIFI_ONLY;
 
@@ -68,28 +67,12 @@ public class PolicyAlarm extends BroadcastReceiver
 		{
 			Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");
 		}
-		
+
 		if (hasStarted)
 		{
 			stop();
 			start();
 		}
-	}
-	
-	private long getValue(String key)
-	{
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		long value;
-		try
-		{
-			value = (Long) config.get(key);
-		}
-		catch (DataHandlerException e)
-		{
-			value = 0;
-			e.printStackTrace();
-		}
-		return value;
 	}
 
 	public void start()
@@ -100,13 +83,15 @@ public class PolicyAlarm extends BroadcastReceiver
 			{
 				hasStarted = true;
 				IntentFilter intentFilter = new IntentFilter(actionName);
-				long alarmInterval = getValue(configKeyAlarmInterval);
+				long alarmInterval = (Long) DataHandlerConfig.getInstance().get(configKeyAlarmInterval, 0);
 				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), alarmInterval, pendingIntent);
 				context.registerReceiver(this, intentFilter);
 			}
 			catch (ReceiverCallNotAllowedException e)
 			{
-				// Thrown if the data manager is created from inside a broad cast receiver
+				e.printStackTrace();
+				// Thrown if the data manager is created from inside a broad
+				// cast receiver
 			}
 		}
 	}
@@ -123,7 +108,8 @@ public class PolicyAlarm extends BroadcastReceiver
 			}
 			catch (IllegalArgumentException e)
 			{
-				// Thrown if the data manager is created from inside a broad cast receiver
+				// Thrown if the data manager is created from inside a broad
+				// cast receiver
 				// Since the receiver will not be registered
 			}
 		}
@@ -166,8 +152,7 @@ public class PolicyAlarm extends BroadcastReceiver
 		// use only wifi
 				|| ((transferPolicy == TRANSFER_POLICY.WIFI_ONLY) && (isConnectedToWiFi()))
 				// use only wifi but if it's been more than 24 hours from the
-				// last
-				// upload time then use any available n/w
+				// last upload time then use any available n/w
 				|| ((transferPolicy == TRANSFER_POLICY.WIFI_ONLY) && (isLastUploadTimeoutReached()) && (isConnectedToAnyNetwork())))
 		{
 			return true;
@@ -213,7 +198,7 @@ public class PolicyAlarm extends BroadcastReceiver
 	private boolean isLastUploadTimeoutReached()
 	{
 		long lastTransferAllowed = getLastTransferAllowedTime();
-		long waitForWifiInterval = getValue(configKeyWifiLimit);
+		long waitForWifiInterval = (Long) DataHandlerConfig.getInstance().get(configKeyWifiLimit, 0);
 		if ((System.currentTimeMillis() - lastTransferAllowed) > waitForWifiInterval)
 		{
 			return true;

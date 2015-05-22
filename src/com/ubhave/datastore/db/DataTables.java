@@ -164,18 +164,8 @@ public class DataTables extends SQLiteOpenHelper
 
 	public List<JSONObject> getUnsyncedData(final String tableName)
 	{
-		long timeLimit;
-		try
-		{
-			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			timeLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			timeLimit = DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		}
-
+		DataHandlerConfig config = DataHandlerConfig.getInstance();
+		long timeLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS, DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS);
 		return getData(tableName, timeLimit);
 	}
 

@@ -70,7 +70,7 @@ public class DataHandlerConfig
 		{
 			if (key.equals(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME))
 			{
-				// TODO fix this
+				// TODO check permissions to fix this
 				String absoluteDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String) value;
 				config.put(key,  absoluteDir);
 			}
@@ -113,6 +113,18 @@ public class DataHandlerConfig
 		{
 			System.err.println("Unknown config: "+key);
 			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
+		}
+	}
+	
+	public Object get(final String key, final Object defaultValue)
+	{
+		try
+		{
+			return get(key);
+		}
+		catch (DataHandlerException e)
+		{
+			return defaultValue;
 		}
 	}
 	

@@ -9,4 +9,6 @@ import com.ubhave.datahandler.except.DataHandlerException;
 public interface UploadVaultInterface
 {
 	public void writeData(final String dataName, final List<JSONObject> data) throws DataHandlerException;
+	
+	public void writeData(final String dataName, final String data);
 }
