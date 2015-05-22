@@ -17,6 +17,7 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTable
 {
+	private final static String TAG = "DataTable";
 	protected final String tableName;
 	protected final static String timeStampKey = "timeStamp";
 	protected final static String syncedWithServer = "synced";
@@ -46,7 +47,10 @@ public class DataTable
 		{
 			throw new Exception("Data Not Inserted");
 		}
-		Log.d("AbstractDataLogger", tableName+": "+rowId); // TODO remove
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, tableName+ " inserted into row: "+rowId);
+		}
 	}
 	
 	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database, final long timeLimit)
@@ -90,7 +94,7 @@ public class DataTable
 		int numRows = database.delete(tableName, syncedWithServer+" == ?", new String[]{SYNCED});
 		if (DataHandlerConfig.shouldLog())
 		{
-			Log.d("DataTable", "Deleted "+numRows+" synced rows from "+tableName);
+			Log.d(TAG, "Deleted "+numRows+" synced rows from "+tableName);
 		}
 	}
 	
