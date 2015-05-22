@@ -17,6 +17,6 @@ public class FileStoreManager extends ESDataManager
 	@Override
 	protected DataStorageInterface getStorage()
 	{
-		return new FileDataStorage(fileTransferLock);
+		return new FileDataStorage(context, fileTransferLock);
 	}
 }

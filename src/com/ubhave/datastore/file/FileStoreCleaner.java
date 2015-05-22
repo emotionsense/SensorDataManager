@@ -44,12 +44,9 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 				if (directory.isDirectory())
 				{
 					String directoryName = directory.getName();
-					if (directoryName != null && !uploadDirectoryPath.contains(directoryName))
+					if (!uploadDirectoryPath.contains(directoryName))
 					{
-						if (moveDirectory(directory))
-						{
-							counter++;
-						}
+						counter += moveDirectory(directory);
 					}
 				}
 			}
@@ -74,7 +71,7 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 		}
 	}
 	
-	public boolean moveDirectory(final File directory)
+	public int moveDirectory(final File directory)
 	{
 		synchronized (FileVault.getLock(directory.getName()))
 		{
@@ -84,8 +81,7 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 				{
 					Log.d(TAG, "moveDirectoryContentsForUpload(" + directory.getName() + ").");
 				}
-				directoryCleaner.moveDirectoryContentsForUpload(directory);
-				return true;
+				return directoryCleaner.moveDirectoryContentsForUpload(directory);
 			}
 			catch (Exception e)
 			{
@@ -94,7 +90,7 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 					Log.d(TAG, "Failed to move data in directory: "+directory.getName());
 				}
 				e.printStackTrace();
-				return false;
+				return 0;
 			}
 		}
 	}

@@ -3,6 +3,8 @@ package com.ubhave.datastore.file;
 import java.io.IOException;
 import java.util.List;
 
+import android.content.Context;
+
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -17,21 +19,18 @@ public class FileDataStorage implements DataStorageInterface
 //	private final DataHandlerConfig config;
 	
 	private final FileVault vault;
-	private final FileStoreWriter logFileStore;
-//	private final FileStoreCleaner fileStoreCleaner;
+	private final FileStoreWriter fileStoreWriter;
+	private final FileStoreCleaner fileStoreCleaner;
+	private final FileStoreSearcher fileSearch;
 
-	public FileDataStorage(final Object fileTransferLock)
+	public FileDataStorage(final Context context, final Object fileTransferLock)
 	{
 //		this.config = DataHandlerConfig.getInstance();
 		
 		this.vault = new FileVault();
-		this.logFileStore = new FileStoreWriter(vault);
-		
-		// Cleaner
-//		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock);
-		
-		// Searcher
-		// TODO add searcher
+		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock, vault);
+		this.fileStoreWriter = new FileStoreWriter(vault, fileStoreCleaner);
+		this.fileSearch = new FileStoreSearcher(context, vault);
 	}
 	
 	@Override
@@ -47,13 +46,13 @@ public class FileDataStorage implements DataStorageInterface
 			sensorName = DataStorageConstants.UNKNOWN_SENSOR;
 		}
 		String directoryName = sensorName;
-		logFileStore.writeData(directoryName, formatter.toString(data));
+		fileStoreWriter.writeData(directoryName, formatter.toString(data));
 	}
 
 	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
-		logFileStore.writeData(tag, data);
+		fileStoreWriter.writeData(tag, data);
 	}
 	
 	@Override
@@ -63,62 +62,12 @@ public class FileDataStorage implements DataStorageInterface
 	@Override
 	public String prepareDataForUpload()
 	{
-		// TODO moved to cleaner
-		return null;
+		return fileStoreCleaner.moveDataForUpload();
 	}
 
 	@Override
-	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws ESException, IOException
+	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws DataHandlerException, ESException, IOException
 	{
-		// TODO move to searcher
-		return null;
-//		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
-//		try
-//		{
-//			String sensorName = SensorUtils.getSensorName(sensorId);
-//			String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-//			JSONFormatter jsonFormatter = JSONFormatter.getJSONFormatter(context, sensorId);
-//			synchronized (getLock(sensorName))
-//			{
-//				String directoryFullPath = rootPath + "/" + sensorName;
-//				File dir = new File(directoryFullPath);
-//				File[] files = dir.listFiles();
-//				if (files != null)
-//				{
-//					for (File file : files)
-//					{
-//						// TODO: won't work for encrypted files
-//						String line;
-//						BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-//						while ((line = br.readLine()) != null)
-//						{
-//							try
-//							{
-//								// convert json string to sensor data object
-//								long timestamp = jsonFormatter.getTimestamp(line);
-//								if (timestamp >= startTimestamp)
-//								{
-//									SensorData sensorData = jsonFormatter.toSensorData(line);
-//									if (sensorData.getTimestamp() >= startTimestamp)
-//									{
-//										outputList.add(sensorData);
-//									}
-//								}
-//							}
-//							catch (Exception e)
-//							{
-//								e.printStackTrace();
-//							}
-//						}
-//						br.close();
-//					}
-//				}
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//		}
-//		return outputList;
+		return fileSearch.getRecentSensorData(sensorId, startTimestamp);
 	}
 }
