@@ -9,11 +9,11 @@ import com.ubhave.datahandler.except.DataHandlerException;
 
 public abstract class FileStoreAbstractReader
 {
-	private FileVault fileReader;
+	protected FileVault vault;
 
 	public FileStoreAbstractReader(final FileVault vault)
 	{
-		this.fileReader = vault;
+		this.vault = vault;
 	}
 	
 	public String readFile(final String directory, final File dataFile) throws DataHandlerException
@@ -23,7 +23,7 @@ public abstract class FileStoreAbstractReader
 		{
 			try
 			{
-				InputStream stream = fileReader.openForReading(dataFile);
+				InputStream stream = vault.openForReading(dataFile);
 				BufferedReader in = new BufferedReader(new InputStreamReader(stream));
 				String line;
 				while ((line = in.readLine()) != null)

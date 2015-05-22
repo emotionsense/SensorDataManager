@@ -1,197 +1,101 @@
 package com.ubhave.datastore.file;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
 
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datastore.file.clean.DirectoryCleaner;
+import com.ubhave.datastore.file.clean.EncryptedDirectoryCleaner;
+import com.ubhave.datastore.file.clean.UnencryptedDirectoryCleaner;
 
-public class FileStoreCleaner
+public class FileStoreCleaner extends FileStoreAbstractReader
 {
-	private static final String TAG = "LogFileDataStorage";
-	
-	private final Object fileTransferLock;
+	private final static String TAG = "LogFileDataStorage";
 	private final DataHandlerConfig config;
+	private final DirectoryCleaner directoryCleaner;
 
-	public FileStoreCleaner(final Object fileTransferLock)
+	public FileStoreCleaner(final Object fileTransferLock, final FileVault vault)
 	{
+		super(vault);
 		this.config = DataHandlerConfig.getInstance();
-		this.fileTransferLock = fileTransferLock;
-	}
-	
-	public void moveDirectoryContentsForUpload(String directoryFullPath) throws DataHandlerException, IOException
-	{
-		if (DataHandlerConfig.shouldLog())
+		if (vault.isEncrypted())
 		{
-			Log.d(TAG, "moveDirectoryContentsForUpload() " + directoryFullPath);
+			this.directoryCleaner = new EncryptedDirectoryCleaner(vault);
 		}
-		
-		File directory = new File(directoryFullPath);
-		if (directory != null && directory.exists())
+		else
 		{
-			File[] fileList = directory.listFiles();
-			if (fileList != null)
-			{
-				for (File file : fileList)
-				{
-					if (isMediaFile(file.getName()) || isLogFileDueForUpload(file))
-					{
-						if (file.length() <= 0)
-						{
-							file.delete();
-						}
-						else
-						{
-							moveFileToUploadDir(file);
-						}	
-					}
-				}
-			}
-		}
-	}
-	
-	private File getUploadDirectory() throws DataHandlerException
-	{
-		String uploadDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH);
-		File directory = new File(uploadDir);
-		if (!directory.exists())
-		{
-			directory.mkdirs();
-		}
-		return directory;
-	}
-	
-	private void moveFileToUploadDir(final File file)
-	{
-		new Thread()
-		{
-			private void removeDirectoryIfEmpty(final File directory)
-			{
-				if (directory != null)
-				{
-					File[] fileList = directory.listFiles();
-					if (fileList != null && fileList.length == 0)
-					{
-						boolean deleted = directory.delete();
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "removeDirectoryIfEmpty() " + directory.getAbsolutePath()+" = "+deleted);
-						}
-					}
-				}
-			}
-			
-			public void run()
-			{
-				try
-				{
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "gzip file " + file);
-					}
-					final File uploadDirectory = getUploadDirectory();
-					synchronized (fileTransferLock)
-					{
-						try
-						{
-							gzipFile(file, uploadDirectory);
-							if (DataHandlerConfig.shouldLog())
-							{
-								String abs = file.getAbsolutePath();
-								Log.d(TAG, "moved file " + abs + " to server upload dir");
-								Log.d(TAG, "deleting file: " + abs);
-							}
-							File parentDirectory = file.getParentFile();
-							file.delete();
-							removeDirectoryIfEmpty(parentDirectory);
-						}
-						catch (FileNotFoundException e)
-						{}
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}.start();
-	}
-	
-	private boolean isMediaFile(final String fileName)
-	{
-		return fileName.contains(DataStorageConstants.ZIP_FILE_SUFFIX) || fileName.contains(DataStorageConstants.AUDIO_FILE_SUFFIX)
-				|| fileName.contains(DataStorageConstants.IMAGE_FILE_SUFFIX);
-	}
-	
-	private long getDurationLimit()
-	{
-		try
-		{
-			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		}
-	}
-	
-	private boolean isLogFileDueForUpload(File file)
-	{
-		try
-		{
-			long durationLimit = getDurationLimit();
-			if (file != null)
-			{
-				String fileName = file.getName();
-				if (fileName.contains(DataStorageConstants.LOG_FILE_SUFFIX))
-				{
-					String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.LOG_FILE_SUFFIX));
-					long fileTimestamp = Long.parseLong(timeStr);
-					long currTime = System.currentTimeMillis();
-					if ((currTime - fileTimestamp) > durationLimit)
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return false;
+			this.directoryCleaner = new UnencryptedDirectoryCleaner(fileTransferLock);
 		}
 	}
 
-	private void gzipFile(final File inputFile, final File uploadDirectory) throws IOException, DataHandlerException
+	public String moveDataForUpload()
 	{
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		FileInputStream in = new FileInputStream(inputFile);
-		byte[] buffer = new byte[1024];
-		File sourceDirectory = new File(inputFile.getParent());
-		String gzipFileName = config.getIdentifier() + "_"
-						+ sourceDirectory.getName() + "_"
-						+ inputFile.getName()
-						+ DataStorageConstants.ZIP_FILE_SUFFIX;
-		
-		int len;
-		File outputFile = new File(uploadDirectory, gzipFileName);
-		GZIPOutputStream gzipOS = new GZIPOutputStream(new FileOutputStream(outputFile));
-		while ((len = in.read(buffer)) > 0)
+		try
 		{
-			gzipOS.write(buffer, 0, len);
+			int counter = 0;
+			final String uploadDirectoryPath = config.getLocalUploadDirectoryPath();
+			final File rootDirectory = new File((String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME));
+			final File[] dataDirectories = rootDirectory.listFiles();
+			for (File directory : dataDirectories)
+			{
+				if (directory.isDirectory())
+				{
+					String directoryName = directory.getName();
+					if (directoryName != null && !uploadDirectoryPath.contains(directoryName))
+					{
+						if (moveDirectory(directory))
+						{
+							counter++;
+						}
+					}
+				}
+			}
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "Moved " + counter + " directories.");
+			}
+
+			if (counter == 0)
+			{
+				return null;
+			}
+			else
+			{
+				return uploadDirectoryPath;
+			}
 		}
-		in.close();
-		gzipOS.finish();
-		gzipOS.close();
+		catch (DataHandlerException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public boolean moveDirectory(final File directory)
+	{
+		synchronized (FileVault.getLock(directory.getName()))
+		{
+			try
+			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "moveDirectoryContentsForUpload(" + directory.getName() + ").");
+				}
+				directoryCleaner.moveDirectoryContentsForUpload(directory);
+				return true;
+			}
+			catch (Exception e)
+			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Failed to move data in directory: "+directory.getName());
+				}
+				e.printStackTrace();
+				return false;
+			}
+		}
 	}
 }

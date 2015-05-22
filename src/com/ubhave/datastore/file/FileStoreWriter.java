@@ -10,29 +10,28 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datastore.file.clean.DataFileStatus;
 
 public class FileStoreWriter
 {
 	private static final String TAG = "LogFileDataStorage";
 
 	private final DataHandlerConfig config;
-	private FileVault fileWriter;
-
-	public FileStoreWriter(final FileVault vault)
+	private final FileVault fileWriter;
+	private final FileStoreCleaner cleaner;
+	private final DataFileStatus fileStatus;
+	
+	public FileStoreWriter(final FileVault vault, final FileStoreCleaner cleaner)
 	{
 		this.config = DataHandlerConfig.getInstance();
 		this.fileWriter = vault;
+		this.cleaner = cleaner;
+		this.fileStatus = new DataFileStatus();
 	}
 	
 	public void writeData(final String directoryName, String data) throws DataHandlerException
 	{
 		String rootPath = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-		if (rootPath.contains(DataStorageConfig.DEFAULT_ROOT_DIRECTORY))
-		{
-			 // TODO Deal with this exception
-			throw new DataHandlerException(DataHandlerException.WRITING_TO_DEFAULT_DIRECTORY);
-		}
-
 		synchronized (FileVault.getLock(directoryName))
 		{
 			final File directory = getDirectory(rootPath, directoryName);
@@ -64,14 +63,14 @@ public class FileStoreWriter
 	
 	private File getDirectory(final String rootPath, final String directoryName)
 	{
-		File directory = new File(rootPath, directoryName);
+		final File directory = new File(rootPath, directoryName);
 		if (!directory.exists())
 		{
+			boolean directoryCreated = directory.mkdirs();
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(TAG, "Creating: " + directory.getAbsolutePath());
+				Log.d(TAG, "Created ["+directoryCreated+"]: " + directory.getAbsolutePath());
 			}
-			directory.mkdirs();
 		}
 		return directory;
 	}
@@ -100,80 +99,30 @@ public class FileStoreWriter
 		{
 			return createNewFile(directory);
 		}
+		else if (fileStatus.isDueForUpload(latestFile))
+		{
+			cleaner.moveDirectory(directory);
+			return createNewFile(directory);
+		}
 		else
 		{
-			// TODO re-enable
-//			if (isFileLimitReached(latestFile))
-//			{
-//				fileStoreCleaner.moveDirectoryContentsForUpload(directory.getAbsolutePath());
-//				latestFile = null;
-//			}
+			return latestFile;
 		}
-		return latestFile;
 	}
 	
 	private File createNewFile(final File directory) throws IOException
 	{
-		File file = new File(directory.getAbsolutePath() + "/" + System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
-//		while (file.exists())
-//		{
-			// TODO Deal with file exists case
-//		}
-		if (DataHandlerConfig.shouldLog())
+		File file = new File(directory, System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
+		while (file.exists())
 		{
-			Log.d(TAG, "Creating: " + file.getAbsolutePath());
+			file = new File(directory, System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
 		}
 		
 		boolean fileCreated = file.createNewFile();
-		if (!fileCreated && DataHandlerConfig.shouldLog())
+		if (DataHandlerConfig.shouldLog())
 		{
-			Log.d(TAG, "Creating file returned false.");
+			Log.d(TAG, "Created ["+fileCreated+"]: " + file.getAbsolutePath());
 		}
 		return file;
 	}
-
-	
-//	private long getDurationLimit()
-//	{
-//		try
-//		{
-//			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//			return DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-//		}
-//	}
-//
-//	private boolean isFileLimitReached(File file)
-//	{
-//		try
-//		{
-//			long durationLimit = getDurationLimit();
-//			if (file != null)
-//			{
-//				String fileName = file.getName();
-//				if (fileName != null)
-//				{
-//					if (fileName.contains(DataStorageConstants.LOG_FILE_SUFFIX))
-//					{
-//						String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.LOG_FILE_SUFFIX));
-//						long fileTimestamp = Long.parseLong(timeStr);
-//						long currTime = System.currentTimeMillis();
-//						if ((currTime - fileTimestamp) > durationLimit)
-//						{
-//							return true;
-//						}
-//					}
-//				}
-//			}
-//			return false;
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//			return false;
-//		}
-//	}
 }
