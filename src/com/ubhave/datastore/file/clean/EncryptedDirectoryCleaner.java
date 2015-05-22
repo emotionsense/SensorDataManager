@@ -6,37 +6,37 @@ import java.io.IOException;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datastore.file.FileStoreAbstractReader;
 import com.ubhave.datastore.file.FileVault;
 
-public class EncryptedCleaner extends FileStoreAbstractReader
+public class EncryptedDirectoryCleaner extends FileStoreAbstractReader implements DirectoryCleaner
 {
 	private final static String TAG = "LogFileDataStorage";
+	private final DataFileStatus fileStatus;
 
-	public EncryptedCleaner(final FileVault vault)
+	public EncryptedDirectoryCleaner(final FileVault vault)
 	{
 		super(vault);
+		this.fileStatus = new DataFileStatus();
 	}
 	
-	public void moveDirectoryContentsForUpload(final String directoryPath) throws DataHandlerException, IOException
+	@Override
+	public void moveDirectoryContentsForUpload(final File directory) throws DataHandlerException, IOException
 	{
-		if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(TAG, "moveDirectoryContentsForUpload() " + directoryPath);
-		}
-		
-		File directory = new File(directoryPath);
 		if (directory != null && directory.exists())
 		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "moveDirectoryContentsForUpload() " + directory.getName());
+			}
 			File[] fileList = directory.listFiles();
 			if (fileList != null)
 			{
+				StringBuilder data = new StringBuilder();
 				for (File file : fileList)
 				{
-					if (isLogFileDueForUpload(file))
+					if (fileStatus.isDueForUpload(file))
 					{
 						if (file.length() <= 0)
 						{
@@ -50,48 +50,6 @@ public class EncryptedCleaner extends FileStoreAbstractReader
 				}
 				// TODO move contents to upload vault
 			}
-		}
-	}
-	
-	private long getDurationLimit()
-	{
-		try
-		{
-			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			return (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS;
-		}
-	}
-	
-	private boolean isLogFileDueForUpload(File file)
-	{
-		try
-		{
-			long durationLimit = getDurationLimit();
-			if (file != null)
-			{
-				String fileName = file.getName();
-				if (fileName.contains(DataStorageConstants.LOG_FILE_SUFFIX))
-				{
-					String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.LOG_FILE_SUFFIX));
-					long fileTimestamp = Long.parseLong(timeStr);
-					long currTime = System.currentTimeMillis();
-					if ((currTime - fileTimestamp) > durationLimit)
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return false;
 		}
 	}
 }
