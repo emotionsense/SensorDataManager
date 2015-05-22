@@ -12,15 +12,18 @@ import android.util.Log;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 
 public class GZipFileThread extends Thread
 {
 	private final static String TAG = "GZipFileThread";
 	private final File file;
+	private final UploadVaultInterface uploadVault;
 	
-	public GZipFileThread(final File file)
+	public GZipFileThread(final File file, final UploadVaultInterface uploadVault)
 	{
 		this.file = file;
+		this.uploadVault = uploadVault;
 	}
 	
 	public void run()
@@ -32,10 +35,8 @@ public class GZipFileThread extends Thread
 				Log.d(TAG, "gzip file " + file);
 			}
 			
-			// TODO add upload directory
-			final File uploadDirectory = new File("");
-//			final File uploadDirectory = getUploadDirectory();
-//			synchronized (fileTransferLock)
+			final File uploadDirectory = uploadVault.getUploadDirectory();
+//			synchronized (fileTransferLock) // TODO check locks
 			{
 				try
 				{

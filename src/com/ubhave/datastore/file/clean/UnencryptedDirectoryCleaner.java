@@ -8,17 +8,20 @@ import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 
 public class UnencryptedDirectoryCleaner implements DirectoryCleaner
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final Object fileTransferLock;
+	private final UploadVaultInterface uploadVault;
 	private final DataFileStatus fileStatus;
 
-	public UnencryptedDirectoryCleaner(final Object fileTransferLock)
+	public UnencryptedDirectoryCleaner(final Object fileTransferLock, final UploadVaultInterface uploadVault)
 	{
 		this.fileTransferLock = fileTransferLock;
 		this.fileStatus = new DataFileStatus();
+		this.uploadVault = uploadVault;
 	}
 	
 	@Override
@@ -39,7 +42,7 @@ public class UnencryptedDirectoryCleaner implements DirectoryCleaner
 					}
 					else
 					{
-						Thread fileThread = new GZipFileThread(file);
+						Thread fileThread = new GZipFileThread(file, uploadVault);
 						fileThread.start();
 						threads.add(fileThread);
 					}	

@@ -7,6 +7,8 @@ import android.util.Log;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.async.UploadVault;
+import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 import com.ubhave.datastore.file.clean.DirectoryCleaner;
 import com.ubhave.datastore.file.clean.EncryptedDirectoryCleaner;
 import com.ubhave.datastore.file.clean.UnencryptedDirectoryCleaner;
@@ -15,19 +17,21 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final DataHandlerConfig config;
+	private final UploadVaultInterface uploadVault;
 	private final DirectoryCleaner directoryCleaner;
 
 	public FileStoreCleaner(final Object fileTransferLock, final FileVault vault)
 	{
 		super(vault);
 		this.config = DataHandlerConfig.getInstance();
+		this.uploadVault = new UploadVault();
 		if (vault.isEncrypted())
 		{
-			this.directoryCleaner = new EncryptedDirectoryCleaner(vault);
+			this.directoryCleaner = new EncryptedDirectoryCleaner(vault, uploadVault);
 		}
 		else
 		{
-			this.directoryCleaner = new UnencryptedDirectoryCleaner(fileTransferLock);
+			this.directoryCleaner = new UnencryptedDirectoryCleaner(fileTransferLock, uploadVault);
 		}
 	}
 

@@ -29,6 +29,39 @@ public class UploadVault implements UploadVaultInterface
 		this.config = DataHandlerConfig.getInstance();
 	}
 	
+	@Override
+	public File getUploadDirectory()
+	{
+//		File directory;
+//		String uploadDir = config.getLocalUploadDirectoryPath();
+//		directory = new File(uploadDir);
+//		if (!directory.exists())
+//		{
+//			directory.mkdirs();
+//		}
+////		directory = context.getCacheDir();
+////		if (!directory.exists())
+////		{
+////			directory.mkdirs();
+////		}
+////		else
+////		{
+////			for (File d : directory.listFiles())
+////			{
+////				if (d.getName().contains(DataStorageConstants.LOG_FILE_SUFFIX))
+////				{
+////					if (DataHandlerConfig.shouldLog())
+////					{
+////						Log.d(TAG, "Delete temp file: " + d.getName());
+////					}
+////					d.delete();
+////				}
+////			}
+////		}
+//		return directory;
+		return null; // TODO implement
+	}
+	
 	private ZipParameters getZipParameters()
 	{
 		ZipParameters parameters = new ZipParameters();
@@ -56,40 +89,7 @@ public class UploadVault implements UploadVaultInterface
 		{
 			return null;
 		}
-	}
-	
-	private File getUploadDirectory()
-	{
-		File directory;
-		String uploadDir = config.getLocalUploadDirectoryPath();
-		directory = new File(uploadDir);
-		if (!directory.exists())
-		{
-			directory.mkdirs();
-		}
-//		directory = context.getCacheDir();
-//		if (!directory.exists())
-//		{
-//			directory.mkdirs();
-//		}
-//		else
-//		{
-//			for (File d : directory.listFiles())
-//			{
-//				if (d.getName().contains(DataStorageConstants.LOG_FILE_SUFFIX))
-//				{
-//					if (DataHandlerConfig.shouldLog())
-//					{
-//						Log.d(TAG, "Delete temp file: " + d.getName());
-//					}
-//					d.delete();
-//				}
-//			}
-//		}
-		return directory;
-	}
-	
-	
+	}	
 
 	@Override
 	public void writeData(final String dataName, final List<JSONObject> data) throws DataHandlerException

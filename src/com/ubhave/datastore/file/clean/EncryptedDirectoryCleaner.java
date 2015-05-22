@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datahandler.transfer.async.UploadVault;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 import com.ubhave.datastore.file.FileStoreAbstractReader;
 import com.ubhave.datastore.file.FileVault;
@@ -18,11 +17,11 @@ public class EncryptedDirectoryCleaner extends FileStoreAbstractReader implement
 	private final DataFileStatus fileStatus;
 	private final UploadVaultInterface uploadVault;
 
-	public EncryptedDirectoryCleaner(final FileVault vault)
+	public EncryptedDirectoryCleaner(final FileVault vault, final UploadVaultInterface uploadVault)
 	{
 		super(vault);
 		this.fileStatus = new DataFileStatus();
-		this.uploadVault = new UploadVault();
+		this.uploadVault = uploadVault;
 	}
 	
 	@Override
