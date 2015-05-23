@@ -1,22 +1,23 @@
 package com.ubhave.datahandler.transfer.async;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
-
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.json.JSONObject;
 
+import com.alutam.ziputils.ZipEncryptOutputStream;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
 
 public class UploadVault implements UploadVaultInterface
 {
 	private final static String TAG = "UploadVault";
 //	private final Context context;
-	private final ZipParameters parameters;
 	private final DataHandlerConfig config;
 	
 //	final File uploadDirectory = new File((String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_PATH));
@@ -25,7 +26,6 @@ public class UploadVault implements UploadVaultInterface
 	public UploadVault()
 	{
 //		this.context = context;
-		this.parameters = getZipParameters();
 		this.config = DataHandlerConfig.getInstance();
 	}
 	
@@ -62,46 +62,47 @@ public class UploadVault implements UploadVaultInterface
 		return null; // TODO implement
 	}
 	
-	private ZipParameters getZipParameters()
-	{
-		ZipParameters parameters = new ZipParameters();
-		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-		
-		final String pw = getEncryptionPassword();
-		if (pw != null)
-		{
-			parameters.setEncryptFiles(true);
-			parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
-			parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-			parameters.setPassword(pw);
-		}
-		return parameters;
-	}
-	
 	private String getEncryptionPassword()
 	{
-		try
-		{
-			return (String) config.get(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD);
-		}
-		catch (DataHandlerException e)
-		{
-			return null;
-		}
+		return (String) config.get(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD, null);
 	}	
 
 	@Override
-	public void writeData(final String dataName, final List<JSONObject> data) throws DataHandlerException
+	public void writeData(final String dataName, final List<JSONObject> data) throws Exception
 	{
-		// TODO Auto-generated method stub
+		final String pw = getEncryptionPassword();
+		if (pw != null)
+		{
+			writeEncrypted(dataName, data, pw);
+		}
+	}
+	
+	private void writeEncrypted(final String dataName, final List<JSONObject> entries, final String password) throws Exception
+	{
+		// TODO name the files correctly
+		ZipEncryptOutputStream zeos = new ZipEncryptOutputStream(new FileOutputStream("NewFile.zip"), password);
+		ZipOutputStream zos = new ZipOutputStream(zeos);
+		ZipEntry ze = new ZipEntry("EntryFile.json");
+        
+		zos.putNextEntry(ze);
+        write(entries, zos);
+
+        zos.closeEntry();
+		zos.close();
+	}
+	
+	private void write(final List<JSONObject> entries, final OutputStream out) throws IOException
+	{
+		for (JSONObject entry : entries)
+		{
+			String line = entry.toString() + "\n";
+			out.write(line.getBytes());
+		}
 	}
 
 	@Override
 	public void writeData(String dataName, String data)
 	{
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
-
 }
