@@ -68,7 +68,7 @@ public class GZipFileThread extends Thread
 		String gzipFileName = config.getIdentifier() + "_"
 						+ sourceDirectory.getName() + "_"
 						+ inputFile.getName()
-						+ DataStorageConstants.ZIP_FILE_SUFFIX;
+						+ DataStorageConstants.GZ_FILE_SUFFIX;
 		
 		int len;
 		File outputFile = new File(uploadDirectory, gzipFileName);

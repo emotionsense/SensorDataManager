@@ -11,7 +11,7 @@ import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 import com.ubhave.datastore.file.FileStoreAbstractReader;
 import com.ubhave.datastore.file.FileVault;
 
-public class EncryptedDirectoryCleaner extends FileStoreAbstractReader implements DirectoryCleaner
+public class EncryptedDirectoryCleaner extends FileStoreAbstractReader implements DirectoryCleanerInterface
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final DataFileStatus fileStatus;

@@ -49,7 +49,7 @@ public class DataTransfer implements DataTransferInterface
 			}
 			for (File file : files)
 			{
-				if (file.isFile() && file.getName().contains(DataStorageConstants.ZIP_FILE_SUFFIX))
+				if (file.isFile() && file.getName().contains(DataStorageConstants.GZ_FILE_SUFFIX))
 				{
 					HashMap<String, String> paramsMap = getPostParams();
 					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);

@@ -10,7 +10,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 
-public class UnencryptedDirectoryCleaner implements DirectoryCleaner
+public class UnencryptedDirectoryCleaner implements DirectoryCleanerInterface
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final Object fileTransferLock;

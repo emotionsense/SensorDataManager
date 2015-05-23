@@ -9,7 +9,7 @@ import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.async.UploadVault;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
-import com.ubhave.datastore.file.clean.DirectoryCleaner;
+import com.ubhave.datastore.file.clean.DirectoryCleanerInterface;
 import com.ubhave.datastore.file.clean.EncryptedDirectoryCleaner;
 import com.ubhave.datastore.file.clean.UnencryptedDirectoryCleaner;
 
@@ -18,7 +18,7 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 	private final static String TAG = "LogFileDataStorage";
 	private final DataHandlerConfig config;
 	private final UploadVaultInterface uploadVault;
-	private final DirectoryCleaner directoryCleaner;
+	private final DirectoryCleanerInterface directoryCleaner;
 
 	public FileStoreCleaner(final Object fileTransferLock, final FileVault vault)
 	{

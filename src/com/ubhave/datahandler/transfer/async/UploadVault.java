@@ -2,7 +2,6 @@ package com.ubhave.datahandler.transfer.async;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -13,10 +12,11 @@ import org.json.JSONObject;
 import com.alutam.ziputils.ZipEncryptOutputStream;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.config.DataStorageConstants;
 
 public class UploadVault implements UploadVaultInterface
 {
-	private final static String TAG = "UploadVault";
+//	private final static String TAG = "UploadVault";
 //	private final Context context;
 	private final DataHandlerConfig config;
 	
@@ -71,38 +71,48 @@ public class UploadVault implements UploadVaultInterface
 	public void writeData(final String dataName, final List<JSONObject> data) throws Exception
 	{
 		final String pw = getEncryptionPassword();
+		final String fileName = config.getIdentifier() + "_"
+								+ dataName + "_"
+								+ System.currentTimeMillis() + "."
+								+ DataStorageConstants.JSON_FILE_SUFFIX;
+		final String zipName = fileName + DataStorageConstants.ZIP_FILE_SUFFIX;
+		final OutputStream out;
 		if (pw != null)
 		{
-			writeEncrypted(dataName, data, pw);
+			out = new ZipEncryptOutputStream(new FileOutputStream(zipName), pw);
 		}
+		else
+		{
+			out = new FileOutputStream(zipName);
+		}
+		writeEncrypted(fileName, data, out);
 	}
 	
-	private void writeEncrypted(final String dataName, final List<JSONObject> entries, final String password) throws Exception
+	private void writeEncrypted(final String fileName, final List<JSONObject> entries, final OutputStream out) throws Exception
 	{
-		// TODO name the files correctly
-		ZipEncryptOutputStream zeos = new ZipEncryptOutputStream(new FileOutputStream("NewFile.zip"), password);
-		ZipOutputStream zos = new ZipOutputStream(zeos);
-		ZipEntry ze = new ZipEntry("EntryFile.json");
+		ZipOutputStream zos = new ZipOutputStream(out);
+		ZipEntry ze = new ZipEntry(fileName);
         
 		zos.putNextEntry(ze);
-        write(entries, zos);
-
-        zos.closeEntry();
-		zos.close();
-	}
-	
-	private void write(final List<JSONObject> entries, final OutputStream out) throws IOException
-	{
 		for (JSONObject entry : entries)
 		{
 			String line = entry.toString() + "\n";
 			out.write(line.getBytes());
 		}
+
+        zos.closeEntry();
+		zos.close();
 	}
 
 	@Override
-	public void writeData(String dataName, String data)
+	public void writeData(final String dataName, final String data)
 	{
 		// TODO Auto-generated method stub	
+	}
+	
+	@Override
+	public void writeData(final String dataName, final File dataFile)
+	{
+		// TODO implement
 	}
 }
