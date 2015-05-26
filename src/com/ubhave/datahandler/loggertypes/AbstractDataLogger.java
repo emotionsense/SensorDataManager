@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import com.ubhave.dataformatter.DataFormatter;
+import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
@@ -175,7 +175,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logSensorData(final SensorData data, final DataFormatter formatter)
+	public void logSensorData(final SensorData data, final JSONFormatter formatter)
 	{
 		if (data != null && formatter != null)
 		{

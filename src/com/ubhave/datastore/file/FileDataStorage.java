@@ -24,7 +24,7 @@ public class FileDataStorage implements DataStorageInterface
 	{	
 		this.vault = new FileVault();
 		this.fileStoreCleaner = new FileStoreCleaner(context, vault);
-		this.fileStoreWriter = new FileStoreWriter(vault, fileStoreCleaner);
+		this.fileStoreWriter = new FileStoreWriter(context, vault, fileStoreCleaner);
 		this.fileSearch = new FileStoreSearcher(context, vault);
 	}
 	
