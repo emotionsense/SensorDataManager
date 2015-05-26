@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
+import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
 
 public class FileVault
@@ -117,5 +118,27 @@ public class FileVault
 			Cipher cipher = buildCipher(Cipher.DECRYPT_MODE);
 			return new CipherInputStream(new FileInputStream(dataFile), cipher);
 		}
+	}
+	
+	public boolean isDueForUpload(final File file)
+	{
+		if (file != null)
+		{
+			String fileName = file.getName();
+			if (fileName.contains(DataStorageConstants.ZIP_FILE_SUFFIX))
+			{
+				String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.ZIP_FILE_SUFFIX));
+				long fileTimestamp = Long.parseLong(timeStr);
+				long currTime = System.currentTimeMillis();
+				
+				DataHandlerConfig config = DataHandlerConfig.getInstance();
+				long durationLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS, DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS);
+				if ((currTime - fileTimestamp) > durationLimit)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

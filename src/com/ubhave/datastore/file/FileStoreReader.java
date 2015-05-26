@@ -7,11 +7,11 @@ import java.io.InputStreamReader;
 
 import com.ubhave.datahandler.except.DataHandlerException;
 
-public abstract class FileStoreAbstractReader
+public class FileStoreReader
 {
 	protected FileVault vault;
 
-	public FileStoreAbstractReader(final FileVault vault)
+	public FileStoreReader(final FileVault vault)
 	{
 		this.vault = vault;
 	}

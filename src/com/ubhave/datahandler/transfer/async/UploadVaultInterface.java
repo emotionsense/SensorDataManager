@@ -11,7 +11,7 @@ public interface UploadVaultInterface
 	
 	public void writeData(final String dataName, final String data);
 	
-	public void writeData(final String dataName, final File dataFile);
+//	public void writeData(final String dataName, final File dataFile);
 	
-	public File getUploadDirectory();
+	public boolean isUploadDirectory(final File directory);
 }

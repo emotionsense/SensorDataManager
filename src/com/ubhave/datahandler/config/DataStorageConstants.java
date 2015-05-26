@@ -6,9 +6,7 @@ public class DataStorageConstants
 	public final static int UPLOAD_FILE_MAX_LINES = 100;
 	
 	// File Types
-	public final static String LOG_FILE_SUFFIX = ".log";
 	public final static String JSON_FILE_SUFFIX = ".json";
-	public final static String GZ_FILE_SUFFIX = ".gz";
 	public final static String ZIP_FILE_SUFFIX = ".zip";
 
 }

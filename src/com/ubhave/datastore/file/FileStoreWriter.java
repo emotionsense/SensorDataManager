@@ -10,23 +10,20 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datastore.file.clean.DataFileStatus;
 
 public class FileStoreWriter
 {
 	private static final String TAG = "LogFileDataStorage";
 
 	private final DataHandlerConfig config;
-	private final FileVault fileWriter;
+	private final FileVault fileVault;
 	private final FileStoreCleaner cleaner;
-	private final DataFileStatus fileStatus;
 	
 	public FileStoreWriter(final FileVault vault, final FileStoreCleaner cleaner)
 	{
 		this.config = DataHandlerConfig.getInstance();
-		this.fileWriter = vault;
+		this.fileVault = vault;
 		this.cleaner = cleaner;
-		this.fileStatus = new DataFileStatus();
 	}
 	
 	public void writeData(final String directoryName, String data) throws DataHandlerException
@@ -38,7 +35,7 @@ public class FileStoreWriter
 			try
 			{
 				File dataFile;
-				if (!fileWriter.isEncrypted())
+				if (!fileVault.isEncrypted())
 				{
 					dataFile = getLastestFile(directory);
 					data += "\n";
@@ -48,7 +45,7 @@ public class FileStoreWriter
 					dataFile = createNewFile(directory);
 				}
 				
-				OutputStream cos = fileWriter.openForWriting(dataFile);
+				OutputStream cos = fileVault.openForWriting(dataFile);
 				cos.write(data.getBytes());
 				cos.flush();
 				cos.close();
@@ -84,7 +81,7 @@ public class FileStoreWriter
 			long latestUpdate = Long.MIN_VALUE;
 			for (File file : files)
 			{
-				if (file.isFile() && file.getName().endsWith(DataStorageConstants.LOG_FILE_SUFFIX))
+				if (file.isFile() && file.getName().endsWith(DataStorageConstants.JSON_FILE_SUFFIX))
 				{
 					long update = file.lastModified();
 					if (update > latestUpdate)
@@ -99,9 +96,9 @@ public class FileStoreWriter
 		{
 			return createNewFile(directory);
 		}
-		else if (fileStatus.isDueForUpload(latestFile))
+		else if (fileVault.isDueForUpload(latestFile))
 		{
-			cleaner.moveDirectory(directory);
+			cleaner.moveDirectoryForUpload(directory);
 			return createNewFile(directory);
 		}
 		else
@@ -112,10 +109,10 @@ public class FileStoreWriter
 	
 	private File createNewFile(final File directory) throws IOException
 	{
-		File file = new File(directory, System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
+		File file = new File(directory, System.currentTimeMillis() + DataStorageConstants.JSON_FILE_SUFFIX);
 		while (file.exists())
 		{
-			file = new File(directory, System.currentTimeMillis() + DataStorageConstants.LOG_FILE_SUFFIX);
+			file = new File(directory, System.currentTimeMillis() + DataStorageConstants.JSON_FILE_SUFFIX);
 		}
 		
 		boolean fileCreated = file.createNewFile();

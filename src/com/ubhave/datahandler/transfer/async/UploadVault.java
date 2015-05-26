@@ -30,8 +30,10 @@ public class UploadVault implements UploadVaultInterface
 	}
 	
 	@Override
-	public File getUploadDirectory()
+	public boolean isUploadDirectory(final File directory)
 	{
+//		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
+//		return absoluteDir +"/"+ config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 //		File directory;
 //		String uploadDir = config.getLocalUploadDirectoryPath();
 //		directory = new File(uploadDir);
@@ -59,7 +61,7 @@ public class UploadVault implements UploadVaultInterface
 ////			}
 ////		}
 //		return directory;
-		return null; // TODO implement
+		return false; // TODO implement
 	}
 	
 	private String getEncryptionPassword()
@@ -85,10 +87,11 @@ public class UploadVault implements UploadVaultInterface
 		{
 			out = new FileOutputStream(zipName);
 		}
-		writeEncrypted(fileName, data, out);
+		
+		writeCompressed(fileName, data, out);
 	}
 	
-	private void writeEncrypted(final String fileName, final List<JSONObject> entries, final OutputStream out) throws Exception
+	private void writeCompressed(final String fileName, final List<JSONObject> entries, final OutputStream out) throws Exception
 	{
 		ZipOutputStream zos = new ZipOutputStream(out);
 		ZipEntry ze = new ZipEntry(fileName);
@@ -110,9 +113,9 @@ public class UploadVault implements UploadVaultInterface
 		// TODO Auto-generated method stub	
 	}
 	
-	@Override
-	public void writeData(final String dataName, final File dataFile)
-	{
-		// TODO implement
-	}
+//	@Override
+//	public void writeData(final String dataName, final File dataFile)
+//	{
+//		// TODO implement
+//	}
 }

@@ -16,7 +16,7 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class FileStoreSearcher extends FileStoreAbstractReader
+public class FileStoreSearcher extends FileStoreReader
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final Context context;

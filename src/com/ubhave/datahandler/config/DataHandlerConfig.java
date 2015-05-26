@@ -1,6 +1,5 @@
 package com.ubhave.datahandler.config;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -56,13 +55,6 @@ public class DataHandlerConfig
 			return true;
 		}
 	}
-	
-	public String getLocalUploadDirectoryPath()
-	{
-		// TODO check permissions
-		String absoluteDir = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-		return absoluteDir +"/"+ config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
-	}
 
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
@@ -85,18 +77,19 @@ public class DataHandlerConfig
 		}
 	}
 	
-	public boolean shouldUpload(final File file)
-	{
-		if (file.isFile())
-		{
-			String fileName = file.getName();
-			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX);
-		}
-		else
-		{
-			return false;
-		}
-	}
+	// TODO remove
+//	public boolean shouldUpload(final File file)
+//	{
+//		if (file.isFile())
+//		{
+//			String fileName = file.getName();
+//			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX);
+//		}
+//		else
+//		{
+//			return false;
+//		}
+//	}
 
 	public boolean containsConfig(final String key)
 	{

@@ -9,30 +9,22 @@ import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.async.UploadVault;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
-import com.ubhave.datastore.file.clean.DirectoryCleanerInterface;
-import com.ubhave.datastore.file.clean.EncryptedDirectoryCleaner;
-import com.ubhave.datastore.file.clean.UnencryptedDirectoryCleaner;
 
-public class FileStoreCleaner extends FileStoreAbstractReader
+public class FileStoreCleaner extends FileStoreReader
 {
 	private final static String TAG = "LogFileDataStorage";
 	private final DataHandlerConfig config;
 	private final UploadVaultInterface uploadVault;
-	private final DirectoryCleanerInterface directoryCleaner;
+	private final FileVault fileStatus;
+	private final FileStoreReader fileReader;
 
 	public FileStoreCleaner(final Object fileTransferLock, final FileVault vault)
 	{
 		super(vault);
 		this.config = DataHandlerConfig.getInstance();
+		this.fileStatus = new FileVault();
+		this.fileReader = new FileStoreReader(fileStatus);
 		this.uploadVault = new UploadVault();
-		if (vault.isEncrypted())
-		{
-			this.directoryCleaner = new EncryptedDirectoryCleaner(vault, uploadVault);
-		}
-		else
-		{
-			this.directoryCleaner = new UnencryptedDirectoryCleaner(fileTransferLock, uploadVault);
-		}
 	}
 
 	public String moveDataForUpload()
@@ -40,18 +32,17 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 		try
 		{
 			int counter = 0;
-			final String uploadDirectoryPath = config.getLocalUploadDirectoryPath();
 			final File rootDirectory = new File((String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME));
 			final File[] dataDirectories = rootDirectory.listFiles();
 			for (File directory : dataDirectories)
 			{
-				if (directory.isDirectory())
+				if (directory.isDirectory() && !uploadVault.isUploadDirectory(directory))
 				{
-					String directoryName = directory.getName();
-					if (!uploadDirectoryPath.contains(directoryName))
+					if (DataHandlerConfig.shouldLog())
 					{
-						counter += moveDirectory(directory);
+						Log.d(TAG, "Move for upload: " + directory.getName());
 					}
+					counter += moveDirectoryForUpload(directory);
 				}
 			}
 			if (DataHandlerConfig.shouldLog())
@@ -59,14 +50,16 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 				Log.d(TAG, "Moved " + counter + " directories.");
 			}
 
-			if (counter == 0)
-			{
-				return null;
-			}
-			else
-			{
-				return uploadDirectoryPath;
-			}
+			// TODO implement
+			return null;
+//			if (counter == 0)
+//			{
+//				return null;
+//			}
+//			else
+//			{
+//				return uploadDirectoryPath;
+//			}
 		}
 		catch (DataHandlerException e)
 		{
@@ -75,27 +68,45 @@ public class FileStoreCleaner extends FileStoreAbstractReader
 		}
 	}
 	
-	public int moveDirectory(final File directory)
+	public int moveDirectoryForUpload(final File directory) throws DataHandlerException
 	{
-		synchronized (FileVault.getLock(directory.getName()))
+		int dataFiles = 0;
+		if (directory != null && directory.exists())
 		{
-			try
+			String directoryName = directory.getName();
+			File[] fileList = directory.listFiles();
+			if (fileList != null)
 			{
-				if (DataHandlerConfig.shouldLog())
+				for (File file : fileList)
 				{
-					Log.d(TAG, "moveDirectoryContentsForUpload(" + directory.getName() + ").");
-				}
-				return directoryCleaner.moveDirectoryContentsForUpload(directory);
-			}
-			catch (Exception e)
-			{
-				if (DataHandlerConfig.shouldLog())
-				{
-					Log.d(TAG, "Failed to move data in directory: "+directory.getName());
-				}
-				e.printStackTrace();
-				return 0;
+					dataFiles += moveFileForUpload(directoryName, file);
+				}	
 			}
 		}
+		return dataFiles;
+	}
+	
+	private int moveFileForUpload(final String dataName, final File file) throws DataHandlerException
+	{
+		if (fileStatus.isDueForUpload(file))
+		{
+			StringBuilder data = new StringBuilder();
+			if (file.length() != 0)
+			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Read: "+file.getName());
+				}
+				String fileContent = fileReader.readFile(dataName, file);
+				data.append(fileContent);
+				if (data.length() != 0)
+				{
+					uploadVault.writeData(dataName, data.toString());
+					return 1;
+				}
+			}
+			file.delete();
+		}
+		return 0;
 	}
 }
