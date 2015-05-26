@@ -123,10 +123,6 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			}
 			else if (dataTransferAlarmListener != null)
 			{
-				if (DataHandlerConfig.shouldLog())
-				{
-					Log.d("PolicyAlarm", "===== Stopping Policy Alarm ====");
-				}
 				dataTransferAlarmListener.stop();
 			}
 		}

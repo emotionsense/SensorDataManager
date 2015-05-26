@@ -17,6 +17,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 
 public class PolicyAlarm extends BroadcastReceiver
 {
+	private final static String TAG = "PolicyAlarm";
 	private final AlarmManager alarmManager;
 	private final PendingIntent pendingIntent;
 
@@ -65,7 +66,7 @@ public class PolicyAlarm extends BroadcastReceiver
 	{
 		if (DataHandlerConfig.shouldLog())
 		{
-			Log.d("PolicyAlarm", "===== ALARM CONFIG UPDATING ====");
+			Log.d(TAG, "Alarm config updating.");
 		}
 
 		if (hasStarted)
@@ -89,9 +90,11 @@ public class PolicyAlarm extends BroadcastReceiver
 			}
 			catch (ReceiverCallNotAllowedException e)
 			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Error: ReceiverCallNotAllowedException (have you created the data manager in a broadcast receiver?)");
+				}
 				e.printStackTrace();
-				// Thrown if the data manager is created from inside a broad
-				// cast receiver
 			}
 		}
 	}
@@ -102,6 +105,10 @@ public class PolicyAlarm extends BroadcastReceiver
 		{
 			try
 			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, " Stopping policy alarm.");
+				}
 				hasStarted = false;
 				alarmManager.cancel(pendingIntent);
 				context.unregisterReceiver(this);

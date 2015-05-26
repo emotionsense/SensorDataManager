@@ -19,7 +19,6 @@ import android.util.Log;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
-import com.ubhave.datahandler.except.DataHandlerException;
 
 public class FileVault
 {
@@ -57,27 +56,29 @@ public class FileVault
 	
 	public Key buildKey()
 	{
-		try
+		DataHandlerConfig config = DataHandlerConfig.getInstance();
+		String password = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD, null);
+		if (password != null)
 		{
-			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			String password = (String) config.get(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD);
-			MessageDigest digester = MessageDigest.getInstance(PASSWORD_HASH_ALGORITHM);
-			digester.update(String.valueOf(password).getBytes(UTF8));
-			SecretKeySpec spec = new SecretKeySpec(digester.digest(), CIPHER_ALGORITHM);
-			return spec;
+			try
+			{
+				MessageDigest digester = MessageDigest.getInstance(PASSWORD_HASH_ALGORITHM);
+				digester.update(String.valueOf(password).getBytes(UTF8));
+				SecretKeySpec spec = new SecretKeySpec(digester.digest(), CIPHER_ALGORITHM);
+				return spec;
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return null;
+			}
 		}
-		catch (DataHandlerException e)
+		else
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
 				Log.d(TAG, "Warning: No encryption password set. Data will be stored in clear text.");
 			}
-			return null;
-		}
-		catch (Exception e)
-		{
-			Log.e(TAG, "Error: "+e.getMessage());
-			e.printStackTrace();
 			return null;
 		}
 	}

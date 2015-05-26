@@ -34,7 +34,7 @@ public class DataTables extends SQLiteOpenHelper
 		try
 		{
 			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			dataPassword = (String) config.get(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD);
+			dataPassword = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD);
 		}
 		catch (DataHandlerException e)
 		{

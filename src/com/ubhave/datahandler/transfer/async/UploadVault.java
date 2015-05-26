@@ -74,11 +74,6 @@ public class UploadVault implements UploadVaultInterface
 		return uploadDir;
 	}
 	
-	private String getEncryptionPassword()
-	{
-		return (String) config.get(DataStorageConfig.FILE_STORAGE_ENCRYPTION_PASSWORD, null);
-	}
-	
 	private String createFileName(final String dataName) throws DataHandlerException
 	{
 		return config.getIdentifier() + "_"
@@ -90,10 +85,10 @@ public class UploadVault implements UploadVaultInterface
 	@Override
 	public void writeData(final String dataName, final List<JSONObject> data) throws Exception
 	{
-		final String pw = getEncryptionPassword();
 		final String fileName = createFileName(dataName);
 		final File zipFile = new File(getUploadDirectory(), fileName + DataStorageConstants.ZIP_FILE_SUFFIX);
 		final OutputStream out;
+		final String pw = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD, null);
 		if (pw != null)
 		{
 			out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), pw);

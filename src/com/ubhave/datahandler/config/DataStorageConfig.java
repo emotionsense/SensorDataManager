@@ -14,7 +14,7 @@ public class DataStorageConfig
 	public final static String DATA_LIFE_MILLIS = "fileDuration";
 	public final static String UNIQUE_USER_ID = "uniqueUserID";
 	public final static String UNIQUE_DEVICE_ID = "uniqueDeviceID";
-	public final static String FILE_STORAGE_ENCRYPTION_PASSWORD = "encryptionPassword";
+	public final static String ENCRYPTION_PASSWORD = "encryptionPassword";
 	
 	/*
 	 * Config Values
@@ -38,7 +38,7 @@ public class DataStorageConfig
 		validKeys.add(DATA_LIFE_MILLIS);
 		validKeys.add(UNIQUE_USER_ID);
 		validKeys.add(UNIQUE_DEVICE_ID);
-		validKeys.add(FILE_STORAGE_ENCRYPTION_PASSWORD);
+		validKeys.add(ENCRYPTION_PASSWORD);
 		return validKeys;
 	}
 
