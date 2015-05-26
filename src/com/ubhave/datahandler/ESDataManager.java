@@ -233,12 +233,12 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				Log.d(TAG, "transferStoredData()");
 			}
 			
-			final String uploadDirectory = storage.prepareDataForUpload();
-			if (uploadDirectory != null)
+			boolean hasDataToUpload = storage.prepareDataForUpload();
+			if (hasDataToUpload)
 			{
 				synchronized (fileTransferLock)
 				{
-					transfer.uploadData(uploadDirectory);
+					transfer.uploadData();
 					storage.onDataUploaded();
 				}
 			}

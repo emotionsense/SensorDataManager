@@ -16,6 +16,8 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.async.UploadVault;
+import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 
 public class DataTransfer implements DataTransferInterface
 {
@@ -24,22 +26,29 @@ public class DataTransfer implements DataTransferInterface
 
 	private final Context context;
 	private final DataHandlerConfig config;
+	private final UploadVaultInterface uploadVault;
 
 	public DataTransfer(final Context context)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
+		this.uploadVault = new UploadVault(context);
 		setLogsUploadTime(System.currentTimeMillis());
 	}
 
 	@Override
-	public void uploadData(final String uploadDirectory) throws DataHandlerException
+	public void uploadData() throws DataHandlerException
 	{
-		if (DataHandlerConfig.shouldLog())
+		File directory = uploadVault.getUploadDirectory();
+		if (directory == null)
 		{
-			Log.d(TAG, "Attempting upload from: " + uploadDirectory);
+			return;
 		}
-		File directory = new File(uploadDirectory);
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Attempting upload from: " + directory.getName());
+		}
+		
 		File[] files = directory.listFiles();
 		if (files != null)
 		{

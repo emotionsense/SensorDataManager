@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONObject;
 
 import com.ubhave.datahandler.except.DataHandlerException;
 
@@ -16,9 +20,9 @@ public class FileStoreReader
 		this.vault = vault;
 	}
 	
-	public String readFile(final String directory, final File dataFile) throws DataHandlerException
+	public List<JSONObject> readFile(final String directory, final File dataFile) throws DataHandlerException
 	{
-		StringBuilder result = new StringBuilder();
+		List<JSONObject> entries = new ArrayList<JSONObject>();
 		synchronized (FileVault.getLock(directory))
 		{
 			try
@@ -28,7 +32,8 @@ public class FileStoreReader
 				String line;
 				while ((line = in.readLine()) != null)
 				{
-					result.append(line);
+					JSONObject entry = new JSONObject(line);
+					entries.add(entry);
 				}
 				in.close();
 			}
@@ -38,6 +43,6 @@ public class FileStoreReader
 				throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 			}
 		}
-		return result.toString();
+		return entries;
 	}
 }

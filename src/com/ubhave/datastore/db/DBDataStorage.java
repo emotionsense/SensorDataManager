@@ -1,6 +1,5 @@
 package com.ubhave.datastore.db;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,6 +14,8 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.async.UploadVault;
+import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 import com.ubhave.datastore.DataStorageInterface;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
@@ -23,17 +24,18 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public class DBDataStorage implements DataStorageInterface
 {
 	private static final String TAG = "LogDBDataStorage";
-//	private static final Object fileTransferLock = new Object();
 
 	private final Context context;
 	private final DataHandlerConfig config;
 	private final DataTables dataTables;
+	private final UploadVaultInterface uploadVault;
 
 	public DBDataStorage(final Context context)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
 		this.dataTables = new DataTables(context, getDBName());
+		this.uploadVault = new UploadVault(context);
 	}
 
 	private String getDBName()
@@ -53,55 +55,39 @@ public class DBDataStorage implements DataStorageInterface
 	}
 
 	@Override
-	public String prepareDataForUpload()
+	public boolean prepareDataForUpload()
 	{
 		if (DataHandlerConfig.shouldLog())
 		{
 			Log.d(TAG, "DB prepareDataForUpload()");
 		}
 
-		try
+		int written = 0;
+		for (String tableName : dataTables.getTableNames())
 		{
-			String id = config.getIdentifier();
-			File outputDir = null;//getCleanCacheDir();
-
-			int written = 0;
-			for (String tableName : dataTables.getTableNames())
+			try
 			{
-				try
+				List<JSONObject> entries = dataTables.getUnsyncedData(tableName);
+				if (DataHandlerConfig.shouldLog())
 				{
-					List<JSONObject> entries = dataTables.getUnsyncedData(tableName);
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "Prepare: " + tableName + " has " + entries.size() + " entries for upload.");
-					}
-					if (!entries.isEmpty())
-					{
-//						writeEntries(outputDir, id, tableName, entries);
-						written++;
-					}
+					Log.d(TAG, "Prepare: " + tableName + " has " + entries.size() + " entries for upload.");
 				}
-				catch (Exception e)
+				if (!entries.isEmpty())
 				{
-					e.printStackTrace();
+					uploadVault.writeData(tableName, entries);
+					written++;
 				}
 			}
-			if (written == 0)
-			{
-				Log.d(TAG, "DB prepareDataForUpload(): no data to upload.");
-				return null;
-			}
-			return outputDir.getAbsolutePath();
-		}
-		catch (DataHandlerException e)
-		{
-			if (DataHandlerConfig.shouldLog())
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-
-			return null;
 		}
+		if (written == 0)
+		{
+			Log.d(TAG, "DB prepareDataForUpload(): no data to upload.");
+		}
+		return written != 0;
 	}
 
 	@Override

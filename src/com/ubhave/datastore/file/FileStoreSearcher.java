@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -48,13 +50,14 @@ public class FileStoreSearcher extends FileStoreReader
 				{
 					Log.d(TAG, "Search: "+file.getName());
 				}
-				String[] fileContents = readFile(directory.getName(), file).split("\n");
-				for (String line : fileContents)
+				
+				List<JSONObject> fileContents = readFile(directory.getName(), file);
+				for (JSONObject line : fileContents)
 				{
-					long timestamp = jsonFormatter.getTimestamp(line);
+					long timestamp = jsonFormatter.parseTimeStamp(line);
 					if (timestamp >= startTimestamp)
 					{
-						SensorData sensorData = jsonFormatter.toSensorData(line);
+						SensorData sensorData = jsonFormatter.toSensorData(line.toString());
 						outputList.add(sensorData);
 					}
 				}

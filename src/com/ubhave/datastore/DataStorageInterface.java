@@ -24,6 +24,6 @@ public interface DataStorageInterface
 	/*
 	 * Initiating an upload
 	 */
-	public String prepareDataForUpload() throws DataHandlerException;
+	public boolean prepareDataForUpload() throws DataHandlerException;
 	public void onDataUploaded();
 }

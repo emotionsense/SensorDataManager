@@ -1,7 +1,11 @@
 package com.ubhave.datastore.file;
 
 import java.io.File;
+import java.util.List;
 
+import org.json.JSONObject;
+
+import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
@@ -18,16 +22,16 @@ public class FileStoreCleaner extends FileStoreReader
 	private final FileVault fileStatus;
 	private final FileStoreReader fileReader;
 
-	public FileStoreCleaner(final Object fileTransferLock, final FileVault vault)
+	public FileStoreCleaner(final Context context, final FileVault vault)
 	{
 		super(vault);
 		this.config = DataHandlerConfig.getInstance();
 		this.fileStatus = new FileVault();
 		this.fileReader = new FileStoreReader(fileStatus);
-		this.uploadVault = new UploadVault();
+		this.uploadVault = new UploadVault(context);
 	}
 
-	public String moveDataForUpload()
+	public boolean moveDataForUpload()
 	{
 		try
 		{
@@ -42,33 +46,35 @@ public class FileStoreCleaner extends FileStoreReader
 					{
 						Log.d(TAG, "Move for upload: " + directory.getName());
 					}
-					counter += moveDirectoryForUpload(directory);
+					try
+					{
+						counter += moveDirectoryForUpload(directory);
+					}
+					catch (Exception e)
+					{
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(TAG, "ERROR moving: " + directory.getName());
+							e.printStackTrace();
+						}
+					}
+					
 				}
 			}
 			if (DataHandlerConfig.shouldLog())
 			{
 				Log.d(TAG, "Moved " + counter + " directories.");
 			}
-
-			// TODO implement
-			return null;
-//			if (counter == 0)
-//			{
-//				return null;
-//			}
-//			else
-//			{
-//				return uploadDirectoryPath;
-//			}
+			return counter != 0;
 		}
 		catch (DataHandlerException e)
 		{
 			e.printStackTrace();
-			return null;
+			return false;
 		}
 	}
 	
-	public int moveDirectoryForUpload(final File directory) throws DataHandlerException
+	public int moveDirectoryForUpload(final File directory) throws Exception
 	{
 		int dataFiles = 0;
 		if (directory != null && directory.exists())
@@ -86,22 +92,20 @@ public class FileStoreCleaner extends FileStoreReader
 		return dataFiles;
 	}
 	
-	private int moveFileForUpload(final String dataName, final File file) throws DataHandlerException
+	private int moveFileForUpload(final String dataName, final File file) throws Exception
 	{
 		if (fileStatus.isDueForUpload(file))
 		{
-			StringBuilder data = new StringBuilder();
 			if (file.length() != 0)
 			{
 				if (DataHandlerConfig.shouldLog())
 				{
 					Log.d(TAG, "Read: "+file.getName());
 				}
-				String fileContent = fileReader.readFile(dataName, file);
-				data.append(fileContent);
-				if (data.length() != 0)
+				List<JSONObject> entries = fileReader.readFile(dataName, file);
+				if (!entries.isEmpty())
 				{
-					uploadVault.writeData(dataName, data.toString());
+					uploadVault.writeData(dataName, entries);
 					return 1;
 				}
 			}

@@ -14,21 +14,16 @@ import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class FileDataStorage implements DataStorageInterface
-{	
-//	private final Context context;
-//	private final DataHandlerConfig config;
-	
+{		
 	private final FileVault vault;
 	private final FileStoreWriter fileStoreWriter;
 	private final FileStoreCleaner fileStoreCleaner;
 	private final FileStoreSearcher fileSearch;
 
 	public FileDataStorage(final Context context, final Object fileTransferLock)
-	{
-//		this.config = DataHandlerConfig.getInstance();
-		
+	{	
 		this.vault = new FileVault();
-		this.fileStoreCleaner = new FileStoreCleaner(fileTransferLock, vault);
+		this.fileStoreCleaner = new FileStoreCleaner(context, vault);
 		this.fileStoreWriter = new FileStoreWriter(vault, fileStoreCleaner);
 		this.fileSearch = new FileStoreSearcher(context, vault);
 	}
@@ -60,7 +55,7 @@ public class FileDataStorage implements DataStorageInterface
 	{}
 
 	@Override
-	public String prepareDataForUpload()
+	public boolean prepareDataForUpload()
 	{
 		return fileStoreCleaner.moveDataForUpload();
 	}

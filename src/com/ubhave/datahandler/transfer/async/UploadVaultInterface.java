@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import com.ubhave.datahandler.except.DataHandlerException;
+
 public interface UploadVaultInterface
 {
 	public void writeData(final String dataName, final List<JSONObject> data) throws Exception;
 	
-	public void writeData(final String dataName, final String data);
+	public boolean isUploadDirectory(final File directory) throws DataHandlerException;
 	
-//	public void writeData(final String dataName, final File dataFile);
-	
-	public boolean isUploadDirectory(final File directory);
+	public File getUploadDirectory() throws DataHandlerException;
 }

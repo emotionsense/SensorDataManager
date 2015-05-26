@@ -98,7 +98,12 @@ public class FileStoreWriter
 		}
 		else if (fileVault.isDueForUpload(latestFile))
 		{
-			cleaner.moveDirectoryForUpload(directory);
+			try
+			{
+				cleaner.moveDirectoryForUpload(directory);
+			}
+			catch (Exception e)
+			{}
 			return createNewFile(directory);
 		}
 		else

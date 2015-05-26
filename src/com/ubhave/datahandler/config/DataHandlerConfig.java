@@ -3,7 +3,6 @@ package com.ubhave.datahandler.config;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import android.os.Environment;
 import android.util.Log;
 
 import com.ubhave.datahandler.except.DataHandlerException;
@@ -60,36 +59,13 @@ public class DataHandlerConfig
 	{
 		if (validKeys.contains(key))
 		{
-			if (key.equals(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME))
-			{
-				// TODO check permissions to fix this
-				String absoluteDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String) value;
-				config.put(key,  absoluteDir);
-			}
-			else
-			{
-				config.put(key, value);
-			}
+			config.put(key, value);
 		}
 		else
 		{
 			throw new DataHandlerException(DataHandlerException.UNKNOWN_CONFIG);
 		}
 	}
-	
-	// TODO remove
-//	public boolean shouldUpload(final File file)
-//	{
-//		if (file.isFile())
-//		{
-//			String fileName = file.getName();
-//			return fileName.endsWith(DataStorageConstants.LOG_FILE_SUFFIX);
-//		}
-//		else
-//		{
-//			return false;
-//		}
-//	}
 
 	public boolean containsConfig(final String key)
 	{
