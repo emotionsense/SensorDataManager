@@ -40,7 +40,7 @@ public class DBDataStorage implements DataStorageInterface
 
 	private String getDBName()
 	{
-		return (String) config.get(DataStorageConfig.LOCAL_DB_STORAGE_NAME, DataStorageConfig.DEFAULT_DB_NAME);
+		return (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, DataStorageConfig.DEFAULT_DB_NAME);
 	}
 
 	@Override

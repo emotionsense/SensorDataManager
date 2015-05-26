@@ -9,7 +9,6 @@ public class DataStorageConfig
 	 * Config Keys
 	 */
 	public final static String LOCAL_STORAGE_ROOT_NAME = "localDir";
-	public final static String LOCAL_DB_STORAGE_NAME = "localDB";
 	public final static String LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME = "uploadDirName";
 	public final static String LOCAL_STORAGE_DATA_FORMAT = "dataFormat";
 	public final static String DATA_LIFE_MILLIS = "fileDuration";
@@ -35,7 +34,6 @@ public class DataStorageConfig
 	{
 		HashSet<String> validKeys = new HashSet<String>();
 		validKeys.add(LOCAL_STORAGE_ROOT_NAME);
-		validKeys.add(LOCAL_DB_STORAGE_NAME);
 		validKeys.add(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
 		validKeys.add(DATA_LIFE_MILLIS);
 		validKeys.add(UNIQUE_USER_ID);
@@ -47,7 +45,6 @@ public class DataStorageConfig
 	public static HashMap<String, Object> defaultValues()
 	{
 		HashMap<String, Object> defaults = new HashMap<String, Object>();
-		defaults.put(LOCAL_DB_STORAGE_NAME, DEFAULT_DB_NAME);
 		defaults.put(LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME, DEFAULT_UPLOAD_DIRECTORY_NAME);
 		defaults.put(DATA_LIFE_MILLIS, DEFAULT_FILE_LIFE_MILLIS);
 		return defaults;
