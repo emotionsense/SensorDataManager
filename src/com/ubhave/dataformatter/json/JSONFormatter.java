@@ -103,7 +103,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	public long getTimestamp(String sensorDataJsonString)
+	public long getTimestamp(final String sensorDataJsonString)
 	{
 		long timestamp = 0;
 		JSONObject jsonObject = parseData(sensorDataJsonString);
@@ -202,7 +202,7 @@ public abstract class JSONFormatter extends DataFormatter
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	protected long parseTimeStamp(JSONObject json)
+	public long parseTimeStamp(final JSONObject json)
 	{
 		try
 		{
