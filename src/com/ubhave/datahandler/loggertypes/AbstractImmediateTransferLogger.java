@@ -30,7 +30,7 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 		try
 		{
 			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_IMMEDIATE);
-			dataManager.setConfig(DataTransferConfig.POST_RAW_DATA_KEY, getPostDataParamKey());
+			dataManager.setConfig(DataTransferConfig.POST_KEY, getPostKey());
 		}
 		catch (Exception e)
 		{
@@ -44,5 +44,5 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 		return null; // No storage
 	}
 	
-	protected abstract String getPostDataParamKey();
+	protected abstract String getPostKey();
 }

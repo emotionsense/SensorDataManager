@@ -9,8 +9,7 @@ public class DataTransferConfig
 	 * Config Keys
 	 */
 	public final static String POST_DATA_URL = "dataTargetURL";
-	public final static String POST_RAW_DATA_KEY = "rawDataKey";
-	public final static String POST_FILE_KEY = "dataFileKey";
+	public final static String POST_KEY = "dataFileKey";
 	public final static String POST_RESPONSE_ON_SUCCESS = "expectedPostResponse";
 	public final static String POST_PARAMETERS = "postParameters";
 
@@ -37,8 +36,7 @@ public class DataTransferConfig
 	public final static int DEFAULT_TRANFER_POLICY = TRANSFER_PERIODICALLY;
 	public final static int DEFAULT_CONNECTION_TYPE_FOR_TRANSFER = CONNECTION_TYPE_WIFI;
 	
-	public final static String DEFAULT_POST_FILE_KEY = "uploadedfile";
-	public final static String DEFAULT_POST_RAW_KEY = "ESDataManagerData";
+	public final static String DEFAULT_POST_KEY = "uploaded";
 
 	public final static long DEFAULT_WAIT_FOR_WIFI_INTERVAL = 24 * 60 * 60 * 1000;
 	public final static long DEFAULT_TRANSFER_ALARM_INTERVAL = 15 * 60 * 1000;
@@ -51,13 +49,12 @@ public class DataTransferConfig
 		validKeys.add(POST_DATA_URL);
 		validKeys.add(POST_PARAMETERS);
 		validKeys.add(POST_RESPONSE_ON_SUCCESS);
-		validKeys.add(POST_RAW_DATA_KEY);
+		validKeys.add(POST_KEY);
 
 		validKeys.add(DATA_TRANSER_POLICY);
 		validKeys.add(CONNECTION_TYPE_FOR_TRANSFER);
 		validKeys.add(WAIT_FOR_WIFI_INTERVAL_MILLIS);
 		validKeys.add(TRANSFER_ALARM_INTERVAL);
-		validKeys.add(POST_FILE_KEY);
 		return validKeys;
 	}
 
@@ -69,8 +66,7 @@ public class DataTransferConfig
 		defaults.put(WAIT_FOR_WIFI_INTERVAL_MILLIS, DEFAULT_WAIT_FOR_WIFI_INTERVAL);
 		defaults.put(TRANSFER_ALARM_INTERVAL, DEFAULT_TRANSFER_ALARM_INTERVAL);
 		defaults.put(POST_RESPONSE_ON_SUCCESS, DEFAULT_SUCCESSFUL_POST_RESPONSE);
-		defaults.put(POST_RAW_DATA_KEY, DEFAULT_POST_RAW_KEY);
-		defaults.put(POST_FILE_KEY, DEFAULT_POST_FILE_KEY);
+		defaults.put(POST_KEY, DEFAULT_POST_KEY);
 		return defaults;
 	}
 }

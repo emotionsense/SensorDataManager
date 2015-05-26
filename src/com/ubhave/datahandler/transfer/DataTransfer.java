@@ -148,7 +148,7 @@ public class DataTransfer implements DataTransferInterface
 	{
 		try
 		{
-			String dataKey = (String) config.get(DataTransferConfig.POST_RAW_DATA_KEY);
+			String dataKey = (String) config.get(DataTransferConfig.POST_KEY);
 			JSONObject dataParam = new JSONObject();
 			dataParam.put(dataKey, data);
 

@@ -68,7 +68,7 @@ public class WebConnection
 				if (fileBody != null)
 				{
 					DataHandlerConfig config = DataHandlerConfig.getInstance();
-					String postKey = (String) config.get(DataTransferConfig.POST_FILE_KEY);
+					String postKey = (String) config.get(DataTransferConfig.POST_KEY);
 					multipartEntity.addPart(postKey, fileBody);
 				}
 			}
