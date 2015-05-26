@@ -23,25 +23,22 @@ public class FileStoreReader
 	public List<JSONObject> readFile(final String directory, final File dataFile) throws DataHandlerException
 	{
 		List<JSONObject> entries = new ArrayList<JSONObject>();
-		synchronized (FileVault.getLock(directory))
+		try
 		{
-			try
+			InputStream stream = vault.openForReading(dataFile);
+			BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+			String line;
+			while ((line = in.readLine()) != null)
 			{
-				InputStream stream = vault.openForReading(dataFile);
-				BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-				String line;
-				while ((line = in.readLine()) != null)
-				{
-					JSONObject entry = new JSONObject(line);
-					entries.add(entry);
-				}
-				in.close();
+				JSONObject entry = new JSONObject(line);
+				entries.add(entry);
 			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
-			}
+			in.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
 		}
 		return entries;
 	}

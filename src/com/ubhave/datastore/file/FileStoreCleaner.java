@@ -92,25 +92,29 @@ public class FileStoreCleaner extends FileStoreReader
 		return dataFiles;
 	}
 	
-	private int moveFileForUpload(final String dataName, final File file) throws Exception
+	private int moveFileForUpload(final String directoryName, final File file) throws Exception
 	{
+		int result = 0;
 		if (fileStatus.isDueForUpload(file))
 		{
-			if (file.length() != 0)
+			synchronized (FileVault.getLock(directoryName))
 			{
-				if (DataHandlerConfig.shouldLog())
+				if (file.length() != 0)
 				{
-					Log.d(TAG, "Read: "+file.getName());
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "Read: "+file.getName());
+					}
+					List<JSONObject> entries = fileReader.readFile(directoryName, file);
+					if (!entries.isEmpty())
+					{
+						uploadVault.writeData(directoryName, entries);
+						result = 1;
+					}
 				}
-				List<JSONObject> entries = fileReader.readFile(dataName, file);
-				if (!entries.isEmpty())
-				{
-					uploadVault.writeData(dataName, entries);
-					return 1;
-				}
+				file.delete();
 			}
-			file.delete();
 		}
-		return 0;
+		return result;
 	}
 }
