@@ -92,4 +92,6 @@ public abstract class DataFormatter
 	}
 
 	public abstract String toString(final SensorData data) throws DataHandlerException;
+	
+	public abstract SensorData toSensorData(final String dataString);
 }

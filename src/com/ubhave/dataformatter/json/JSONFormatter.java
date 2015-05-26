@@ -219,8 +219,6 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	public abstract SensorData toSensorData(String jsonString);
-
 	protected abstract void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException;
 
 	protected abstract void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException;
