@@ -21,7 +21,7 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d("AbstractStoreOnlyLogger", "Async transfer store cannot have STORAGE_TYPE_NONE");
+				Log.d(LOG_TAG, "Async transfer store cannot have STORAGE_TYPE_NONE");
 			}
 			throw new DataHandlerException(DataHandlerException.CONFIG_CONFLICT);
 		}

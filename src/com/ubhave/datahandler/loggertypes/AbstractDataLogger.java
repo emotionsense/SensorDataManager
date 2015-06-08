@@ -21,7 +21,7 @@ import com.ubhave.sensormanager.data.SensorData;
 
 public abstract class AbstractDataLogger
 {
-	private final static String LOG_TAG = "AbstractDataLogger";
+	protected final static String LOG_TAG = "DataLogger";
 	
 	protected ESDataManager dataManager;
 	protected final Context context;

@@ -18,7 +18,7 @@ public abstract class AbstractStoreOnlyLogger extends AbstractDataLogger
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d("AbstractStoreOnlyLogger", "Store only logger cannot have STORAGE_TYPE_NONE");
+				Log.d(LOG_TAG, "Store only logger cannot have STORAGE_TYPE_NONE");
 			}
 			throw new DataHandlerException(DataHandlerException.CONFIG_CONFLICT);
 		}
