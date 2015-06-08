@@ -177,7 +177,7 @@ public class FileVault
 			String fileName = file.getName();
 			if (fileName.contains(DataStorageConstants.JSON_FILE_SUFFIX))
 			{
-				String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.ZIP_FILE_SUFFIX));
+				String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.JSON_FILE_SUFFIX));
 				long fileTimestamp = Long.parseLong(timeStr);
 				long currTime = System.currentTimeMillis();
 				
