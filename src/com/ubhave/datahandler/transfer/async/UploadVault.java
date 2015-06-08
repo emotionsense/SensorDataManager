@@ -9,10 +9,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.json.JSONObject;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.util.Log;
 
 import com.alutam.ziputils.ZipEncryptOutputStream;
@@ -20,19 +17,15 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datastore.file.FileVault;
 
-public class UploadVault implements UploadVaultInterface
+public class UploadVault extends FileVault implements UploadVaultInterface
 {
 	private final static String TAG = "UploadVault";
-	private final Context context;
-	private final String dataPassword;
-	private final DataHandlerConfig config;
 	
 	public UploadVault(final Context context, final String dataPassword)
 	{
-		this.context = context;
-		this.dataPassword = dataPassword;
-		this.config = DataHandlerConfig.getInstance();
+		super(context, dataPassword);
 	}
 	
 	@Override
@@ -41,39 +34,28 @@ public class UploadVault implements UploadVaultInterface
 		return directory.getAbsolutePath().equals(getUploadDirectory().getAbsolutePath());
 	}
 	
-	private boolean canWriteToExternalStorage()
-	{
-		String writePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-		String writeableState = Environment.getExternalStorageState();
-		return context.checkCallingOrSelfPermission(writePermission) == PackageManager.PERMISSION_GRANTED
-				&& Environment.MEDIA_MOUNTED.equals(writeableState);
-	}
-	
 	@Override
 	public File getUploadDirectory() throws DataHandlerException
 	{
 		final String uploadName = (String) config.get(DataStorageConfig.LOCAL_STORAGE_UPLOAD_DIRECTORY_NAME);
-		File root;
 		if (canWriteToExternalStorage())
 		{
-			final String rootName = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-			root = new File(Environment.getExternalStorageDirectory(), rootName);
+			return getDirectory(getLocalDirectory(), uploadName);
 		}
 		else
 		{
-			root = context.getFilesDir();
-		}
-		
-		File uploadDir = new File(root, uploadName);
-		if (!uploadDir.exists())
-		{
-			if (DataHandlerConfig.shouldLog())
+			File root = context.getFilesDir();
+			File uploadDir = new File(root, uploadName);
+			if (!uploadDir.exists())
 			{
-				Log.d(TAG, "Creating upload dir: "+uploadDir.getAbsolutePath());
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Creating upload dir: "+uploadDir.getAbsolutePath());
+				}
+				uploadDir.mkdirs();
 			}
-			uploadDir.mkdirs();
+			return uploadDir;
 		}
-		return uploadDir;
 	}
 	
 	private String createFileName(final String dataName) throws DataHandlerException
@@ -90,6 +72,7 @@ public class UploadVault implements UploadVaultInterface
 		final String fileName = createFileName(dataName);
 		final File zipFile = new File(getUploadDirectory(), fileName + DataStorageConstants.ZIP_FILE_SUFFIX);
 		final OutputStream out;
+		final String dataPassword = getPassword();
 		if (dataPassword != null)
 		{
 			out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), dataPassword);

@@ -52,9 +52,9 @@ public class FileVault
 		return lock;
 	}
 	
-	private final Context context;
-	private final String dataPassword;
-	private final DataHandlerConfig config;
+	protected final Context context;
+	protected final String dataPassword;
+	protected final DataHandlerConfig config;
 	private final Key key;
 	
 	public FileVault(final Context context, final String dataPassword)
@@ -70,7 +70,7 @@ public class FileVault
 		return dataPassword;
 	}
 	
-	private boolean canWriteToExternalStorage()
+	protected boolean canWriteToExternalStorage()
 	{
 		String writePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 		String writeableState = Environment.getExternalStorageState();
@@ -175,7 +175,7 @@ public class FileVault
 		if (file != null)
 		{
 			String fileName = file.getName();
-			if (fileName.contains(DataStorageConstants.ZIP_FILE_SUFFIX))
+			if (fileName.contains(DataStorageConstants.JSON_FILE_SUFFIX))
 			{
 				String timeStr = fileName.substring(0, fileName.indexOf(DataStorageConstants.ZIP_FILE_SUFFIX));
 				long fileTimestamp = Long.parseLong(timeStr);
@@ -187,6 +187,10 @@ public class FileVault
 				{
 					return true;
 				}
+			}
+			else if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, fileName+": not a .json file.");
 			}
 		}
 		return false;

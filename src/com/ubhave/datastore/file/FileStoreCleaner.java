@@ -9,7 +9,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.async.UploadVault;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
@@ -17,7 +16,6 @@ import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 public class FileStoreCleaner extends FileStoreReader
 {
 	private final static String TAG = "LogFileDataStorage";
-	private final DataHandlerConfig config;
 	private final UploadVaultInterface uploadVault;
 	private final FileVault fileStatus;
 	private final FileStoreReader fileReader;
@@ -25,7 +23,6 @@ public class FileStoreCleaner extends FileStoreReader
 	public FileStoreCleaner(final Context context, final FileVault vault)
 	{
 		super(vault);
-		this.config = DataHandlerConfig.getInstance();
 		this.fileStatus = vault;
 		this.fileReader = new FileStoreReader(fileStatus);
 		this.uploadVault = new UploadVault(context, vault.getPassword());
@@ -36,8 +33,8 @@ public class FileStoreCleaner extends FileStoreReader
 		try
 		{
 			int counter = 0;
-			final File rootDirectory = new File((String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME));
-			final File[] dataDirectories = rootDirectory.listFiles();
+			final File root = vault.getLocalDirectory();
+			final File[] dataDirectories = root.listFiles();
 			for (File directory : dataDirectories)
 			{
 				if (directory.isDirectory() && !uploadVault.isUploadDirectory(directory))
@@ -89,6 +86,10 @@ public class FileStoreCleaner extends FileStoreReader
 				}	
 			}
 		}
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Directory is null or doesn't exist.");
+		}
 		return dataFiles;
 	}
 	
@@ -114,6 +115,10 @@ public class FileStoreCleaner extends FileStoreReader
 				}
 				file.delete();
 			}
+		}
+		else if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Not due for upload: "+file.getName());
 		}
 		return result;
 	}
