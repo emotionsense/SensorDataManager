@@ -31,7 +31,15 @@ public abstract class AbstractDataLogger
 		this.context = context;
 		if (permissionGranted(storageType))
 		{
-			dataManager = ESDataManager.getInstance(context, storageType);
+			String dataPassword = getEncryptionPassword();
+			if (dataPassword == null)
+			{
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(LOG_TAG, "Warning: no encryption password. Data will not be encrypted.");
+				}
+			}
+			dataManager = ESDataManager.getInstance(context, storageType, dataPassword);
 			configureDataStorage();
 		}
 		else
@@ -73,7 +81,6 @@ public abstract class AbstractDataLogger
 
 	protected void configureDataStorage() throws DataHandlerException
 	{
-		dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
 		dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 		dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
 		dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());

@@ -11,11 +11,11 @@ public class NoStorageManager extends ESDataManager
 {
 	public NoStorageManager(final Context context) throws ESException, DataHandlerException
 	{
-		super(context);
+		super(context, null);
 	}
 	
 	@Override
-	protected DataStorageInterface getStorage()
+	protected DataStorageInterface getStorage(final String dataPassword)
 	{
 		return null;
 	}

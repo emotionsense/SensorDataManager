@@ -10,15 +10,15 @@ import com.ubhave.sensormanager.ESException;
 
 public class DatabaseManager extends ESDataManager
 {
-	public DatabaseManager(final Context context) throws ESException, DataHandlerException
+	public DatabaseManager(final Context context, final String dataPassword) throws ESException, DataHandlerException
 	{
-		super(context);
+		super(context, dataPassword);
 		SQLiteDatabase.loadLibs(context);
 	}
 	
 	@Override
-	protected DataStorageInterface getStorage()
+	protected DataStorageInterface getStorage(String dataPassword)
 	{
-		return new DBDataStorage(context);
+		return new DBDataStorage(context, dataPassword);
 	}
 }

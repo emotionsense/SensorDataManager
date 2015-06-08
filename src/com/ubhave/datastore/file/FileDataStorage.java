@@ -15,14 +15,13 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 
 public class FileDataStorage implements DataStorageInterface
 {		
-	private final FileVault vault;
 	private final FileStoreWriter fileStoreWriter;
 	private final FileStoreCleaner fileStoreCleaner;
 	private final FileStoreSearcher fileSearch;
 
-	public FileDataStorage(final Context context, final Object fileTransferLock)
+	public FileDataStorage(final Context context, final String dataPassword, final Object fileTransferLock)
 	{	
-		this.vault = new FileVault();
+		FileVault vault = new FileVault(dataPassword);
 		this.fileStoreCleaner = new FileStoreCleaner(context, vault);
 		this.fileStoreWriter = new FileStoreWriter(context, vault, fileStoreCleaner);
 		this.fileSearch = new FileStoreSearcher(context, vault);

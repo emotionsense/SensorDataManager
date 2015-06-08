@@ -47,23 +47,28 @@ public class FileVault
 		return lock;
 	}
 	
+	private final String dataPassword;
 	private final Key key;
 	
-	public FileVault()
+	public FileVault(final String dataPassword)
 	{
+		this.dataPassword = dataPassword;
 		this.key = buildKey();
+	}
+	
+	public String getPassword()
+	{
+		return dataPassword;
 	}
 	
 	public Key buildKey()
 	{
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		String password = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD, null);
-		if (password != null)
+		if (dataPassword != null)
 		{
 			try
 			{
 				MessageDigest digester = MessageDigest.getInstance(PASSWORD_HASH_ALGORITHM);
-				digester.update(String.valueOf(password).getBytes(UTF8));
+				digester.update(String.valueOf(dataPassword).getBytes(UTF8));
 				SecretKeySpec spec = new SecretKeySpec(digester.digest(), CIPHER_ALGORITHM);
 				return spec;
 			}

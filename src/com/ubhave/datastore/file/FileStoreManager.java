@@ -9,14 +9,14 @@ import com.ubhave.sensormanager.ESException;
 
 public class FileStoreManager extends ESDataManager
 {
-	public FileStoreManager(final Context context) throws ESException, DataHandlerException
+	public FileStoreManager(final Context context, final String dataPassword) throws ESException, DataHandlerException
 	{
-		super(context);
+		super(context, dataPassword);
 	}
 	
 	@Override
-	protected DataStorageInterface getStorage()
+	protected DataStorageInterface getStorage(final String dataPassword)
 	{
-		return new FileDataStorage(context, fileTransferLock);
+		return new FileDataStorage(context, dataPassword, fileTransferLock);
 	}
 }

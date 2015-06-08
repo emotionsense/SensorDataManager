@@ -10,41 +10,25 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class DataTables extends SQLiteOpenHelper
 {
-	private static final String TAG = "LogDBDataStorage";
 	private final static Object lock = new Object();
 	private final static int dbVersion = 1;
 
 	private String dataPassword;
 	private final HashMap<String, DataTable> dataTableMap;
 
-	public DataTables(final Context context, final String dbName)
+	public DataTables(final Context context, final String dbName, final String dataPassword)
 	{
 		super(context, dbName, null, dbVersion);
 		this.dataTableMap = new HashMap<String, DataTable>();
-		try
-		{
-			DataHandlerConfig config = DataHandlerConfig.getInstance();
-			dataPassword = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD);
-		}
-		catch (DataHandlerException e)
-		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, "Warning: no encryption password. Data will not be encrypted.");
-				e.printStackTrace();
-			}
-			dataPassword = "";
-		}
+		this.dataPassword = dataPassword;
 	}
 
 	@Override

@@ -25,11 +25,13 @@ public class UploadVault implements UploadVaultInterface
 {
 	private final static String TAG = "UploadVault";
 	private final Context context;
+	private final String dataPassword;
 	private final DataHandlerConfig config;
 	
-	public UploadVault(final Context context)
+	public UploadVault(final Context context, final String dataPassword)
 	{
 		this.context = context;
+		this.dataPassword = dataPassword;
 		this.config = DataHandlerConfig.getInstance();
 	}
 	
@@ -88,16 +90,14 @@ public class UploadVault implements UploadVaultInterface
 		final String fileName = createFileName(dataName);
 		final File zipFile = new File(getUploadDirectory(), fileName + DataStorageConstants.ZIP_FILE_SUFFIX);
 		final OutputStream out;
-		final String pw = (String) config.get(DataStorageConfig.ENCRYPTION_PASSWORD, null);
-		if (pw != null)
+		if (dataPassword != null)
 		{
-			out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), pw);
+			out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), dataPassword);
 		}
 		else
 		{
 			out = new FileOutputStream(zipFile);
 		}
-		
 		writeCompressed(fileName, data, out);
 	}
 	

@@ -28,11 +28,11 @@ public class DataTransfer implements DataTransferInterface
 	private final DataHandlerConfig config;
 	private final UploadVaultInterface uploadVault;
 
-	public DataTransfer(final Context context)
+	public DataTransfer(final Context context, final String dataPassword)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		this.uploadVault = new UploadVault(context);
+		this.uploadVault = new UploadVault(context, dataPassword);
 		setLogsUploadTime(System.currentTimeMillis());
 	}
 

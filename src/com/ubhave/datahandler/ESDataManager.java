@@ -36,7 +36,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	protected final DataTransferInterface transfer;
 	protected DataTransferAlarmListener dataTransferAlarmListener;
 	
-	public static ESDataManager getInstance(final Context context, int storageType) throws ESException, DataHandlerException
+	public static ESDataManager getInstance(final Context context, final int storageType, final String dataPassword) throws ESException, DataHandlerException
 	{
 		if (storageType == DataStorageConfig.STORAGE_TYPE_FILES)
 		{
@@ -46,7 +46,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				{
 					if (fileStorageInstance == null)
 					{
-						fileStorageInstance = new FileStoreManager(context);
+						fileStorageInstance = new FileStoreManager(context, dataPassword);
 					}
 				}
 			}
@@ -60,7 +60,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				{
 					if (databaseStorageInstance == null)
 					{
-						databaseStorageInstance = new DatabaseManager(context);
+						databaseStorageInstance = new DatabaseManager(context, dataPassword);
 					}
 				}
 			}
@@ -86,19 +86,19 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		}	
 	}
 
-	protected ESDataManager(final Context context) throws ESException, DataHandlerException
+	protected ESDataManager(final Context context, final String dataPassword) throws ESException, DataHandlerException
 	{
 		this.context = context;
 		config = DataHandlerConfig.getInstance();
-		transfer = new DataTransfer(context);
-		storage = getStorage();
+		transfer = new DataTransfer(context, dataPassword);
+		storage = getStorage(dataPassword);
 		if (storage != null)
 		{
 			setupAlarmForTransfer();
 		}
 	}
 	
-	protected abstract DataStorageInterface getStorage();
+	protected abstract DataStorageInterface getStorage(final String dataPassword);
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
