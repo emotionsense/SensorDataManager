@@ -40,17 +40,31 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 
+import android.os.AsyncTask;
+
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 
-public class WebConnection
+public class WebConnectionTask extends AsyncTask<Void, Void, String>
 {
-	public static String postToServer(final String serverUrl, final HashMap<String, String> params)
+	private final String serverUrl;
+	private final HashMap<String, String> params;
+	private final File file;
+	
+	public WebConnectionTask(final String serverUrl, final File file, final HashMap<String, String> params)
 	{
-		return postDataToServer(serverUrl, null, params);
+		this.serverUrl = serverUrl;
+		this.file = file;
+		this.params = params;
 	}
-
-	public static String postDataToServer(String serverUrl, File file, HashMap<String, String> paramsMap)
+	
+	public WebConnectionTask(final String serverUrl, final HashMap<String, String> params)
+	{
+		this(serverUrl, null, params);
+	}
+	
+	@Override
+	protected String doInBackground(Void... ps)
 	{
 		String response = "";
 		try
@@ -73,11 +87,11 @@ public class WebConnection
 				}
 			}
 
-			if (paramsMap != null)
+			if (params != null)
 			{
-				for (String key : paramsMap.keySet())
+				for (String key : params.keySet())
 				{
-					String value = paramsMap.get(key);
+					String value = params.get(key);
 					multipartEntity.addPart(key, new StringBody(value));
 				}
 			}
@@ -96,7 +110,7 @@ public class WebConnection
 		return response;
 	}
 	
-	private static String convertStreamToString(InputStream is)
+	private String convertStreamToString(InputStream is)
 	{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();

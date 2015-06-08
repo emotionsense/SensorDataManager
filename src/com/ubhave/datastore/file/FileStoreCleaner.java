@@ -55,7 +55,6 @@ public class FileStoreCleaner extends FileStoreReader
 							e.printStackTrace();
 						}
 					}
-					
 				}
 			}
 			if (DataHandlerConfig.shouldLog())

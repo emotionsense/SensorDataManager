@@ -35,6 +35,51 @@ public class DataTransfer implements DataTransferInterface
 		this.uploadVault = new UploadVault(context, dataPassword);
 		setLogsUploadTime(System.currentTimeMillis());
 	}
+	
+	private void post(final String url, final File file, final HashMap<String, String> paramsMap, final String expectedResult) throws DataHandlerException
+	{
+		new WebConnectionTask(url, file, paramsMap)
+		{
+			@Override
+			protected void onPostExecute(final String response)
+			{
+				if (response.equals(expectedResult))
+				{
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(TAG, "file " + file + " successfully uploaded to the server");
+						Log.d(TAG, "file " + file + " deleting local copy");
+					}
+					file.delete();
+					setLogsUploadTime(System.currentTimeMillis());
+				}
+				else if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "File " + file + " failed to upload file to the server, response received: " + response);
+				}
+			}
+		}.execute();
+	}
+	
+	private void post(final String url, final HashMap<String, String> paramsMap, final String expectedResult) throws DataHandlerException
+	{
+		new WebConnectionTask(url, paramsMap)
+		{
+			@Override
+			protected void onPostExecute(final String response)
+			{
+				if (response.equals(expectedResult))
+				{
+					// TODO act on response
+					setLogsUploadTime(System.currentTimeMillis());
+				}
+				else if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, "Failed to upload file to the server, response received: " + response);
+				}
+			}
+		}.execute();
+	}
 
 	@Override
 	public void uploadData() throws DataHandlerException
@@ -48,7 +93,7 @@ public class DataTransfer implements DataTransferInterface
 		{
 			Log.d(TAG, "Attempting upload from: " + directory.getName());
 		}
-		
+
 		File[] files = directory.listFiles();
 		if (files != null)
 		{
@@ -56,36 +101,20 @@ public class DataTransfer implements DataTransferInterface
 			{
 				Log.d(TAG, "Attempting upload " + files.length + " files.");
 			}
-			for (File file : files)
+
+			final HashMap<String, String> paramsMap = getPostParams();
+			final String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
+			final String expectedResult = (String) config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS);
+			
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "Posting to: " + url);
+			}
+			for (final File file : files)
 			{
 				if (file.isFile() && file.getName().contains(DataStorageConstants.ZIP_FILE_SUFFIX))
 				{
-					HashMap<String, String> paramsMap = getPostParams();
-					String url = (String) config.get(DataTransferConfig.POST_DATA_URL);
-					if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(TAG, "Posting to: " + url);
-					}
-
-					String response = WebConnection.postDataToServer(url, file, paramsMap);
-					if (response.equals(config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS)))
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "file " + file + " successfully uploaded to the server");
-							Log.d(TAG, "file " + file + " deleting local copy");
-						}
-						file.delete();
-						setLogsUploadTime(System.currentTimeMillis());
-					}
-					else
-					{
-						if (DataHandlerConfig.shouldLog())
-						{
-							Log.d(TAG, "file " + file + " failed to upload file to the server, response received: " + response);
-						}
-						throw new DataHandlerException(DataHandlerException.POST_FAILED);
-					}
+					post(url, file, paramsMap, expectedResult);
 				}
 				else if (DataHandlerConfig.shouldLog())
 				{
@@ -149,18 +178,19 @@ public class DataTransfer implements DataTransferInterface
 		try
 		{
 			String dataKey = (String) config.get(DataTransferConfig.POST_KEY);
+			String expectedResponse = (String) config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS);
 			JSONObject dataParam = new JSONObject();
 			dataParam.put(dataKey, data);
 
 			HashMap<String, String> paramsMap = getPostParams();
 			paramsMap.put(dataKey, data);
-
-			String response = WebConnection.postToServer(url, paramsMap);
-			String expectedResponse = (String) config.get(DataTransferConfig.POST_RESPONSE_ON_SUCCESS);
-			if (!response.equals(expectedResponse))
-			{
-				throw new DataHandlerException(DataHandlerException.POST_FAILED);
-			}
+			post(url, paramsMap, expectedResponse);
+			
+			// TODO handle this
+//			if (!response.equals(expectedResponse))
+//			{
+//				throw new DataHandlerException(DataHandlerException.POST_FAILED);
+//			}
 		}
 		catch (JSONException e)
 		{
