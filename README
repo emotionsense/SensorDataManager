@@ -1,6 +1,6 @@
-This Android library allows you to export (as JSON/CSV) sensor data that
-is collected using the ES2 Library, which is here:
-https://github.com/nlathia/SensorManager
+This Android library allows you to export JSON sensor data that
+is collected using the Sensor Data Manager Library, which is here:
+https://github.com/xsenselabs/SensorDataManager
 
  Copyright (c) 2012, University of Cambridge
  Neal Lathia, neal.lathia@cl.cam.ac.uk
@@ -9,9 +9,6 @@ https://github.com/nlathia/SensorManager
 This library was developed as part of the EPSRC Ubhave (Ubiquitous and
 Social Computing for Positive Behaviour Change) Project. For more
 information, please visit http://www.emotionsense.org
-
-Full documentation/tutorial available here:
-https://docs.google.com/document/d/1zkTs2ltnf_5AVoNbjjhaTearDcrBaA-4lKm_vH7InxU/edit
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
