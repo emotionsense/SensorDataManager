@@ -15,6 +15,7 @@ public class DataHandlerException extends Exception
 	public final static int MISSING_PERMISSIONS = 18;
 	public final static int NO_STORAGE = 19;
 	public final static int MISSING_REQUIRED_DATA = 20;
+	public final static int JSON_ERROR = 21;
 
 	private final static String MESSAGE_UNKNOWN_CONFIG = "Unknown config key.";
 	private final static String MESSAGE_NO_URL = "Missing URL target.";
@@ -27,6 +28,7 @@ public class DataHandlerException extends Exception
 	private final static String MESSAGE_MISSING_REQUIRED_DATA = "Missing required data.";
 	private final static String MESSAGE_PERMISSIONS = "Missing required permissions.";
 	private final static String MESSAGE_NO_STORAGE = "No storage defined.";
+	private final static String MESSAGE_JSON_ERROR = "JSON error.";
 
 	private final int errorCode;
 
@@ -67,6 +69,8 @@ public class DataHandlerException extends Exception
 			return MESSAGE_NO_STORAGE;
 		case MISSING_REQUIRED_DATA:
 			return MESSAGE_MISSING_REQUIRED_DATA;
+		case JSON_ERROR:
+			return MESSAGE_JSON_ERROR;
 		}
 		return super.getMessage();
 	}

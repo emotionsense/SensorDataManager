@@ -15,33 +15,26 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 	}
 
 	@Override
-	protected void configureDataStorage()
+	protected void configureDataStorage() throws DataHandlerException
 	{
 		super.configureDataStorage();
-		try
-		{
-			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_IMMEDIATE);
-			dataManager.setConfig(DataTransferConfig.POST_KEY, getPostKey());
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.TRANSFER_IMMEDIATE);
+		dataManager.setConfig(DataTransferConfig.POST_KEY, getPostKey());
 	}
-	
+
 	@Override
 	protected final String getStorageName()
 	{
 		// No storage
-		return null; 
+		return null;
 	}
-	
+
 	@Override
 	protected final String getEncryptionPassword()
 	{
 		// No encryption in current version
 		return null;
 	}
-	
+
 	protected abstract String getPostKey();
 }

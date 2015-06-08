@@ -25,16 +25,9 @@ public abstract class AbstractStoreOnlyLogger extends AbstractDataLogger
 	}
 
 	@Override
-	protected void configureDataStorage()
+	protected void configureDataStorage() throws DataHandlerException
 	{
 		super.configureDataStorage();
-		try
-		{
-			dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.STORE_ONLY);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		dataManager.setConfig(DataTransferConfig.DATA_TRANSER_POLICY, DataTransferConfig.STORE_ONLY);
 	}
 }

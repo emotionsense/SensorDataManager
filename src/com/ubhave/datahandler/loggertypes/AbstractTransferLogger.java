@@ -29,23 +29,22 @@ public abstract class AbstractTransferLogger extends AbstractDataLogger
 	}
 
 	@Override
-	protected void configureDataStorage()
+	protected void configureDataStorage() throws DataHandlerException
 	{
 		super.configureDataStorage();
-		try
+		dataManager.setConfig(DataTransferConfig.POST_DATA_URL, getDataPostURL());
+		dataManager.setConfig(DataTransferConfig.POST_RESPONSE_ON_SUCCESS, getSuccessfulPostResponse());
+		HashMap<String, String> params = getPostParameters();
+		if (params != null)
 		{
-			dataManager.setConfig(DataTransferConfig.POST_DATA_URL, getDataPostURL());
-			dataManager.setConfig(DataTransferConfig.POST_RESPONSE_ON_SUCCESS, getSuccessfulPostResponse());
-			HashMap<String, String> params = getPostParameters();
-			if (params != null)
+			try
 			{
 				dataManager.setConfig(DataTransferConfig.POST_PARAMETERS, toJSON(params));
 			}
-		}
-		catch (Exception e)
-		{
-			dataManager = null;
-			e.printStackTrace();
+			catch (JSONException e)
+			{
+				throw new DataHandlerException(DataHandlerException.JSON_ERROR);
+			}
 		}
 	}
 	
