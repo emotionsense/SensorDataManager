@@ -22,7 +22,6 @@ public class DataTransferConfig
 	/*
 	 * Config Values
 	 */
-
 	public final static int STORE_ONLY = 3001;
 	public final static int TRANSFER_IMMEDIATE = 3002;
 	public final static int TRANSFER_PERIODICALLY = 3003;
@@ -35,13 +34,8 @@ public class DataTransferConfig
 	 */
 	public final static int DEFAULT_TRANFER_POLICY = TRANSFER_PERIODICALLY;
 	public final static int DEFAULT_CONNECTION_TYPE_FOR_TRANSFER = CONNECTION_TYPE_WIFI;
-	
-	public final static String DEFAULT_POST_KEY = "uploaded";
-
 	public final static long DEFAULT_WAIT_FOR_WIFI_INTERVAL = 24 * 60 * 60 * 1000;
 	public final static long DEFAULT_TRANSFER_ALARM_INTERVAL = 15 * 60 * 1000;
-
-	public final static String DEFAULT_SUCCESSFUL_POST_RESPONSE = "success";
 
 	public static HashSet<String> validKeys()
 	{
@@ -65,8 +59,6 @@ public class DataTransferConfig
 		defaults.put(CONNECTION_TYPE_FOR_TRANSFER, DEFAULT_CONNECTION_TYPE_FOR_TRANSFER);
 		defaults.put(WAIT_FOR_WIFI_INTERVAL_MILLIS, DEFAULT_WAIT_FOR_WIFI_INTERVAL);
 		defaults.put(TRANSFER_ALARM_INTERVAL, DEFAULT_TRANSFER_ALARM_INTERVAL);
-		defaults.put(POST_RESPONSE_ON_SUCCESS, DEFAULT_SUCCESSFUL_POST_RESPONSE);
-		defaults.put(POST_KEY, DEFAULT_POST_KEY);
 		return defaults;
 	}
 }

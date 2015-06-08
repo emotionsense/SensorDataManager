@@ -84,10 +84,10 @@ public class WebConnection
 
 			httppost.setEntity(multipartEntity);
 			HttpResponse httpResponse = httpclient.execute(httppost);
+			//int status = response.getStatusLine().getStatusCode(); // TODO check response code
 
 			response = convertStreamToString(httpResponse.getEntity().getContent());
 			httpclient.getConnectionManager().shutdown();
-
 		}
 		catch (Exception exp)
 		{
