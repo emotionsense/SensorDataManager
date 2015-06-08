@@ -183,6 +183,11 @@ public class FileVault
 				
 				DataHandlerConfig config = DataHandlerConfig.getInstance();
 				long durationLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS, DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS);
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(TAG, fileName+": length = "+(currTime-fileTimestamp)+", limit = "+durationLimit+", move = "+((currTime - fileTimestamp) > durationLimit));
+				}
+				
 				if ((currTime - fileTimestamp) > durationLimit)
 				{
 					return true;

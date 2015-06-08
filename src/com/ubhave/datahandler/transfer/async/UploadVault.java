@@ -62,41 +62,51 @@ public class UploadVault extends FileVault implements UploadVaultInterface
 	{
 		return config.getIdentifier() + "_"
 				+ dataName + "_"
-				+ System.currentTimeMillis() + "."
-				+ DataStorageConstants.JSON_FILE_SUFFIX;
+				+ System.currentTimeMillis();
 	}
 
 	@Override
 	public void writeData(final String dataName, final List<JSONObject> data) throws Exception
 	{
-		final String fileName = createFileName(dataName);
-		final File zipFile = new File(getUploadDirectory(), fileName + DataStorageConstants.ZIP_FILE_SUFFIX);
-		final OutputStream out;
-		final String dataPassword = getPassword();
-		if (dataPassword != null)
+		if (!data.isEmpty())
 		{
-			out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), dataPassword);
+			final String fileName = createFileName(dataName);
+			final File zipFile = new File(getUploadDirectory(), fileName + DataStorageConstants.ZIP_FILE_SUFFIX);
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "Creating upload file: "+zipFile.getAbsolutePath());
+			}
+			final OutputStream out;
+			final String dataPassword = getPassword();
+			if (dataPassword != null)
+			{
+				out = new ZipEncryptOutputStream(new FileOutputStream(zipFile), dataPassword);
+			}
+			else
+			{
+				out = new FileOutputStream(zipFile);
+			}
+			
+			ZipOutputStream zos = new ZipOutputStream(out);
+			writeCompressed(fileName, data, zos);
+			zos.close();
+			out.close();
 		}
-		else
-		{
-			out = new FileOutputStream(zipFile);
-		}
-		writeCompressed(fileName, data, out);
 	}
 	
-	private void writeCompressed(final String fileName, final List<JSONObject> entries, final OutputStream out) throws Exception
+	private void writeCompressed(final String fileName, final List<JSONObject> entries, final ZipOutputStream zos) throws Exception
 	{
-		ZipOutputStream zos = new ZipOutputStream(out);
-		ZipEntry ze = new ZipEntry(fileName);
-        
+		ZipEntry ze = new ZipEntry(fileName + DataStorageConstants.JSON_FILE_SUFFIX);
 		zos.putNextEntry(ze);
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Write "+entries.size()+" entries.");
+		}
 		for (JSONObject entry : entries)
 		{
 			String line = entry.toString() + "\n";
-			out.write(line.getBytes());
+			zos.write(line.getBytes());
 		}
-
         zos.closeEntry();
-		zos.close();
 	}
 }
