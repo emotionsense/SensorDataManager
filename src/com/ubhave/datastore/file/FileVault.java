@@ -14,11 +14,16 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.spec.SecretKeySpec;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
+import com.ubhave.datahandler.except.DataHandlerException;
 
 public class FileVault
 {
@@ -47,18 +52,57 @@ public class FileVault
 		return lock;
 	}
 	
+	private final Context context;
 	private final String dataPassword;
+	private final DataHandlerConfig config;
 	private final Key key;
 	
-	public FileVault(final String dataPassword)
+	public FileVault(final Context context, final String dataPassword)
 	{
+		this.context = context;
 		this.dataPassword = dataPassword;
+		this.config = DataHandlerConfig.getInstance();
 		this.key = buildKey();
 	}
 	
 	public String getPassword()
 	{
 		return dataPassword;
+	}
+	
+	private boolean canWriteToExternalStorage()
+	{
+		String writePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+		String writeableState = Environment.getExternalStorageState();
+		return context.checkCallingOrSelfPermission(writePermission) == PackageManager.PERMISSION_GRANTED
+				&& Environment.MEDIA_MOUNTED.equals(writeableState);
+	}
+
+	public File getLocalDirectory() throws DataHandlerException
+	{
+		if (canWriteToExternalStorage())
+		{
+			String rootName = (String) config.get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
+			return getDirectory(Environment.getExternalStorageDirectory(), rootName);
+		}
+		else
+		{
+			throw new DataHandlerException(DataHandlerException.IO_EXCEPTION);
+		}
+	}
+	
+	public File getDirectory(final File root, final String directoryName)
+	{
+		final File directory = new File(root, directoryName);
+		if (!directory.exists())
+		{
+			boolean directoryCreated = directory.mkdirs();
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "Created ["+directoryCreated+"]: " + directory.getAbsolutePath());
+			}
+		}
+		return directory;
 	}
 	
 	public Key buildKey()

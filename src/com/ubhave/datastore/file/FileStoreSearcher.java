@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
@@ -29,16 +28,15 @@ public class FileStoreSearcher extends FileStoreReader
 		this.context = context;
 	}
 	
-	private File getDirectory(final int sensorId) throws ESException, DataHandlerException
-	{
-		final String sensorName = SensorUtils.getSensorName(sensorId);
-		final String rootPath = (String) DataHandlerConfig.getInstance().get(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME);
-		return new File(rootPath + "/" + sensorName);
-	}
-	
 	public List<SensorData> getRecentSensorData(final int sensorId, long startTimestamp) throws IOException, ESException, DataHandlerException
 	{
-		File directory = getDirectory(sensorId);
+		File root = vault.getLocalDirectory();
+		File directory = vault.getDirectory(root, SensorUtils.getSensorName(sensorId));
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Search: "+directory.getAbsolutePath());
+		}
+		
 		ArrayList<SensorData> outputList = new ArrayList<SensorData>();
 		if (directory != null && directory.exists() && directory.isDirectory())
 		{
