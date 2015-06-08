@@ -9,7 +9,7 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
 public interface DataStorageInterface
-{
+{	
 	/*
 	 * Retrieving stored data
 	 */

@@ -77,11 +77,11 @@ public abstract class AbstractDataLogger
 	{
 		try
 		{
-			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
+			dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-			dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
+			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 		}
 		catch (Exception e)
 		{

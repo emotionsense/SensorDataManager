@@ -109,6 +109,10 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 			dataTransferAlarmListener.setConnectionTypeAndStart(connectionType);
 		}
+		else if (dataTransferAlarmListener != null)
+		{
+			dataTransferAlarmListener.stop();
+		}
 	}
 
 	@Override
@@ -117,14 +121,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		config.setConfig(key, value);
 		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
 		{
-			if (((Integer) value) == DataTransferConfig.TRANSFER_PERIODICALLY)
-			{
-				setupAlarmForTransfer();
-			}
-			else if (dataTransferAlarmListener != null)
-			{
-				dataTransferAlarmListener.stop();
-			}
+			setupAlarmForTransfer();
 		}
 		else if (key.equals(DataTransferConfig.TRANSFER_ALARM_INTERVAL))
 		{
@@ -167,7 +164,11 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		}
 		catch (DataHandlerException e)
 		{
-			e.printStackTrace();
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, ""+e.getLocalizedMessage());
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}
