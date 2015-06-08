@@ -30,9 +30,17 @@ public abstract class AbstractImmediateTransferLogger extends AbstractTransferLo
 	}
 	
 	@Override
-	protected String getStorageName()
+	protected final String getStorageName()
 	{
-		return null; // No storage
+		// No storage
+		return null; 
+	}
+	
+	@Override
+	protected final String getEncryptionPassword()
+	{
+		// No encryption in current version
+		return null;
 	}
 	
 	protected abstract String getPostKey();

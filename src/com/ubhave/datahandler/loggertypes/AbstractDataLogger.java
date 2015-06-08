@@ -52,7 +52,7 @@ public abstract class AbstractDataLogger
 		return permissions;
 	}
 	
-	protected boolean permissionGranted(int storageType)
+	private final boolean permissionGranted(int storageType)
 	{
 		for (String permission : getPermissions(storageType))
 		{
@@ -68,7 +68,7 @@ public abstract class AbstractDataLogger
 		return true;
 	}
 
-	public ESDataManager getDataManager()
+	public final ESDataManager getDataManager()
 	{
 		return dataManager;
 	}
@@ -80,10 +80,7 @@ public abstract class AbstractDataLogger
 			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-			String pw = getEncryptionPassword();
-			Log.d("FileVault", "Config set: "+pw);
-			
-			dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, pw);
+			dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
 			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
 		}
 		catch (Exception e)
@@ -103,7 +100,7 @@ public abstract class AbstractDataLogger
 	
 	protected abstract String getEncryptionPassword();
 	
-	public void setUniqueUserId(final String userId)
+	public final void setUniqueUserId(final String userId)
 	{
 		try
 		{
@@ -115,7 +112,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 	
-	public void setDeviceId(final String deviceId)
+	public final void setDeviceId(final String deviceId)
 	{
 		try
 		{
@@ -127,7 +124,7 @@ public abstract class AbstractDataLogger
 		}	
 	}
 
-	public void log(final String tag, final String data)
+	public final void log(final String tag, final String data)
 	{
 		if (tag != null && data != null)
 		{
@@ -149,7 +146,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logSensorData(final SensorData data)
+	public final void logSensorData(final SensorData data)
 	{
 		if (data != null)
 		{
@@ -178,7 +175,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logSensorData(final SensorData data, final JSONFormatter formatter)
+	public final void logSensorData(final SensorData data, final JSONFormatter formatter)
 	{
 		if (data != null && formatter != null)
 		{
@@ -204,17 +201,17 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public void logError(final AbstractLogData error)
+	public final void logError(final AbstractLogData error)
 	{
 		logExtra(AbstractLogData.TAG_ERROR, error);
 	}
 
-	public void logInteraction(final AbstractLogData interaction)
+	public final void logInteraction(final AbstractLogData interaction)
 	{
 		logExtra(AbstractLogData.TAG_INTERACTION, interaction);
 	}
 
-	public void logExtra(final String tag, final AbstractLogData action)
+	public final void logExtra(final String tag, final AbstractLogData action)
 	{
 		try
 		{
@@ -230,7 +227,7 @@ public abstract class AbstractDataLogger
 		}
 	}
 	
-	public void logExtra(final String tag, final JSONObject json)
+	public final void logExtra(final String tag, final JSONObject json)
 	{
 		if (tag != null && json != null)
 		{
