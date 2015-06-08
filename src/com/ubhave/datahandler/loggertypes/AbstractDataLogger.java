@@ -23,14 +23,12 @@ public abstract class AbstractDataLogger
 {
 	protected final static String LOG_TAG = "DataLogger";
 	
-	protected ESDataManager dataManager;
+	protected final ESDataManager dataManager;
 	protected final Context context;
-	protected final int storageType;
 
 	protected AbstractDataLogger(final Context context, final int storageType) throws DataHandlerException, ESException
 	{
 		this.context = context;
-		this.storageType = storageType;
 		if (permissionGranted(storageType))
 		{
 			dataManager = ESDataManager.getInstance(context, storageType);
@@ -73,21 +71,13 @@ public abstract class AbstractDataLogger
 		return dataManager;
 	}
 
-	protected void configureDataStorage()
+	protected void configureDataStorage() throws DataHandlerException
 	{
-		try
-		{
-			dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
-			dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
-			dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-			dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
-			dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
-		}
-		catch (Exception e)
-		{
-			dataManager = null;
-			e.printStackTrace();
-		}
+		dataManager.setConfig(DataStorageConfig.ENCRYPTION_PASSWORD, getEncryptionPassword());
+		dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
+		dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
+		dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
+		dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 	}
 
 	protected abstract String getStorageName();
@@ -108,7 +98,11 @@ public abstract class AbstractDataLogger
 		}
 		catch (DataHandlerException e)
 		{
-			e.printStackTrace();
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -120,7 +114,11 @@ public abstract class AbstractDataLogger
 		}
 		catch (DataHandlerException e)
 		{
-			e.printStackTrace();
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+				e.printStackTrace();
+			}
 		}	
 	}
 
@@ -139,7 +137,11 @@ public abstract class AbstractDataLogger
 					}
 					catch (DataHandlerException e)
 					{
-						e.printStackTrace();
+						if (DataHandlerConfig.shouldLog())
+						{
+							Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+							e.printStackTrace();
+						}
 					}
 				}
 			}.start();
@@ -163,7 +165,8 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, e.getMessage());
+							Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+							e.printStackTrace();
 						}
 					}
 				}
@@ -222,7 +225,8 @@ public abstract class AbstractDataLogger
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(LOG_TAG, e.getMessage());
+				Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -248,7 +252,8 @@ public abstract class AbstractDataLogger
 					{
 						if (DataHandlerConfig.shouldLog())
 						{
-							Log.d(LOG_TAG, e.getMessage());
+							Log.d(LOG_TAG, ""+e.getLocalizedMessage());
+							e.printStackTrace();
 						}
 					}
 				}
