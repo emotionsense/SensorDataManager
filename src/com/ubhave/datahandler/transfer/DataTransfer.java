@@ -121,6 +121,10 @@ public class DataTransfer implements DataTransferInterface
 					Log.d(TAG, "Skip: " + file.getName());
 				}
 			}
+			if (directory.listFiles().length == 0)
+			{
+				directory.delete();
+			}
 		}
 		else if (DataHandlerConfig.shouldLog())
 		{

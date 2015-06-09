@@ -82,7 +82,11 @@ public class FileStoreCleaner extends FileStoreReader
 				for (File file : fileList)
 				{
 					dataFiles += moveFileForUpload(directoryName, file);
-				}	
+				}
+				if (directory.listFiles().length == 0)
+				{
+					directory.delete();
+				}
 			}
 		}
 		else if (DataHandlerConfig.shouldLog())
