@@ -126,7 +126,7 @@ public class FileVault
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(TAG, "Warning: No encryption password set. Data will be stored in clear text.");
+				Log.d(TAG, "Warning: No encryption password set.");
 			}
 			return null;
 		}

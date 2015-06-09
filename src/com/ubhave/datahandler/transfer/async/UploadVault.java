@@ -22,8 +22,18 @@ import com.ubhave.datastore.file.FileVault;
 public class UploadVault extends FileVault implements UploadVaultInterface
 {
 	private final static String TAG = "UploadVault";
+	private static UploadVault instance;
 	
-	public UploadVault(final Context context, final String dataPassword)
+	public static UploadVault getInstance(final Context context, final String dataPassword)
+	{
+		if (instance == null)
+		{
+			instance = new UploadVault(context, dataPassword);
+		}
+		return instance;
+	}
+	
+	protected UploadVault(final Context context, final String dataPassword)
 	{
 		super(context, dataPassword);
 	}

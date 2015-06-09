@@ -32,7 +32,7 @@ public class DataTransfer implements DataTransferInterface
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		this.uploadVault = new UploadVault(context, dataPassword);
+		this.uploadVault = UploadVault.getInstance(context, dataPassword);
 		setLogsUploadTime(System.currentTimeMillis());
 	}
 	

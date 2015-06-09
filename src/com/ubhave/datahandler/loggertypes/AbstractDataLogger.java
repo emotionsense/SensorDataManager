@@ -36,7 +36,7 @@ public abstract class AbstractDataLogger
 			{
 				if (DataHandlerConfig.shouldLog())
 				{
-					Log.d(LOG_TAG, "Warning: no encryption password. Data will not be encrypted.");
+					Log.d(LOG_TAG, "Warning: no encryption password.");
 				}
 			}
 			dataManager = ESDataManager.getInstance(context, storageType, dataPassword);

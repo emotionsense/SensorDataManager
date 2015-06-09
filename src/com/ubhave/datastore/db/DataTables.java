@@ -28,16 +28,25 @@ public class DataTables extends SQLiteOpenHelper
 	{
 		super(context, dbName, null, dbVersion);
 		this.dataTableMap = new HashMap<String, DataTable>();
-		this.dataPassword = dataPassword;
+		if (dataPassword == null)
+		{
+			this.dataPassword = "";
+		}
+		else
+		{
+			this.dataPassword = dataPassword;
+		}
 	}
 
 	@Override
 	public void onCreate(final SQLiteDatabase db)
-	{}
+	{
+	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{}
+	{
+	}
 
 	public Set<String> getTableNames()
 	{

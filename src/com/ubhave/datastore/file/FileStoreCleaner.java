@@ -28,7 +28,7 @@ public class FileStoreCleaner extends FileStoreReader
 		super(vault);
 		this.fileStatus = vault;
 		this.fileReader = new FileStoreReader(fileStatus);
-		this.uploadVault = new UploadVault(context, vault.getPassword());
+		this.uploadVault = UploadVault.getInstance(context, vault.getPassword());
 	}
 
 	public boolean moveDataForUpload()

@@ -35,7 +35,7 @@ public class DBDataStorage implements DataStorageInterface
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
 		this.dataTables = new DataTables(context, getDBName(), dataPassword);
-		this.uploadVault = new UploadVault(context, dataPassword);
+		this.uploadVault = UploadVault.getInstance(context, dataPassword);
 	}
 
 	private String getDBName()

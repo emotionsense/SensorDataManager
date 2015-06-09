@@ -17,7 +17,7 @@ public class DatabaseManager extends ESDataManager
 	}
 	
 	@Override
-	protected DataStorageInterface getStorage(String dataPassword)
+	protected DataStorageInterface getStorage(final String dataPassword)
 	{
 		return new DBDataStorage(context, dataPassword);
 	}
