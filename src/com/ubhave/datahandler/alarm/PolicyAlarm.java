@@ -50,6 +50,10 @@ public class PolicyAlarm extends BroadcastReceiver
 		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		setLastTransferAllowedTime(System.currentTimeMillis());
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(TAG, "Created policy alarm with id: "+id);
+		}
 	}
 
 	public void setListener(final AlarmListener listener)

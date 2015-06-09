@@ -1,6 +1,7 @@
 package com.ubhave.datastore.file;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -16,6 +17,8 @@ import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 public class FileStoreCleaner extends FileStoreReader
 {
 	private final static String TAG = "LogFileDataStorage";
+	private final static int MIN_ENTRIES = 25;
+	
 	private final UploadVaultInterface uploadVault;
 	private final FileVault fileStatus;
 	private final FileStoreReader fileReader;
@@ -72,16 +75,33 @@ public class FileStoreCleaner extends FileStoreReader
 	
 	public int moveDirectoryForUpload(final File directory) throws Exception
 	{
-		int dataFiles = 0;
+		int dataWrites = 0;
 		if (directory != null && directory.exists())
 		{
 			String directoryName = directory.getName();
 			File[] fileList = directory.listFiles();
 			if (fileList != null)
 			{
+				List<JSONObject> entries = new ArrayList<JSONObject>();
 				for (File file : fileList)
 				{
-					dataFiles += moveFileForUpload(directoryName, file);
+					List<JSONObject> fileEntries = getDataToUpload(directoryName, file);
+					if (fileEntries != null)
+					{
+						entries.addAll(fileEntries);
+						if (entries.size() >= MIN_ENTRIES)
+						{
+							dataWrites ++;
+							uploadVault.writeData(directoryName, entries);
+							entries.clear();
+						}
+					}
+				}
+				if (!entries.isEmpty())
+				{
+					dataWrites ++;
+					uploadVault.writeData(directoryName, entries);
+					entries.clear();
 				}
 				if (directory.listFiles().length == 0)
 				{
@@ -93,12 +113,12 @@ public class FileStoreCleaner extends FileStoreReader
 		{
 			Log.d(TAG, "Directory is null or doesn't exist.");
 		}
-		return dataFiles;
+		return dataWrites;
 	}
 	
-	private int moveFileForUpload(final String directoryName, final File file) throws Exception
+	private List<JSONObject> getDataToUpload(final String directoryName, final File file) throws Exception
 	{
-		int result = 0;
+		List<JSONObject> entries = null;
 		if (fileStatus.isDueForUpload(file))
 		{
 			synchronized (FileVault.getLock(directoryName))
@@ -109,12 +129,7 @@ public class FileStoreCleaner extends FileStoreReader
 					{
 						Log.d(TAG, "Read: "+file.getName());
 					}
-					List<JSONObject> entries = fileReader.readFile(directoryName, file);
-					if (!entries.isEmpty())
-					{
-						uploadVault.writeData(directoryName, entries);
-						result = 1;
-					}
+					entries = fileReader.readFile(directoryName, file);
 				}
 				file.delete();
 			}
@@ -123,6 +138,6 @@ public class FileStoreCleaner extends FileStoreReader
 		{
 			Log.d(TAG, "Not due for upload: "+file.getName());
 		}
-		return result;
+		return entries;
 	}
 }

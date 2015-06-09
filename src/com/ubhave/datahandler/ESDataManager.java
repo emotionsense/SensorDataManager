@@ -102,16 +102,17 @@ public abstract class ESDataManager implements ESDataManagerInterface
 
 	private void setupAlarmForTransfer() throws DataHandlerException
 	{
+		if (dataTransferAlarmListener != null)
+		{
+			dataTransferAlarmListener.stop();
+			dataTransferAlarmListener = null;
+		}
 		int transferPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
 			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
 			dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
 			dataTransferAlarmListener.setConnectionTypeAndStart(connectionType);
-		}
-		else if (dataTransferAlarmListener != null)
-		{
-			dataTransferAlarmListener.stop();
 		}
 	}
 
