@@ -11,14 +11,13 @@ import com.ubhave.dataformatter.json.pull.AccelerometerFormatter;
 import com.ubhave.dataformatter.json.pull.ApplicationFormatter;
 import com.ubhave.dataformatter.json.pull.BluetoothFormatter;
 import com.ubhave.dataformatter.json.pull.CallContentReaderFormatter;
-import com.ubhave.dataformatter.json.pull.CameraFormatter;
 import com.ubhave.dataformatter.json.pull.GyroscopeFormatter;
 import com.ubhave.dataformatter.json.pull.LocationFormatter;
 import com.ubhave.dataformatter.json.pull.MagneticFieldFormatter;
 import com.ubhave.dataformatter.json.pull.MicrophoneFormatter;
+import com.ubhave.dataformatter.json.pull.PhoneRadioFormatter;
 import com.ubhave.dataformatter.json.pull.SmsContentReaderFormatter;
 import com.ubhave.dataformatter.json.pull.WifiFormatter;
-import com.ubhave.dataformatter.json.pull.PhoneRadioFormatter;
 import com.ubhave.dataformatter.json.push.BatteryFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStateFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStrengthFormatter;
@@ -42,8 +41,6 @@ public abstract class DataFormatter
 			return new AccelerometerFormatter(c);
 		case SensorUtils.SENSOR_TYPE_BLUETOOTH:
 			return new BluetoothFormatter(c);
-		case SensorUtils.SENSOR_TYPE_CAMERA:
-			return new CameraFormatter(c);
 		case SensorUtils.SENSOR_TYPE_LOCATION:
 			return new LocationFormatter(c);
 		case SensorUtils.SENSOR_TYPE_MICROPHONE:
