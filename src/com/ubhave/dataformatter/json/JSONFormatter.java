@@ -46,7 +46,7 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public abstract class JSONFormatter extends DataFormatter
 {
 	private final static String LOG_TAG = "JSONFormatter";
-	private final static String SENSOR_TYPE = "sensorType";
+	private final static String SENSOR_TYPE = "dataType";
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
