@@ -1,7 +1,5 @@
 ### About
-This Android library allows you to export JSON sensor data that
-is collected using the Sensor Data Manager Library, which is here:
-https://github.com/emotionsense/SensorDataManager
+This Android library allows you to export JSON sensor data that is collected using the Sensor Data Manager Library, which is [here](https://github.com/emotionsense/SensorDataManager). The documentation for this library is available at [emotionsense.github.io](http://emotionsense.github.io/).
 
  Copyright (c) 2012, University of Cambridge
  Neal Lathia, neal.lathia@cl.cam.ac.uk
@@ -9,15 +7,15 @@ https://github.com/emotionsense/SensorDataManager
 
 This library was developed as part of the EPSRC Ubhave (Ubiquitous and
 Social Computing for Positive Behaviour Change) Project. For more
-information, please visit http://www.emotionsense.org
+information, please visit [emotionsense.org](http://www.emotionsense.org)
 
 ### Requirements
 
 If you are going to be using the encrypted database, you need to add the icudt46l.zip file from the sqlcipher project into your app's assets.
 
-'''
+```
 curl -L -o sqlcipher-for-android.zip https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip
-'''
+```
 
 ### License
 
