@@ -27,14 +27,21 @@ public class DBDataStorage implements DataStorageInterface
 
 	private final Context context;
 	private final DataHandlerConfig config;
-	private final DataTables dataTables;
+	private final DataTablesInterface dataTables;
 	private final UploadVaultInterface uploadVault;
 
 	public DBDataStorage(final Context context, final String dataPassword)
 	{
 		this.context = context;
 		this.config = DataHandlerConfig.getInstance();
-		this.dataTables = new DataTables(context, getDBName(), dataPassword);
+		if (dataPassword == null)
+		{
+			this.dataTables = new UnencryptedDataTables(context, getDBName());
+		}
+		else
+		{
+			this.dataTables = new EncryptedDataTables(context, getDBName(), dataPassword);
+		}
 		this.uploadVault = UploadVault.getInstance(context, dataPassword);
 	}
 

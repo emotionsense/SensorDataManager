@@ -4,43 +4,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
-
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
-public class DataTables extends SQLiteOpenHelper
+public class UnencryptedDataTables extends SQLiteOpenHelper implements DataTablesInterface
 {
 	private final static Object lock = new Object();
 	private final static int dbVersion = 1;
 
-	private String dataPassword;
-	private final HashMap<String, DataTable> dataTableMap;
+	private final HashMap<String, UnencryptedDataTable> dataTableMap;
 
-	public DataTables(final Context context, final String dbName, final String dataPassword)
+	public UnencryptedDataTables(final Context context, final String dbName)
 	{
 		super(context, dbName, null, dbVersion);
-		this.dataTableMap = new HashMap<String, DataTable>();
-		if (dataPassword == null)
-		{
-			this.dataPassword = "";
-		}
-		else
-		{
-			this.dataPassword = dataPassword;
-		}
+		this.dataTableMap = new HashMap<String, UnencryptedDataTable>();
 	}
 
 	@Override
 	public void onCreate(final SQLiteDatabase db)
 	{
+		for (UnencryptedDataTable table : dataTableMap.values())
+		{
+			table.createTable(db);
+		}
 	}
 
 	@Override
@@ -53,17 +47,19 @@ public class DataTables extends SQLiteOpenHelper
 		return dataTableMap.keySet();
 	}
 
-	public DataTable getTable(final String tableName)
+	private UnencryptedDataTable getTable(final String tableName)
 	{
 		synchronized (lock)
 		{
 			if (!dataTableMap.containsKey(tableName))
 			{
-				SQLiteDatabase database = getWritableDatabase(dataPassword);
+				SQLiteDatabase database = getWritableDatabase();
 				database.beginTransaction();
 				try
 				{
-					dataTableMap.put(tableName, new DataTable(database, tableName));
+					UnencryptedDataTable table = new UnencryptedDataTable(tableName);
+					table.createTable(database);
+					dataTableMap.put(tableName, table);
 					database.setTransactionSuccessful();
 				}
 				catch (Exception e)
@@ -80,12 +76,13 @@ public class DataTables extends SQLiteOpenHelper
 		}
 	}
 
+	@Override
 	public void writeData(final String tableName, final String data)
 	{
 		synchronized (lock)
 		{
-			DataTable table = getTable(tableName);
-			SQLiteDatabase database = getWritableDatabase(dataPassword);
+			UnencryptedDataTable table = getTable(tableName);
+			SQLiteDatabase database = getWritableDatabase();
 			database.beginTransaction();
 			try
 			{
@@ -103,13 +100,14 @@ public class DataTables extends SQLiteOpenHelper
 		}
 	}
 
+	@Override
 	public List<SensorData> getRecentSensorData(final String tableName, final JSONFormatter formatter, final long timeLimit)
 	{
 		synchronized (lock)
 		{
 			List<SensorData> data = null;
-			DataTable table = getTable(tableName);
-			SQLiteDatabase database = getReadableDatabase(dataPassword);
+			UnencryptedDataTable table = getTable(tableName);
+			SQLiteDatabase database = getReadableDatabase();
 			database.beginTransaction();
 			try
 			{
@@ -134,8 +132,8 @@ public class DataTables extends SQLiteOpenHelper
 		synchronized (lock)
 		{
 			List<JSONObject> data = null;
-			DataTable table = getTable(tableName);
-			SQLiteDatabase database = getReadableDatabase(dataPassword);
+			UnencryptedDataTable table = getTable(tableName);
+			SQLiteDatabase database = getReadableDatabase();
 			database.beginTransaction();
 			try
 			{
@@ -155,6 +153,7 @@ public class DataTables extends SQLiteOpenHelper
 		}
 	}
 
+	@Override
 	public List<JSONObject> getUnsyncedData(final String tableName)
 	{
 		DataHandlerConfig config = DataHandlerConfig.getInstance();
@@ -162,12 +161,13 @@ public class DataTables extends SQLiteOpenHelper
 		return getData(tableName, timeLimit);
 	}
 
+	@Override
 	public void setSynced(final String tableName)
 	{
 		synchronized (lock)
 		{
-			DataTable table = getTable(tableName);
-			SQLiteDatabase database = getWritableDatabase(dataPassword);
+			UnencryptedDataTable table = getTable(tableName);
+			SQLiteDatabase database = getWritableDatabase();
 			database.beginTransaction();
 			try
 			{

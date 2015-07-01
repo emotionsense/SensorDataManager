@@ -8,57 +8,48 @@ import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
-import android.util.Log;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
-import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
-public class DataTable
-{
-	private final static String TAG = "DataTable";
+public abstract class AbstractDataTable
+{	
 	protected final String tableName;
 	protected final static String timeStampKey = "timeStamp";
 	protected final static String syncedWithServer = "synced";
 	protected final static String dataKey = "data";
 	
-	private final static String SYNCED = "1";
-	private final static String UNSYNCED = "0";
+	protected final static String SYNCED = "1";
+	protected final static String UNSYNCED = "0";
 	
-	public DataTable(final SQLiteDatabase database, final String tableName)
+	public AbstractDataTable(final String tableName)
 	{
 		this.tableName = tableName.replaceAll(" ", "_");
-		database.execSQL("CREATE TABLE IF NOT EXISTS " + tableName
-				+ " ("
+	}
+	
+	protected String getCreateTableQuery()
+	{
+		return "CREATE TABLE IF NOT EXISTS " + tableName
+				+ "("
 				+ timeStampKey + " INTEGER NOT NULL, "
 				+ syncedWithServer + " INTEGER DEFAULT "+UNSYNCED+", "
 				+ dataKey + " TEXT NOT NULL"
-				+ ");");
+				+ ");";
 	}
 	
-	public void add(final SQLiteDatabase database, final long entryTime, final String data) throws Exception
+	protected ContentValues getContentValues(final long entryTime, final String data)
 	{
 		ContentValues content = new ContentValues();
 		content.put(timeStampKey, entryTime);
 		content.put(dataKey, data);
-		long rowId = database.insert(tableName, null, content);
-		if (rowId == -1)
-		{
-			throw new Exception("Data Not Inserted");
-		}
-		if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(TAG, tableName+ " inserted into row: "+rowId);
-		}
+		return content;
 	}
 	
-	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database, final long timeLimit)
+	protected List<JSONObject> getUnsyncedData(final Cursor cursor)
 	{
 		ArrayList<JSONObject> unsyncedData = new ArrayList<JSONObject>();
 		try
 		{
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
 				int dataColumn = cursor.getColumnIndex(dataKey);
@@ -86,24 +77,18 @@ public class DataTable
 		return unsyncedData;
 	}
 	
-	public void setSynced(final SQLiteDatabase database)
+	protected ContentValues getSyncedContentValues()
 	{
 		ContentValues content = new ContentValues();
 		content.put(syncedWithServer, SYNCED);
-		database.update(tableName, content, null, null);
-		int numRows = database.delete(tableName, syncedWithServer+" == ?", new String[]{SYNCED});
-		if (DataHandlerConfig.shouldLog())
-		{
-			Log.d(TAG, "Deleted "+numRows+" synced rows from "+tableName);
-		}
+		return content;
 	}
 	
-	public List<SensorData> getRecentData(final SQLiteDatabase database, final JSONFormatter formatter, final long timeLimit)
+	protected List<SensorData> getRecentData(final JSONFormatter formatter, final Cursor cursor)
 	{
 		ArrayList<SensorData> rows = new ArrayList<SensorData>();
 		try
 		{
-			Cursor cursor = database.query(tableName, new String[]{dataKey}, timeStampKey+" > ?", new String[]{""+timeLimit}, null, null, null);
 			if (cursor != null)
 			{
 				int eventIndex = cursor.getColumnIndex(dataKey);
