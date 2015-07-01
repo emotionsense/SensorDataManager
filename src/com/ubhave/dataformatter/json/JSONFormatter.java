@@ -114,7 +114,7 @@ public abstract class JSONFormatter extends DataFormatter
 		return timestamp;
 	}
 
-	protected JSONObject parseData(String jsonString)
+	protected JSONObject parseData(final String jsonString)
 	{
 		try
 		{
@@ -127,7 +127,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	protected <T> ArrayList<T> getJSONArray(JSONObject data, String key, Class<T> c) throws NullPointerException
+	protected <T> ArrayList<T> getJSONArray(final JSONObject data, final String key, final Class<T> c) throws NullPointerException
 	{
 		try
 		{
@@ -154,7 +154,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	protected void addGenericData(JSONObject json, SensorData data)
+	protected void addGenericData(final JSONObject json, final SensorData data)
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(data.getTimestamp());

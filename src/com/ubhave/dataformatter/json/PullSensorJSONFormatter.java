@@ -54,7 +54,7 @@ public abstract class PullSensorJSONFormatter extends JSONFormatter
 		}
 	}
 
-	protected SensorConfig getGenericConfig(JSONObject json)
+	protected SensorConfig getGenericConfig(final JSONObject json)
 	{
 		SensorConfig config = new SensorConfig();
 		try

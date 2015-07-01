@@ -17,6 +17,7 @@ import com.ubhave.dataformatter.json.pull.MagneticFieldFormatter;
 import com.ubhave.dataformatter.json.pull.MicrophoneFormatter;
 import com.ubhave.dataformatter.json.pull.PhoneRadioFormatter;
 import com.ubhave.dataformatter.json.pull.SmsContentReaderFormatter;
+import com.ubhave.dataformatter.json.pull.StepCounterFormatter;
 import com.ubhave.dataformatter.json.pull.WifiFormatter;
 import com.ubhave.dataformatter.json.push.BatteryFormatter;
 import com.ubhave.dataformatter.json.push.ConnectionStateFormatter;
@@ -83,6 +84,8 @@ public abstract class DataFormatter
 			return new MagneticFieldFormatter(c);
 		case SensorUtils.SENSOR_TYPE_PHONE_RADIO:
             return new PhoneRadioFormatter(c);
+		case SensorUtils.SENSOR_TYPE_STEP_COUNTER:
+			return new StepCounterFormatter(c);
 		default:
 			return null;
 		}
