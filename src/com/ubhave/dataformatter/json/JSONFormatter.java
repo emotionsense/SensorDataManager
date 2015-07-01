@@ -30,7 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -50,6 +49,7 @@ public abstract class JSONFormatter extends DataFormatter
 	private final static String SENSE_TIME = "senseStartTime";
 	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
 	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	protected final static SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
 	
 	private final static String USER_ID = "userid";
 	private final static String DEVICE_ID = "deviceid";
@@ -156,10 +156,6 @@ public abstract class JSONFormatter extends DataFormatter
 
 	protected void addGenericData(final JSONObject json, final SensorData data)
 	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(data.getTimestamp());
-
-		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
 		try
 		{
 			String userId = (String) config.get(DataStorageConfig.UNIQUE_USER_ID, null);
@@ -182,7 +178,7 @@ public abstract class JSONFormatter extends DataFormatter
 				Log.d(LOG_TAG, "Warning: no device id set.");
 			}
 			
-			json.put(SENSE_TIME, formatter.format(calendar.getTime()));
+			json.put(SENSE_TIME, createTimeStamp(data.getTimestamp()));
 			json.put(SENSE_TIME_MILLIS, data.getTimestamp());
 			try
 			{
@@ -201,13 +197,11 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	@SuppressLint("SimpleDateFormat")
 	public long parseTimeStamp(final JSONObject json)
 	{
 		try
 		{
 			String dateString = (String) json.get(SENSE_TIME);
-			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z");
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(formatter.parse(dateString));
 			return calendar.getTimeInMillis();
@@ -218,16 +212,23 @@ public abstract class JSONFormatter extends DataFormatter
 			return -1;
 		}
 	}
+	
+	protected String createTimeStamp(final long time)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(time);
+		return formatter.format(calendar.getTime());
+	}
 
-	protected abstract void addGenericConfig(JSONObject json, SensorConfig config) throws JSONException;
+	protected abstract void addGenericConfig(final JSONObject json, final SensorConfig config) throws JSONException;
 
-	protected abstract void addSensorSpecificData(JSONObject json, SensorData data) throws JSONException, DataHandlerException;
+	protected abstract void addSensorSpecificData(final JSONObject json, final SensorData data) throws JSONException, DataHandlerException;
 
-	protected abstract void addSensorSpecificConfig(JSONObject json, SensorConfig config) throws JSONException;
+	protected abstract void addSensorSpecificConfig(final JSONObject json, final SensorConfig config) throws JSONException;
 
-	protected abstract SensorConfig getGenericConfig(JSONObject json);
+	protected abstract SensorConfig getGenericConfig(final JSONObject json);
 
-	protected Integer getInteger(String key, JSONObject data)
+	protected Integer getInteger(final String key, final JSONObject data)
 	{
 		try
 		{
