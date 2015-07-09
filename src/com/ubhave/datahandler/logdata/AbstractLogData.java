@@ -32,7 +32,7 @@ public abstract class AbstractLogData
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(logTime);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zZ", Locale.ENGLISH);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z Z", Locale.ENGLISH);
 		return dateFormat.format(calendar.getTime());
 	}
 	

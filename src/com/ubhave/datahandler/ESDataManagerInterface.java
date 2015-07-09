@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.DataUploadCallback;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
@@ -31,7 +32,6 @@ public interface ESDataManagerInterface
 	/*
 	 * Uploading stored data
 	 */
-	public boolean transferStoredData();
-	public void postAllStoredData() throws DataHandlerException;
+	public void postAllStoredData(final DataUploadCallback callback) throws DataHandlerException;
 	
 }

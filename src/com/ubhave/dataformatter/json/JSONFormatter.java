@@ -58,7 +58,7 @@ public abstract class JSONFormatter extends DataFormatter
 	protected final int sensorType;
 	protected final DataHandlerConfig config;
 
-	public JSONFormatter(Context c, int sensorType)
+	public JSONFormatter(final Context c, final int sensorType)
 	{
 		applicationContext = c;
 		this.sensorType = sensorType;

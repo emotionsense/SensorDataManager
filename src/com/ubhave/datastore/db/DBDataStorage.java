@@ -60,6 +60,12 @@ public class DBDataStorage implements DataStorageInterface
 			dataTables.setSynced(tableName);
 		}
 	}
+	
+	@Override
+	public void onDataUploadFailed()
+	{
+		// Nothing to do
+	}
 
 	@Override
 	public boolean prepareDataForUpload()

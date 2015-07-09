@@ -7,13 +7,6 @@ public interface DataTransferInterface
 	/*
 	 * Transferring stored data
 	 */
-	public void uploadData() throws DataHandlerException;
+	public void uploadData(final DataUploadCallback[] callback) throws DataHandlerException;
 	
-	/*
-	 * Immediately posting data
-	 * Note: these are unimplemented
-	 */
-	public void postData(final String data) throws DataHandlerException;
-	public void postError(final String error) throws DataHandlerException;
-	public void postExtra(final String tag, final String data) throws DataHandlerException;
 }

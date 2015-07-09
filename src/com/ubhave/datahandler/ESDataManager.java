@@ -13,6 +13,7 @@ import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.DataTransfer;
 import com.ubhave.datahandler.transfer.DataTransferInterface;
+import com.ubhave.datahandler.transfer.DataUploadCallback;
 import com.ubhave.datastore.DataStorageInterface;
 import com.ubhave.datastore.db.DatabaseManager;
 import com.ubhave.datastore.file.FileStoreManager;
@@ -140,7 +141,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	}
 
 	@Override
-	public List<SensorData> getRecentSensorData(int sensorId, long startTimestamp) throws DataHandlerException, ESException, IOException
+	public List<SensorData> getRecentSensorData(final int sensorId, final long startTimestamp) throws DataHandlerException, ESException, IOException
 	{
 		if (storage != null)
 		{
@@ -156,34 +157,13 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		}
 		throw new DataHandlerException(DataHandlerException.NO_STORAGE);
 	}
-
-	private boolean shouldTransferImmediately()
-	{
-		try
-		{
-			return ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY)) == DataTransferConfig.TRANSFER_IMMEDIATE;
-		}
-		catch (DataHandlerException e)
-		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, ""+e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-			return false;
-		}
-	}
 	
 	@Override
-	public void logSensorData(final SensorData data, DataFormatter formatter) throws DataHandlerException
+	public void logSensorData(final SensorData data, final DataFormatter formatter) throws DataHandlerException
 	{
 		if (data != null)
 		{
-			if (shouldTransferImmediately())
-			{
-				transfer.postData(formatter.toString(data));
-			}
-			else if (storage != null)
+			if (storage != null)
 			{
 				storage.logSensorData(data, formatter);
 			}
@@ -207,11 +187,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	@Override
 	public void logExtra(final String tag, final String data) throws DataHandlerException
 	{
-		if (shouldTransferImmediately())
-		{
-			transfer.postExtra(tag, data);
-		}
-		else if (storage != null)
+		if (storage != null)
 		{
 			storage.logExtra(tag, data);
 		}
@@ -221,8 +197,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 		}
 	}
 	
-	@Override
-	public boolean transferStoredData()
+	public void transferStoredData()
 	{
 		try
 		{
@@ -236,11 +211,9 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			{
 				synchronized (fileTransferLock)
 				{
-					transfer.uploadData();
-					storage.onDataUploaded();
+					transfer.uploadData(new DataUploadCallback[]{storage});
 				}
 			}
-			return true;
 		}
 		catch (DataHandlerException e)
 		{
@@ -249,22 +222,30 @@ public abstract class ESDataManager implements ESDataManagerInterface
 				Log.e(TAG, e.getLocalizedMessage());
 				e.printStackTrace();
 			}
-			return false;
 		}
 	}
 	
 	@Override
-	public void postAllStoredData() throws DataHandlerException
+	public void postAllStoredData(final DataUploadCallback callback) throws DataHandlerException
 	{
 		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
 		{
+			if (DataHandlerConfig.shouldLog())
+			{
+				Log.d(TAG, "transferStoredData()");
+			}
+			
 			final long currentFileLife = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS);
 			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, -1L);
-			boolean dataUploaded = transferStoredData();
+
+			boolean hasDataToUpload = storage.prepareDataForUpload();
 			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
-			if (!dataUploaded)
+			if (hasDataToUpload)
 			{
-				throw new DataHandlerException(DataHandlerException.POST_FAILED);
+				synchronized (fileTransferLock)
+				{
+					transfer.uploadData(new DataUploadCallback[]{storage, callback});
+				}
 			}
 		}
 		else if (DataHandlerConfig.shouldLog())

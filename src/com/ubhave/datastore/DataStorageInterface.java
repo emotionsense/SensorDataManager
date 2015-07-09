@@ -5,10 +5,11 @@ import java.util.List;
 
 import com.ubhave.dataformatter.DataFormatter;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.DataUploadCallback;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 
-public interface DataStorageInterface
+public interface DataStorageInterface extends DataUploadCallback
 {	
 	/*
 	 * Retrieving stored data
@@ -25,5 +26,4 @@ public interface DataStorageInterface
 	 * Initiating an upload
 	 */
 	public boolean prepareDataForUpload() throws DataHandlerException;
-	public void onDataUploaded();
 }

@@ -10,6 +10,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.config.DataTransferConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
+import com.ubhave.datahandler.transfer.DataUploadCallback;
 import com.ubhave.sensormanager.ESException;
 
 public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
@@ -51,8 +52,8 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 
 	protected abstract long getTransferAlarmLengthMillis();
 	
-	public void flush() throws DataHandlerException
+	public void flush(final DataUploadCallback callback) throws DataHandlerException
 	{
-		dataManager.postAllStoredData();
+		dataManager.postAllStoredData(callback);
 	}
 }

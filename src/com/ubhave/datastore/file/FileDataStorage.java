@@ -51,7 +51,15 @@ public class FileDataStorage implements DataStorageInterface
 	
 	@Override
 	public void onDataUploaded()
-	{}
+	{
+		// Nothing to do
+	}
+	
+	@Override
+	public void onDataUploadFailed()
+	{
+		// Nothing to do
+	}
 
 	@Override
 	public boolean prepareDataForUpload()

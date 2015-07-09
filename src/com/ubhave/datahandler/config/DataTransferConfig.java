@@ -23,7 +23,6 @@ public class DataTransferConfig
 	 * Config Values
 	 */
 	public final static int STORE_ONLY = 3001;
-	public final static int TRANSFER_IMMEDIATE = 3002;
 	public final static int TRANSFER_PERIODICALLY = 3003;
 
 	public final static int CONNECTION_TYPE_ANY = 4001;
