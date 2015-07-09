@@ -12,7 +12,7 @@ import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
 
 public class DataTransfer implements DataTransferInterface
 {
-	private final static String TAG = "DataTransfer";
+	public final static String TAG = "DataTransfer";
 	private final UploadVaultInterface uploadVault;
 
 	public DataTransfer(final Context context, final String dataPassword)

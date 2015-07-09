@@ -35,7 +35,6 @@ import com.ubhave.datahandler.except.DataHandlerException;
 
 public class FilesPostThread extends AbstractPostThread
 {
-	private final static String TAG = "FilesPostThread";
 	private final DataUploadCallback[] callbacks;
 	private final File directory;
 
@@ -53,14 +52,14 @@ public class FilesPostThread extends AbstractPostThread
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(TAG, "Attempting upload from: " + directory.getName());
+				Log.d(DataTransfer.TAG, "Attempting upload from: " + directory.getName());
 			}
 			File[] files = directory.listFiles();
 			if (files != null)
 			{
 				if (DataHandlerConfig.shouldLog())
 				{
-					Log.d(TAG, "Attempting upload " + files.length + " files.");
+					Log.d(DataTransfer.TAG, "Attempting upload " + files.length + " files.");
 				}
 
 				for (final File file : files)
@@ -73,7 +72,7 @@ public class FilesPostThread extends AbstractPostThread
 					}
 					else if (DataHandlerConfig.shouldLog())
 					{
-						Log.d(TAG, "Skip: " + file.getName());
+						Log.d(DataTransfer.TAG, "Skip: " + file.getName());
 					}
 				}
 				if (directory.listFiles().length == 0)
@@ -81,6 +80,7 @@ public class FilesPostThread extends AbstractPostThread
 					directory.delete();
 				}
 				
+				Log.d(DataTransfer.TAG, "Data upload succeeded.");
 				for (DataUploadCallback callback : callbacks)
 				{
 					callback.onDataUploaded();
@@ -88,14 +88,14 @@ public class FilesPostThread extends AbstractPostThread
 			}
 			else if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(TAG, "Attempting file list is null.");
+				Log.d(DataTransfer.TAG, "Attempting file list is null.");
 			}
 		}
 		catch (Exception e)
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
-				Log.d(TAG, "Data post failed.");
+				Log.d(DataTransfer.TAG, "Data post failed.");
 				e.printStackTrace();
 			}
 		}
