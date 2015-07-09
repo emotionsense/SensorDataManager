@@ -18,7 +18,6 @@ public class DataStorageConfig
 	/*
 	 * Config Values
 	 */
-	public final static int STORAGE_TYPE_NONE = -1;
 	public final static int STORAGE_TYPE_DB = 0;
 	public final static int STORAGE_TYPE_FILES = 1;
 
@@ -26,8 +25,7 @@ public class DataStorageConfig
 	 * Default values
 	 */
 	public final static String DEFAULT_UPLOAD_DIRECTORY_NAME = "to_be_uploaded";
-	public static final String DEFAULT_DB_NAME = "com.ubhave.datastore";
-	public final static long DEFAULT_FILE_LIFE_MILLIS = 30 * 60 * 60 * 1000L; // 30 hours
+	public final static long DEFAULT_FILE_LIFE_MILLIS = 2 * 60 * 60 * 1000L; // 2 hours
 
 	public static HashSet<String> validKeys()
 	{

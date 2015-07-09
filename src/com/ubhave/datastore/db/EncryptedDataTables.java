@@ -12,21 +12,20 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.ubhave.dataformatter.json.JSONFormatter;
-import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class EncryptedDataTables extends SQLiteOpenHelper implements DataTablesInterface
 {
 	private final static Object lock = new Object();
 	private final static int dbVersion = 1;
+	private final static String DATABASE_NAME = "encrypted_sensor_datastore";
 
 	private String dataPassword;
 	private final HashMap<String, EncryptedDataTable> dataTableMap;
 
-	public EncryptedDataTables(final Context context, final String dbName, final String dataPassword)
+	public EncryptedDataTables(final Context context, final String dataPassword)
 	{
-		super(context, dbName, null, dbVersion);
+		super(context, DATABASE_NAME, null, dbVersion);
 		this.dataTableMap = new HashMap<String, EncryptedDataTable>();
 		if (dataPassword == null)
 		{
@@ -138,7 +137,8 @@ public class EncryptedDataTables extends SQLiteOpenHelper implements DataTablesI
 		}
 	}
 
-	private List<JSONObject> getData(final String tableName, final long timeLimit)
+	@Override
+	public List<JSONObject> getUnsyncedData(final String tableName, final long maxAge)
 	{
 		synchronized (lock)
 		{
@@ -148,7 +148,7 @@ public class EncryptedDataTables extends SQLiteOpenHelper implements DataTablesI
 			database.beginTransaction();
 			try
 			{
-				data = table.getUnsyncedData(database, timeLimit);
+				data = table.getUnsyncedData(database, maxAge);
 				database.setTransactionSuccessful();
 			}
 			catch (Exception e)
@@ -165,15 +165,7 @@ public class EncryptedDataTables extends SQLiteOpenHelper implements DataTablesI
 	}
 
 	@Override
-	public List<JSONObject> getUnsyncedData(final String tableName)
-	{
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		long timeLimit = (Long) config.get(DataStorageConfig.DATA_LIFE_MILLIS, DataStorageConfig.DEFAULT_FILE_LIFE_MILLIS);
-		return getData(tableName, timeLimit);
-	}
-
-	@Override
-	public void setSynced(final String tableName)
+	public void setSynced(final String tableName, final long maxDataAge)
 	{
 		synchronized (lock)
 		{
@@ -182,7 +174,7 @@ public class EncryptedDataTables extends SQLiteOpenHelper implements DataTablesI
 			database.beginTransaction();
 			try
 			{
-				table.setSynced(database);
+				table.setSynced(database, maxDataAge);
 				database.setTransactionSuccessful();
 			}
 			catch (Exception e)

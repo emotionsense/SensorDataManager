@@ -12,13 +12,11 @@ public interface DataTablesInterface
 {
 	public Set<String> getTableNames();
 
-//	public UnencryptedDataTable getTable(final String tableName);
-
 	public void writeData(final String tableName, final String data);
 
 	public List<SensorData> getRecentSensorData(final String tableName, final JSONFormatter formatter, final long timeLimit);
 
-	public List<JSONObject> getUnsyncedData(final String tableName);
+	public List<JSONObject> getUnsyncedData(final String tableName, final long maxAge);
 
-	public void setSynced(final String tableName);
+	public void setSynced(final String tableName, final long syncTime);
 }

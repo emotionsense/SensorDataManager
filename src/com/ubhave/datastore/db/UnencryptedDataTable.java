@@ -14,9 +14,7 @@ import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.sensormanager.data.SensorData;
 
 public class UnencryptedDataTable extends AbstractDataTable
-{
-	private final static String TAG = "UnencryptedDataTable";
-	
+{	
 	public UnencryptedDataTable(final String tableName)
 	{
 		super(tableName);
@@ -24,43 +22,49 @@ public class UnencryptedDataTable extends AbstractDataTable
 	
 	public void createTable(final SQLiteDatabase database)
 	{
+		Log.d(DatabaseStorage.TAG, tableName+ ": execSQL to create table.");
 		database.execSQL(getCreateTableQuery());
 	}
 	
 	public void add(final SQLiteDatabase database, final long entryTime, final String data) throws Exception
 	{
 		ContentValues content = super.getContentValues(entryTime, data);
-		long rowId = database.insert(this.tableName, null, content);
+		long rowId = database.insert(tableName, null, content);
 		if (rowId == -1)
 		{
 			throw new Exception("Data Not Inserted");
 		}
 		if (DataHandlerConfig.shouldLog())
 		{
-			Log.d(TAG, tableName+ " inserted into row: "+rowId);
+			Log.d(DatabaseStorage.TAG, tableName+ " inserted into row: "+rowId+" at: "+entryTime);
 		}
 	}
 	
 	public List<JSONObject> getUnsyncedData(final SQLiteDatabase database, final long timeLimit)
 	{
-		Cursor cursor = database.query(tableName, new String[]{dataKey}, syncedWithServer+" == ? AND "+timeStampKey+" > ?", new String[]{UNSYNCED, ""+timeLimit}, null, null, null);
-		return super.getUnsyncedData(cursor);
+		Cursor cursor = database.query(tableName, new String[]{dataKey}, UNSYNCED_AND_OLDER_THAN, new String[]{""+UNSYNCED, ""+timeLimit}, null, null, null);
+		return formatCursorToJSON(cursor);
 	}
 	
-	public void setSynced(final SQLiteDatabase database)
+	public void setSynced(final SQLiteDatabase database, final long timeLimit)
 	{
-		ContentValues content = super.getSyncedContentValues();
-		database.update(tableName, content, null, null);
-		int numRows = database.delete(tableName, syncedWithServer+" == ?", new String[]{SYNCED});
 		if (DataHandlerConfig.shouldLog())
 		{
-			Log.d(TAG, "Deleted "+numRows+" synced rows from "+tableName);
+			Log.d(DatabaseStorage.TAG, "Setting "+tableName+" to synced.");
+		}
+		
+		ContentValues content = super.getSyncedContentValues();
+		database.update(tableName, content, UNSYNCED_AND_OLDER_THAN, new String[]{""+UNSYNCED, ""+timeLimit});
+		int numRows = database.delete(tableName, UNSYNCED_WHERE, new String[]{""+SYNCED});
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(DatabaseStorage.TAG, "Deleted "+numRows+" synced rows from "+tableName);
 		}
 	}
 	
 	public List<SensorData> getRecentData(final SQLiteDatabase database, final JSONFormatter formatter, final long timeLimit)
 	{
-		Cursor cursor = database.query(tableName, new String[]{dataKey}, timeStampKey+" > ?", new String[]{""+timeLimit}, null, null, null);
-		return super.getRecentData(formatter, cursor);
+		Cursor cursor = database.query(tableName, new String[]{dataKey}, TIME_GREATER_THAN, new String[]{""+timeLimit}, null, null, null);
+		return formatToSensorData(formatter, cursor);
 	}
 }

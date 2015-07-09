@@ -83,11 +83,11 @@ public abstract class AbstractDataLogger
 	{
 		dataManager.setConfig(DataStorageConfig.UNIQUE_USER_ID, getUniqueUserId());
 		dataManager.setConfig(DataStorageConfig.UNIQUE_DEVICE_ID, getDeviceId());
-		dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getStorageName());
+		dataManager.setConfig(DataStorageConfig.LOCAL_STORAGE_ROOT_NAME, getFileStorageName());
 		dataManager.setConfig(DataHandlerConfig.PRINT_LOG_D_MESSAGES, shouldPrintLogMessages());
 	}
 
-	protected abstract String getStorageName();
+	protected abstract String getFileStorageName();
 
 	protected abstract String getUniqueUserId();
 	

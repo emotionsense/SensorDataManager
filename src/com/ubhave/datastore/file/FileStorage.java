@@ -13,13 +13,13 @@ import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
 import com.ubhave.sensormanager.sensors.SensorUtils;
 
-public class FileDataStorage implements DataStorageInterface
+public class FileStorage implements DataStorageInterface
 {		
 	private final FileStoreWriter fileStoreWriter;
 	private final FileStoreCleaner fileStoreCleaner;
 	private final FileStoreSearcher fileSearch;
 
-	public FileDataStorage(final Context context, final String dataPassword, final Object fileTransferLock)
+	public FileStorage(final Context context, final String dataPassword, final Object fileTransferLock)
 	{	
 		FileVault vault = new FileVault(context, dataPassword);
 		this.fileStoreCleaner = new FileStoreCleaner(context, vault);

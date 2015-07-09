@@ -98,6 +98,11 @@ public class FilesPostThread extends AbstractPostThread
 				Log.d(DataTransfer.TAG, "Data post failed.");
 				e.printStackTrace();
 			}
+			
+			for (DataUploadCallback callback : callbacks)
+			{
+				callback.onDataUploadFailed();
+			}
 		}
 	}
 }
