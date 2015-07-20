@@ -14,10 +14,10 @@ import com.ubhave.datahandler.ESDataManager;
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
-import com.ubhave.datahandler.logdata.AbstractLogData;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.config.GlobalConfig;
 import com.ubhave.sensormanager.data.SensorData;
+import com.ubhave.sensormanager.data.log.InteractionData;
 
 public abstract class AbstractDataLogger
 {
@@ -211,31 +211,9 @@ public abstract class AbstractDataLogger
 		}
 	}
 
-	public final void logError(final AbstractLogData error)
+	public final void logInteraction(final InteractionData interaction)
 	{
-		logExtra(AbstractLogData.TAG_ERROR, error);
-	}
-
-	public final void logInteraction(final AbstractLogData interaction)
-	{
-		logExtra(AbstractLogData.TAG_INTERACTION, interaction);
-	}
-
-	public final void logExtra(final String tag, final AbstractLogData action)
-	{
-		try
-		{
-			JSONObject json = action.format(getUniqueUserId(), getDeviceId());
-			logExtra(tag, json);
-		}
-		catch (Exception e)
-		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(LOG_TAG, ""+e.getLocalizedMessage());
-				e.printStackTrace();
-			}
-		}
+		logSensorData(interaction);
 	}
 	
 	public final void logExtra(final String tag, final JSONObject json)

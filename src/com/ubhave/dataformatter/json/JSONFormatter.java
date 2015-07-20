@@ -45,15 +45,16 @@ import com.ubhave.sensormanager.sensors.SensorUtils;
 public abstract class JSONFormatter extends DataFormatter
 {
 	private final static String LOG_TAG = "JSONFormatter";
-	private final static String SENSOR_TYPE = "dataType";
-	private final static String SENSE_TIME = "senseStartTime";
-	private final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
-	private final static String UNKNOWN_SENSOR = "unknownSensor";
+	
+	protected final static String USER_ID = "userid";
+	protected final static String DEVICE_ID = "deviceid";
+	protected final static String SENSOR_TYPE = "dataType";
+	protected final static String SENSE_TIME = "senseStartTime";
+	protected final static String SENSE_TIME_MILLIS = "senseStartTimeMillis";
+	
+	private final static String UNKNOWN_SENSOR = "Unknown";
 	protected final static SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS dd MM yyyy Z z", Locale.US);
 	
-	private final static String USER_ID = "userid";
-	private final static String DEVICE_ID = "deviceid";
-
 	protected final Context applicationContext;
 	protected final int sensorType;
 	protected final DataHandlerConfig config;
@@ -241,7 +242,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	protected String getString(String key, JSONObject data)
+	protected String getString(final String key, final JSONObject data)
 	{
 		try
 		{
@@ -254,7 +255,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	protected Boolean getBoolean(String key, JSONObject data)
+	protected Boolean getBoolean(final String key, final JSONObject data)
 	{
 		try
 		{
@@ -267,7 +268,7 @@ public abstract class JSONFormatter extends DataFormatter
 		}
 	}
 
-	protected Float getFloat(String key, JSONObject data)
+	protected Float getFloat(final String key, final JSONObject data)
 	{
 		try
 		{

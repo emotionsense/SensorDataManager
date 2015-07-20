@@ -7,6 +7,7 @@ import com.ubhave.dataformatter.json.env.AmbientTemperatureFormatter;
 import com.ubhave.dataformatter.json.env.HumidityFormatter;
 import com.ubhave.dataformatter.json.env.LightFormatter;
 import com.ubhave.dataformatter.json.env.PressureFormatter;
+import com.ubhave.dataformatter.json.log.InteractionFormatter;
 import com.ubhave.dataformatter.json.pull.AccelerometerFormatter;
 import com.ubhave.dataformatter.json.pull.ApplicationFormatter;
 import com.ubhave.dataformatter.json.pull.BluetoothFormatter;
@@ -86,6 +87,8 @@ public abstract class DataFormatter
             return new PhoneRadioFormatter(c);
 		case SensorUtils.SENSOR_TYPE_STEP_COUNTER:
 			return new StepCounterFormatter(c);
+		case SensorUtils.SENSOR_TYPE_INTERACTION:
+			return new InteractionFormatter(c);
 		default:
 			return null;
 		}
