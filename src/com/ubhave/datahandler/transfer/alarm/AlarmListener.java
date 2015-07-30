@@ -1,4 +1,4 @@
-package com.ubhave.datahandler.alarm;
+package com.ubhave.datahandler.transfer.alarm;
 
 import android.content.Intent;
 

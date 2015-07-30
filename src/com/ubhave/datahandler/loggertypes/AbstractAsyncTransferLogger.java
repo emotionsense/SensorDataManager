@@ -34,6 +34,7 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 		dataManager.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, getDataLifeMillis());
 		dataManager.setConfig(DataTransferConfig.TRANSFER_ALARM_INTERVAL, getTransferAlarmLengthMillis());
 		dataManager.setConfig(DataTransferConfig.POST_KEY, getPostKey());
+		dataManager.setConfig(DataTransferConfig.WAIT_FOR_WIFI_INTERVAL_MILLIS, getWaitForWiFiMillis());
 	}
 	
 	protected abstract String getPostKey();
@@ -41,6 +42,8 @@ public abstract class AbstractAsyncTransferLogger extends AbstractTransferLogger
 	protected abstract long getDataLifeMillis();
 
 	protected abstract long getTransferAlarmLengthMillis();
+	
+	protected abstract long getWaitForWiFiMillis();
 	
 	public void flush(final DataUploadCallback callback) throws DataHandlerException
 	{

@@ -83,13 +83,16 @@ public abstract class ESDataManager implements ESDataManagerInterface
 			dataTransferAlarmListener = null;
 		}
 		
-		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		int transferPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
+		int transferPolicy = (Integer) DataHandlerConfig.getInstance().get(DataTransferConfig.DATA_TRANSER_POLICY);
+		if (DataHandlerConfig.shouldLog())
+		{
+			Log.d(DataTransfer.TAG, "Updating transfer alarm to: "+transferPolicy);
+		}
+		
 		if (transferPolicy == DataTransferConfig.TRANSFER_PERIODICALLY)
 		{
-			int connectionType = (Integer) config.get(DataTransferConfig.CONNECTION_TYPE_FOR_TRANSFER);
 			dataTransferAlarmListener = new DataTransferAlarmListener(context, this);
-			dataTransferAlarmListener.setConnectionTypeAndStart(connectionType);
+			dataTransferAlarmListener.start();
 		}
 	}
 
@@ -97,16 +100,32 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	public void setConfig(final String key, final Object value) throws DataHandlerException
 	{
 		DataHandlerConfig config = DataHandlerConfig.getInstance();
-		config.setConfig(key, value);
 		if (key.equals(DataTransferConfig.DATA_TRANSER_POLICY))
 		{
-			setupAlarmForTransfer();
-		}
-		else if (key.equals(DataTransferConfig.TRANSFER_ALARM_INTERVAL))
-		{
-			if (dataTransferAlarmListener != null)
+			int currentPolicy = (Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY);
+			if ((Integer) value != currentPolicy)
 			{
-				dataTransferAlarmListener.configUpdated();
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(DataTransfer.TAG, "Updated data transfer policy to: "+value);
+				}
+				config.setConfig(key, value);
+				setupAlarmForTransfer();
+			}
+		}
+		else
+		{
+			config.setConfig(key, value);
+			if (key.equals(DataTransferConfig.TRANSFER_ALARM_INTERVAL))
+			{
+				if (dataTransferAlarmListener != null)
+				{
+					if (DataHandlerConfig.shouldLog())
+					{
+						Log.d(DataTransfer.TAG, "Updated alarm interval to: "+value);
+					}
+					dataTransferAlarmListener.configUpdated();
+				}
 			}
 		}
 	}
