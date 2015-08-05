@@ -231,6 +231,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 					transfer.uploadData(new DataUploadCallback[]{storage, callback});
 				}
 			}
+			
 			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
 			
 			if (DataHandlerConfig.shouldLog())

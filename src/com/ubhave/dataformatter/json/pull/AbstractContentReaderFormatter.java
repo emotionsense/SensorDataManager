@@ -54,7 +54,6 @@ public abstract class AbstractContentReaderFormatter extends PullSensorJSONForma
 	
 	protected abstract AbstractContentReaderEntry getNewEntry();
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public SensorData toSensorData(String jsonString)
 	{

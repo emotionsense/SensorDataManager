@@ -9,7 +9,6 @@ import com.ubhave.dataformatter.json.env.LightFormatter;
 import com.ubhave.dataformatter.json.env.PressureFormatter;
 import com.ubhave.dataformatter.json.log.InteractionFormatter;
 import com.ubhave.dataformatter.json.pull.AccelerometerFormatter;
-import com.ubhave.dataformatter.json.pull.ApplicationFormatter;
 import com.ubhave.dataformatter.json.pull.BluetoothFormatter;
 import com.ubhave.dataformatter.json.pull.CallContentReaderFormatter;
 import com.ubhave.dataformatter.json.pull.GyroscopeFormatter;
@@ -49,8 +48,6 @@ public abstract class DataFormatter
 			return new MicrophoneFormatter(c);
 		case SensorUtils.SENSOR_TYPE_WIFI:
 			return new WifiFormatter(c);
-		case SensorUtils.SENSOR_TYPE_APPLICATION:
-			return new ApplicationFormatter(c);
 		case SensorUtils.SENSOR_TYPE_SMS_CONTENT_READER:
 			return new CallContentReaderFormatter(c);
 		case SensorUtils.SENSOR_TYPE_CALL_CONTENT_READER:

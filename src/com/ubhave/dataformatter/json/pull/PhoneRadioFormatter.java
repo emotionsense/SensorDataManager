@@ -53,7 +53,7 @@ public class PhoneRadioFormatter extends PullSensorJSONFormatter
 
 	public PhoneRadioFormatter(final Context context)
 	{
-		super(context, SensorUtils.SENSOR_TYPE_APPLICATION);
+		super(context, SensorUtils.SENSOR_TYPE_PHONE_RADIO);
 	}
 
 	@Override
