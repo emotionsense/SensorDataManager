@@ -1,5 +1,7 @@
 gen/*
 
+build/*
+
 bin/*
 
 bin/classes/*
