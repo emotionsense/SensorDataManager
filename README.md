@@ -1,11 +1,7 @@
 ### About
 This Android library allows you to export JSON sensor data that is collected using the Sensor Data Manager Library, which is [here](https://github.com/emotionsense/SensorDataManager). The documentation for this library is available at [emotionsense.github.io](http://emotionsense.github.io/).
 
- Copyright (c) 2012, University of Cambridge
- 
- Neal Lathia, @nlathia
- 
- Kiran Rachuri, @krachuri
+ Copyright (c) 2015
 
 This library was developed as part of the EPSRC Ubhave (Ubiquitous and
 Social Computing for Positive Behaviour Change) Project. For more
