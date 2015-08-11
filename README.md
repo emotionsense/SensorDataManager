@@ -3,9 +3,8 @@ This Android library allows you to export JSON sensor data that is collected usi
 
  Copyright (c) 2015
 
-This library was developed as part of the EPSRC Ubhave (Ubiquitous and
-Social Computing for Positive Behaviour Change) Project. For more
-information, please visit [emotionsense.org](http://www.emotionsense.org)
+This library was originally developed as part of the EPSRC Ubhave (Ubiquitous and
+Social Computing for Positive Behaviour Change) Project.
 
 ### Requirements
 
