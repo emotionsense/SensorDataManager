@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ubhave.sensordatamanager"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <!-- Required to store data on device (policy: store only/transfer periodically) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+   
+    <!-- Required to post data remotely (policy: transfer immediate/transfer periodically) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Required to transfer data periodically -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application android:allowBackup="true" />
+
+</manifest>

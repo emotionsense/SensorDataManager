@@ -1,5 +1,10 @@
-bin/classes/*
+bin/*
+
+.DS_Store
 
 gen/*
 
-.DS_Store
+build/*
+
+.settings/
+

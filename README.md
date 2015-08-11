@@ -1,17 +1,21 @@
-# ES Sensor Data Manager
+### About
+This Android library allows you to export JSON sensor data that is collected using the Sensor Data Manager Library, which is [here](https://github.com/emotionsense/SensorDataManager). The documentation for this library is available at [emotionsense.github.io](http://emotionsense.github.io/).
 
-The ES Sensor Data Manager Library is a library project for Android application developers. 
-This library allows you to JSON-format, store, and asynchronously transfer sensor data that is collected using the 
-ES2 Library, which is [here](https://github.com/emotionsense/SensorManager).
+ Copyright (c) 2015
 
-Check the [online documentation](http://emotionsense.github.io/) for more details.
+This library was developed as part of the EPSRC Ubhave (Ubiquitous and
+Social Computing for Positive Behaviour Change) Project. For more
+information, please visit [emotionsense.org](http://www.emotionsense.org)
 
-## Authors & Contributors
-* Neal Lathia ([nlathia](https://github.com/nlathia)), University of Cambridge, UK
-* Kiran Rachuri ([krachuri](https://github.com/krachuri)), University of Cambridge, UK
+### Requirements
 
-## License
-Copyright (c) 2015, University of Cambridge 
+If you are going to be using the encrypted database, you need to add the icudt46l.zip file from the sqlcipher project into your app's assets.
+
+```
+curl -L -o sqlcipher-for-android.zip https://s3.amazonaws.com/sqlcipher/SQLCipher+for+Android+v3.1.0.zip
+```
+
+### License
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -24,5 +28,3 @@ SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-More information available [here](http://en.wikipedia.org/wiki/BSD_licenses).
