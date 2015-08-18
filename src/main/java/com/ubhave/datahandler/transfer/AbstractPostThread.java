@@ -21,12 +21,9 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.datahandler.transfer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.ubhave.datahandler.config.DataHandlerConfig;
+import com.ubhave.datahandler.config.DataTransferConfig;
+import com.ubhave.datahandler.except.DataHandlerException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -40,9 +37,12 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ubhave.datahandler.config.DataHandlerConfig;
-import com.ubhave.datahandler.config.DataTransferConfig;
-import com.ubhave.datahandler.except.DataHandlerException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public abstract class AbstractPostThread extends Thread
 {
@@ -76,7 +76,7 @@ public abstract class AbstractPostThread extends Thread
 				multipartEntity.addPart(key, new StringBody(value));
 			}
 		}
-		
+
 		HttpPost httppost = new HttpPost(serverUrl);
 		httppost.setEntity(multipartEntity);
 		
@@ -95,9 +95,9 @@ public abstract class AbstractPostThread extends Thread
 	{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
-		String line = null;
 		try
 		{
+            String line;
 			while ((line = reader.readLine()) != null)
 			{
 				sb.append((line));

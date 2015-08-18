@@ -22,16 +22,16 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 package com.ubhave.datahandler.transfer;
 
-import java.io.File;
-
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-
 import android.util.Log;
 
 import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.config.DataStorageConstants;
 import com.ubhave.datahandler.except.DataHandlerException;
+
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+
+import java.io.File;
 
 public class FilesPostThread extends AbstractPostThread
 {
@@ -50,59 +50,80 @@ public class FilesPostThread extends AbstractPostThread
 	{
 		try
 		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(DataTransfer.TAG, "Attempting upload from: " + directory.getName());
-			}
-			File[] files = directory.listFiles();
-			if (files != null)
-			{
-				if (DataHandlerConfig.shouldLog())
-				{
-					Log.d(DataTransfer.TAG, "Attempting upload " + files.length + " files.");
-				}
+            if (directory != null)
+            {
+                if (DataHandlerConfig.shouldLog())
+                {
+                    Log.d(DataTransfer.TAG, "Attempting upload from: " + directory.getName());
+                }
 
-				for (final File file : files)
-				{
-					if (file.isFile() && file.getName().contains(DataStorageConstants.ZIP_FILE_SUFFIX))
-					{
-						MultipartEntity multipartEntity = new MultipartEntity();
-						multipartEntity.addPart(postKey, new FileBody(file));
-						post(multipartEntity);
-					}
-					else if (DataHandlerConfig.shouldLog())
-					{
-						Log.d(DataTransfer.TAG, "Skip: " + file.getName());
-					}
-				}
-				if (directory.listFiles().length == 0)
-				{
-					directory.delete();
-				}
-				
-				Log.d(DataTransfer.TAG, "Data upload succeeded.");
-				for (DataUploadCallback callback : callbacks)
-				{
-					callback.onDataUploaded();
-				}
-			}
-			else if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(DataTransfer.TAG, "Attempting file list is null.");
-			}
+                File[] files = directory.listFiles();
+                if (files != null)
+                {
+                    if (DataHandlerConfig.shouldLog())
+                    {
+                        Log.d(DataTransfer.TAG, "Attempting upload " + files.length + " files.");
+                    }
+
+                    for (final File file : files)
+                    {
+                        if (file.isFile() && file.getName().contains(DataStorageConstants.ZIP_FILE_SUFFIX))
+                        {
+                            if (DataHandlerConfig.shouldLog())
+                            {
+                                Log.d(DataTransfer.TAG, "Param: "+ postKey +" (" + file.getName()+")");
+                            }
+                            MultipartEntity multipartEntity = new MultipartEntity();
+                            multipartEntity.addPart(postKey, new FileBody(file));
+                            post(multipartEntity);
+                            file.delete();
+                        }
+                        else if (DataHandlerConfig.shouldLog())
+                        {
+                            Log.d(DataTransfer.TAG, "Skip: " + file.getName());
+                        }
+                    }
+                    if (directory.listFiles().length == 0)
+                    {
+                        directory.delete();
+                    }
+
+                    Log.d(DataTransfer.TAG, "Data upload succeeded.");
+                }
+                else if (DataHandlerConfig.shouldLog())
+                {
+                    Log.d(DataTransfer.TAG, "Attempting file list is null.");
+                }
+            }
+            else if (DataHandlerConfig.shouldLog())
+            {
+                Log.d(DataTransfer.TAG, "Upload directory is null.");
+            }
+            notify(true);
 		}
 		catch (Exception e)
 		{
 			if (DataHandlerConfig.shouldLog())
 			{
 				Log.d(DataTransfer.TAG, "Data post failed.");
-				e.printStackTrace();
 			}
-			
-			for (DataUploadCallback callback : callbacks)
-			{
-				callback.onDataUploadFailed();
-			}
+            e.printStackTrace();
+            notify(false);
 		}
 	}
+
+    private void notify(final boolean success)
+    {
+        for (DataUploadCallback callback : callbacks)
+        {
+            if (success)
+            {
+                callback.onDataUploaded();
+            }
+            else
+            {
+                callback.onDataUploadFailed();
+            }
+        }
+    }
 }

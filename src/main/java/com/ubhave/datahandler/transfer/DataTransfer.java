@@ -1,14 +1,12 @@
 package com.ubhave.datahandler.transfer;
 
-import java.io.File;
-
 import android.content.Context;
-import android.util.Log;
 
-import com.ubhave.datahandler.config.DataHandlerConfig;
 import com.ubhave.datahandler.except.DataHandlerException;
 import com.ubhave.datahandler.transfer.async.UploadVault;
 import com.ubhave.datahandler.transfer.async.UploadVaultInterface;
+
+import java.io.File;
 
 public class DataTransfer implements DataTransferInterface
 {
@@ -21,17 +19,9 @@ public class DataTransfer implements DataTransferInterface
 	}
 
 	@Override
-	public void uploadData(final DataUploadCallback[] callback) throws DataHandlerException
+	public void uploadData(final DataUploadCallback[] callbacks) throws DataHandlerException
 	{
 		File directory = uploadVault.getUploadDirectory();
-		if (directory == null)
-		{
-			if (DataHandlerConfig.shouldLog())
-			{
-				Log.d(TAG, "Upload directory is null.");
-			}
-			return;
-		}
-		new FilesPostThread(directory, callback).start();
+		new FilesPostThread(directory, callbacks).start();
 	}
 }

@@ -1,8 +1,5 @@
 package com.ubhave.datahandler;
 
-import java.io.IOException;
-import java.util.List;
-
 import android.content.Context;
 import android.util.Log;
 
@@ -19,6 +16,9 @@ import com.ubhave.datastore.db.DatabaseManager;
 import com.ubhave.datastore.file.FileStoreManager;
 import com.ubhave.sensormanager.ESException;
 import com.ubhave.sensormanager.data.SensorData;
+
+import java.io.IOException;
+import java.util.List;
 
 public abstract class ESDataManager implements ESDataManagerInterface
 {
@@ -207,6 +207,7 @@ public abstract class ESDataManager implements ESDataManagerInterface
 	@Override
 	public void postAllStoredData(final DataUploadCallback callback) throws DataHandlerException
 	{
+        Log.d("DataManager", "Called exit method.");
 		DataHandlerConfig config = DataHandlerConfig.getInstance();
 		if ((Integer) config.get(DataTransferConfig.DATA_TRANSER_POLICY) != DataTransferConfig.STORE_ONLY)
 		{
@@ -231,6 +232,14 @@ public abstract class ESDataManager implements ESDataManagerInterface
 					transfer.uploadData(new DataUploadCallback[]{storage, callback});
 				}
 			}
+            else
+            {
+                if (DataHandlerConfig.shouldLog())
+                {
+                    Log.d(TAG, "Nothing to upload.");
+                }
+                callback.onDataUploaded();
+            }
 			
 			config.setConfig(DataStorageConfig.DATA_LIFE_MILLIS, currentFileLife);
 			

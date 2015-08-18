@@ -5,10 +5,10 @@ public interface DataUploadCallback
 	/*
 	 * Data has been uploaded
 	 */
-	public void onDataUploaded();
+	void onDataUploaded();
 	
 	/*
 	 * Upload has failed
 	 */
-	public void onDataUploadFailed();
+	void onDataUploadFailed();
 }
