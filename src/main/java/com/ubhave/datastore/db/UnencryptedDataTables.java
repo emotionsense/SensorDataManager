@@ -56,17 +56,35 @@ public class UnencryptedDataTables extends SQLiteOpenHelper implements DataTable
 
 	private UnencryptedDataTable getTable(final String tableName)
 	{
-		UnencryptedDataTable table = dataTableMap.get(tableName);
-		if (table == null)
+		synchronized (lock)
 		{
-			if (DataHandlerConfig.shouldLog())
+			if (!dataTableMap.containsKey(tableName))
 			{
-				Log.d(DatabaseStorage.TAG, "Adding: "+tableName+" to table map.");
+				if (DataHandlerConfig.shouldLog())
+				{
+					Log.d(DatabaseStorage.TAG, "Adding: "+tableName+" to table map.");
+				}
+				SQLiteDatabase database = getWritableDatabase();
+				database.beginTransaction();
+				try
+				{
+					UnencryptedDataTable table = new UnencryptedDataTable(tableName);
+					table.createTable(database);
+					dataTableMap.put(tableName, table);
+					database.setTransactionSuccessful();
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					database.endTransaction();
+					database.close();
+				}
 			}
-			table = new UnencryptedDataTable(tableName);
-			dataTableMap.put(tableName, table);
+			return dataTableMap.get(tableName);
 		}
-		return table;
 	}
 
 	@Override
